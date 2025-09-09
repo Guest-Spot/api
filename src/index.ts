@@ -6,6 +6,16 @@ const getService = (name: string) => {
   return strapi.plugin('users-permissions').service(name);
 };
 
+// Helper function to sanitize user data
+const sanitizeUser = async (user: any, ctx?: any) => {
+  const userSchema = strapi.getModel('plugin::users-permissions.user');
+  
+  // If we have context, use auth from it, otherwise create minimal auth object
+  const auth = ctx?.state?.auth || { strategy: { name: 'users-permissions' } };
+  
+  return strapi.contentAPI.sanitize.output(user, userSchema, { auth });
+};
+
 export default {
   register({ strapi }) {
     const extension = () => ({
@@ -116,7 +126,7 @@ export default {
                 } as any,
               });
 
-              const sanitizedUser = await getService('user').sanitizeUser(user);
+              const sanitizedUser = await sanitizeUser(user, ctx);
 
               return {
                 jwt: jwtToken,
@@ -177,7 +187,7 @@ export default {
                   } as any,
                 });
 
-                const sanitizedUser = await getService('user').sanitizeUser(user);
+                const sanitizedUser = await sanitizeUser(user, ctx);
 
                 return {
                   jwt: newJwt,

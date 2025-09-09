@@ -406,6 +406,23 @@ const getService = (name: string) => {
 
 This ensures compatibility with Strapi v5's new plugin export structure.
 
+### User Data Sanitization
+The implementation includes a custom `sanitizeUser` function for Strapi v5 compatibility:
+
+```typescript
+// Helper function to sanitize user data
+const sanitizeUser = async (user: any, ctx?: any) => {
+  const userSchema = strapi.getModel('plugin::users-permissions.user');
+  
+  // If we have context, use auth from it, otherwise create minimal auth object
+  const auth = ctx?.state?.auth || { strategy: { name: 'users-permissions' } };
+  
+  return strapi.contentAPI.sanitize.output(user, userSchema, { auth });
+};
+```
+
+This replaces the deprecated `getService('user').sanitizeUser()` method from earlier Strapi versions.
+
 ### GraphQL Schema Extensions
 Custom mutations are prefixed to avoid conflicts with built-in users-permissions mutations:
 
