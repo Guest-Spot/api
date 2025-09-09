@@ -91,12 +91,32 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::shop.shop",
+      "conditions": {
+        "visible": {
+          "!=": [
+            {
+              "var": "type"
+            },
+            "artist"
+          ]
+        }
+      },
       "mappedBy": "users_permissions_user"
     },
     "artist": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::artist.artist",
+      "conditions": {
+        "visible": {
+          "!=": [
+            {
+              "var": "type"
+            },
+            "shop"
+          ]
+        }
+      },
       "mappedBy": "users_permissions_user"
     }
   }

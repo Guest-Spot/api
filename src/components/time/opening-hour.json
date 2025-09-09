@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_time_opening_hours",
+  "info": {
+    "displayName": "opening-hour"
+  },
+  "options": {},
+  "attributes": {
+    "day": {
+      "type": "enumeration",
+      "enum": [
+        "mon",
+        "tue",
+        "wed",
+        "thu",
+        "fri",
+        "sat",
+        "sun"
+      ]
+    },
+    "start": {
+      "type": "time"
+    },
+    "end": {
+      "type": "time"
+    },
+    "timezone": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}
