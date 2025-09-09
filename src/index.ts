@@ -1,9 +1,36 @@
-import { randomUUID } from "node:crypto";
 import jwt from 'jsonwebtoken';
 
 // Helper function to get users-permissions services
 const getService = (name: string) => {
   return strapi.plugin('users-permissions').service(name);
+};
+
+// Helper function to load user with profile
+const getUserWithProfile = async (userId: string) => {
+  const entity = await strapi.entityService.findOne(
+    'plugin::users-permissions.user',
+    userId,
+    {
+      populate: {
+        shop: true,
+        artist: true,
+      },
+    }
+  ) as any;
+
+  if (!entity) return null;
+
+  let profile = null;
+  if (entity.type === 'shop' && entity.shop) {
+    profile = entity.shop;
+  } else if (entity.type === 'artist' && entity.artist) {
+    profile = entity.artist;
+  }
+
+  return {
+    ...entity,
+    profile: profile || { name: null },
+  };
 };
 
 // Helper function to sanitize user data
@@ -20,9 +47,14 @@ export default {
   register({ strapi }) {
     const extension = () => ({
       typeDefs: /* GraphQL */ `
+        type Profile {
+          name: String
+        }
+
         extend type UsersPermissionsMe {
           uuid: String
           type: String
+          profile: Profile!
         }
 
         type AuthPayload {
@@ -53,13 +85,11 @@ export default {
               const authUser = ctx.state.user;
               if (!authUser) return null;
 
-              const entity = await strapi.entityService.findOne(
-                'plugin::users-permissions.user',
-                authUser.id
-              );
+              const userWithProfile = await getUserWithProfile(authUser.id);
+              if (!userWithProfile) return null;
 
               const schema = strapi.contentType('plugin::users-permissions.user');
-              const sanitized = await strapi.contentAPI.sanitize.output(entity, schema, {
+              const sanitized = await strapi.contentAPI.sanitize.output(userWithProfile, schema, {
                 auth: ctx.state.auth,
               });
 

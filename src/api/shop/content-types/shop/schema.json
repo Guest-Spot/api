@@ -15,7 +15,7 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "shop"
+      "mappedBy": "shop"
     },
     "uuid": {
       "type": "customField",
