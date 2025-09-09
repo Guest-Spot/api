@@ -20,4 +20,7 @@ export default ({ env }) => ({
       },
     },
   },
+  'strapi-advanced-uuid': {
+    enabled: true,
+  },
 });

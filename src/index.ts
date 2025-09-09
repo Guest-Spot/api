@@ -55,8 +55,7 @@ export default {
 
               const entity = await strapi.entityService.findOne(
                 'plugin::users-permissions.user',
-                authUser.id,
-                { populate: ['uuid', 'type'] }
+                authUser.id
               );
 
               const schema = strapi.contentType('plugin::users-permissions.user');
