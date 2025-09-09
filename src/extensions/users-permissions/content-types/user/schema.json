@@ -96,6 +96,12 @@
     },
     "city": {
       "type": "string"
-    }
+    },
+    "refreshToken": {
+      "type": "string",
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
   }
 }
