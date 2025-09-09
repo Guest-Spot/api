@@ -1,20 +1,42 @@
-// import type { Core } from '@strapi/strapi';
+import { randomUUID } from "node:crypto";
 
 export default {
-  /**
-   * An asynchronous register function that runs before
-   * your application is initialized.
-   *
-   * This gives you an opportunity to extend code.
-   */
-  register(/* { strapi }: { strapi: Core.Strapi } */) {},
+  register({ strapi }) {
+    const extension = () => ({
+      typeDefs: /* GraphQL */ `
+        extend type UsersPermissionsMe {
+          uuid: String
+          type: String
+        }
+      `,
+      resolvers: {
+        Query: {
+          me: {
+            resolve: async (parent: unknown, args: unknown, ctx: any) => {
+              const authUser = ctx.state.user;
+              if (!authUser) return null;
 
-  /**
-   * An asynchronous bootstrap function that runs before
-   * your application gets started.
-   *
-   * This gives you an opportunity to set up your data model,
-   * run jobs, or perform some special logic.
-   */
-  bootstrap(/* { strapi }: { strapi: Core.Strapi } */) {},
+              const entity = await strapi.entityService.findOne(
+                'plugin::users-permissions.user',
+                authUser.id,
+                { populate: ['uuid', 'type'] }
+              );
+
+              const schema = strapi.contentType('plugin::users-permissions.user');
+              const sanitized = await strapi.contentAPI.sanitize.output(entity, schema, {
+                auth: ctx.state.auth,
+              });
+
+              return sanitized;
+            },
+          },
+        },
+      },
+      resolversConfig: {
+        'Query.me': { auth: true },
+      },
+    });
+
+    strapi.plugin('graphql').service('extension').use(extension);
+  },
 };
