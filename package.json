@@ -15,12 +15,15 @@
     "upgrade:dry": "npx @strapi/upgrade latest --dry"
   },
   "dependencies": {
-    "@redon2inc/strapi-plugin-refresh-token": "^0.1.4",
     "@strapi/plugin-cloud": "5.23.3",
     "@strapi/plugin-graphql": "^5.23.3",
     "@strapi/plugin-users-permissions": "5.23.3",
     "@strapi/strapi": "5.23.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/lodash": "^4.17.20",
     "better-sqlite3": "11.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.0.0",

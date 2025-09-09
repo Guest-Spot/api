@@ -66,6 +66,12 @@
       "inversedBy": "users",
       "configurable": false
     },
+    "refreshToken": {
+      "type": "string",
+      "configurable": false,
+      "private": true,
+      "searchable": false
+    },
     "uuid": {
       "type": "customField",
       "customField": "plugin::strapi-advanced-uuid.uuid",
@@ -81,21 +87,17 @@
         "artist"
       ]
     },
-    "pictures": {
-      "type": "media",
-      "multiple": true,
-      "allowedTypes": [
-        "images",
-        "files",
-        "videos",
-        "audios"
-      ]
+    "shop": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::shop.shop",
+      "mappedBy": "users_permissions_user"
     },
-    "fullname": {
-      "type": "string"
-    },
-    "city": {
-      "type": "string"
+    "artist": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::artist.artist",
+      "mappedBy": "users_permissions_user"
     }
   }
 }
