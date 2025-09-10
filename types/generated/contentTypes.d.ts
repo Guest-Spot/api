@@ -525,6 +525,37 @@ export interface ApiShopShop extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiTripTrip extends Struct.CollectionTypeSchema {
+  collectionName: 'trips';
+  info: {
+    displayName: 'Trip';
+    pluralName: 'trips';
+    singularName: 'trip';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.Date;
+    description: Schema.Attribute.Text;
+    endTime: Schema.Attribute.Time;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::trip.trip'> &
+      Schema.Attribute.Private;
+    location: Schema.Attribute.Component<'geo.location', false>;
+    name: Schema.Attribute.String;
+    ownerDocumentId: Schema.Attribute.UID & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    startTime: Schema.Attribute.Time;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -1042,6 +1073,7 @@ declare module '@strapi/strapi' {
       'api::artist.artist': ApiArtistArtist;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
       'api::shop.shop': ApiShopShop;
+      'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
