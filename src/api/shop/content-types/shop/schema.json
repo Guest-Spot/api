@@ -56,6 +56,9 @@
       "relation": "oneToMany",
       "target": "api::artist.artist",
       "mappedBy": "shop"
+    },
+    "email": {
+      "type": "email"
     }
   }
 }

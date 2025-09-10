@@ -54,6 +54,9 @@
     },
     "phone": {
       "type": "string"
+    },
+    "email": {
+      "type": "email"
     }
   }
 }
