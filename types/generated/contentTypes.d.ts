@@ -421,16 +421,24 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    experience: Schema.Attribute.Integer;
+    links: Schema.Attribute.Component<'contact.social-links', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::artist.artist'
     > &
       Schema.Attribute.Private;
+    location: Schema.Attribute.Component<'geo.location', false>;
+    name: Schema.Attribute.String;
+    phone: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    shop: Schema.Attribute.Relation<'manyToOne', 'api::shop.shop'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -438,9 +446,6 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    uuid: Schema.Attribute.UID &
-      Schema.Attribute.Required &
-      Schema.Attribute.CustomField<'plugin::strapi-advanced-uuid.uuid'>;
   };
 }
 
@@ -455,6 +460,7 @@ export interface ApiShopShop extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    artists: Schema.Attribute.Relation<'oneToMany', 'api::artist.artist'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -479,9 +485,6 @@ export interface ApiShopShop extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    uuid: Schema.Attribute.UID &
-      Schema.Attribute.Required &
-      Schema.Attribute.CustomField<'plugin::strapi-advanced-uuid.uuid'>;
   };
 }
 
@@ -985,18 +988,6 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
-    uuid: Schema.Attribute.UID<
-      undefined,
-      {
-        'disable-auto-fill': false;
-      }
-    > &
-      Schema.Attribute.CustomField<
-        'plugin::strapi-advanced-uuid.uuid',
-        {
-          'disable-auto-fill': false;
-        }
-      >;
   };
 }
 

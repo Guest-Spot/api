@@ -72,13 +72,6 @@
       "private": true,
       "searchable": false
     },
-    "uuid": {
-      "type": "customField",
-      "customField": "plugin::strapi-advanced-uuid.uuid",
-      "options": {
-        "disable-auto-fill": false
-      }
-    },
     "type": {
       "type": "enumeration",
       "required": true,

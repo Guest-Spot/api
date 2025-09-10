@@ -17,11 +17,6 @@
       "target": "plugin::users-permissions.user",
       "mappedBy": "shop"
     },
-    "uuid": {
-      "type": "customField",
-      "customField": "plugin::strapi-advanced-uuid.uuid",
-      "required": true
-    },
     "name": {
       "type": "string"
     },
@@ -55,6 +50,12 @@
       "type": "component",
       "component": "time.opening-hour",
       "repeatable": true
+    },
+    "artists": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::artist.artist",
+      "mappedBy": "shop"
     }
   }
 }
