@@ -23,4 +23,8 @@ export default ({ env }) => ({
   'strapi-advanced-uuid': {
     enabled: true,
   },
+  "strapi-import-export": {
+    enabled: true,
+    config: {}
+  }
 });
