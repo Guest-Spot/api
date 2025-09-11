@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_contact_social_links",
+  "info": {
+    "displayName": "social-links"
+  },
+  "options": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "instagram",
+        "telegram",
+        "whatsapp",
+        "facebook",
+        "tiktok",
+        "site",
+        "other"
+      ]
+    },
+    "value": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

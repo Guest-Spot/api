@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_tag_portfolios",
+  "info": {
+    "displayName": "portfolio"
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

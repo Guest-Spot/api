@@ -421,16 +421,25 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    email: Schema.Attribute.Email;
+    experience: Schema.Attribute.Integer;
+    links: Schema.Attribute.Component<'contact.social-links', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::artist.artist'
     > &
       Schema.Attribute.Private;
+    location: Schema.Attribute.Component<'geo.location', false>;
+    name: Schema.Attribute.String;
+    phone: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    shop: Schema.Attribute.Relation<'manyToOne', 'api::shop.shop'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -438,9 +447,41 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    uuid: Schema.Attribute.UID &
-      Schema.Attribute.Required &
-      Schema.Attribute.CustomField<'plugin::strapi-advanced-uuid.uuid'>;
+  };
+}
+
+export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
+  collectionName: 'portfolios';
+  info: {
+    displayName: 'Portfolio';
+    pluralName: 'portfolios';
+    singularName: 'portfolio';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::portfolio.portfolio'
+    > &
+      Schema.Attribute.Private;
+    ownerDocumentId: Schema.Attribute.UID & Schema.Attribute.Required;
+    pictures: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    tags: Schema.Attribute.Component<'tag.portfolio', true>;
+    title: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -455,12 +496,24 @@ export interface ApiShopShop extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    artists: Schema.Attribute.Relation<'oneToMany', 'api::artist.artist'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    email: Schema.Attribute.Email;
+    links: Schema.Attribute.Component<'contact.social-links', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::shop.shop'> &
       Schema.Attribute.Private;
+    location: Schema.Attribute.Component<'geo.location', false>;
+    name: Schema.Attribute.String;
+    openingHours: Schema.Attribute.Component<'time.opening-hour', true>;
+    phone: Schema.Attribute.String;
+    pictures: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -469,9 +522,37 @@ export interface ApiShopShop extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
-    uuid: Schema.Attribute.UID &
-      Schema.Attribute.Required &
-      Schema.Attribute.CustomField<'plugin::strapi-advanced-uuid.uuid'>;
+  };
+}
+
+export interface ApiTripTrip extends Struct.CollectionTypeSchema {
+  collectionName: 'trips';
+  info: {
+    displayName: 'Trip';
+    pluralName: 'trips';
+    singularName: 'trip';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    date: Schema.Attribute.Date;
+    description: Schema.Attribute.Text;
+    endTime: Schema.Attribute.Time;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::trip.trip'> &
+      Schema.Attribute.Private;
+    location: Schema.Attribute.Component<'geo.location', false>;
+    name: Schema.Attribute.String;
+    ownerDocumentId: Schema.Attribute.UID & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    startTime: Schema.Attribute.Time;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -975,18 +1056,6 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 3;
       }>;
-    uuid: Schema.Attribute.UID<
-      undefined,
-      {
-        'disable-auto-fill': false;
-      }
-    > &
-      Schema.Attribute.CustomField<
-        'plugin::strapi-advanced-uuid.uuid',
-        {
-          'disable-auto-fill': false;
-        }
-      >;
   };
 }
 
@@ -1002,7 +1071,9 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::artist.artist': ApiArtistArtist;
+      'api::portfolio.portfolio': ApiPortfolioPortfolio;
       'api::shop.shop': ApiShopShop;
+      'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

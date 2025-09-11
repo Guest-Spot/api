@@ -15,12 +15,48 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "artist"
+      "mappedBy": "artist"
     },
-    "uuid": {
-      "type": "customField",
-      "customField": "plugin::strapi-advanced-uuid.uuid",
-      "required": true
+    "shop": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::shop.shop",
+      "inversedBy": "artists"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "experience": {
+      "type": "integer"
+    },
+    "avatar": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "links": {
+      "type": "component",
+      "component": "contact.social-links",
+      "repeatable": true
+    },
+    "location": {
+      "type": "component",
+      "component": "geo.location",
+      "repeatable": false
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
     }
   }
 }

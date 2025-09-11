@@ -12,7 +12,7 @@ export default ({ env }) => ({
     config: {
       endpoint: '/graphql',
       shadowCRUD: true,
-      playgroundAlways: false,
+      landingPage: true,
       depthLimit: 7,
       amountLimit: 100,
       apolloServer: {

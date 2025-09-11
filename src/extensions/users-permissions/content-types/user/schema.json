@@ -72,13 +72,6 @@
       "private": true,
       "searchable": false
     },
-    "uuid": {
-      "type": "customField",
-      "customField": "plugin::strapi-advanced-uuid.uuid",
-      "options": {
-        "disable-auto-fill": false
-      }
-    },
     "type": {
       "type": "enumeration",
       "required": true,
@@ -91,13 +84,13 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::shop.shop",
-      "mappedBy": "users_permissions_user"
+      "inversedBy": "users_permissions_user"
     },
     "artist": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::artist.artist",
-      "mappedBy": "users_permissions_user"
+      "inversedBy": "users_permissions_user"
     }
   }
 }
