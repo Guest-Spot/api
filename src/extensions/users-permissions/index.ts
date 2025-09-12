@@ -12,8 +12,36 @@ const getUserWithProfile = async (userId: string) => {
     userId,
     {
       populate: {
-        shop: true,
-        artist: true,
+        shop: {
+          populate: {
+            pictures: true,
+            links: true,
+            location: true,
+            openingHours: true,
+            artists: {
+              populate: {
+                avatar: true,
+                links: true,
+                location: true,
+              },
+            },
+          },
+        },
+        artist: {
+          populate: {
+            avatar: true,
+            links: true,
+            location: true,
+            shop: {
+              populate: {
+                pictures: true,
+                links: true,
+                location: true,
+                openingHours: true,
+              },
+            },
+          },
+        },
       },
     }
   ) as any;
@@ -29,7 +57,7 @@ const getUserWithProfile = async (userId: string) => {
 
   return {
     ...entity,
-    profile: profile || { name: null },
+    profile,
   };
 };
 
@@ -46,11 +74,21 @@ const sanitizeUser = async (user: any, ctx?: any) => {
 export const usersPermissionsExtension = () => ({
   typeDefs: /* GraphQL */ `
     type Profile {
+      documentId: String
       name: String
+      description: String
+      pictures: [UploadFile]
+      avatar: UploadFile
+      experience: Int
+      phone: String
+      email: String
+      links: [ComponentContactSocialLinks]
+      location: ComponentGeoLocation
+      openingHours: [ComponentTimeOpeningHour]
+      artists: [Artist]
     }
 
     extend type UsersPermissionsMe {
-      uuid: String
       type: String
       profile: Profile!
     }

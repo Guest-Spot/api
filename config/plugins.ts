@@ -19,8 +19,5 @@ export default ({ env }) => ({
         tracing: false,
       },
     },
-  },
-  'strapi-advanced-uuid': {
-    enabled: true,
-  },
+  }
 });
