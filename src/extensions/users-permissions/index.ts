@@ -84,6 +84,9 @@ export const usersPermissionsExtension = () => ({
       email: String
       links: [ComponentContactSocialLinks]
       location: ComponentGeoLocation
+      city: String
+      address: String
+      link: String
       openingHours: [ComponentTimeOpeningHour]
       artists: [Artist]
     }
