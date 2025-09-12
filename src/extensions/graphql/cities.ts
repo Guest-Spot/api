@@ -9,19 +9,10 @@ export const citiesExtension = ({ strapi }) => ({
       async cities(parent, args, ctx) {
         const shops = await strapi
           .documents('api::shop.shop')
-          .findMany({
-            populate: ['location']
-          });
-
-        const artists = await strapi
-          .documents('api::artist.artist')
-          .findMany({
-            populate: ['location']
-          });
+          .findMany();
 
         const all = [
-          ...shops.map(s => s?.location?.city).filter(Boolean),
-          ...artists.map(a => a?.location?.city).filter(Boolean),
+          ...shops.map(s => s?.city).filter(Boolean),
         ];
 
         return Array.from(new Set(all));
