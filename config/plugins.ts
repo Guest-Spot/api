@@ -19,5 +19,8 @@ export default ({ env }) => ({
         tracing: false,
       },
     },
-  }
+  },
+  'media-prefix': {
+    enabled: true,
+  },
 });
