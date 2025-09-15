@@ -52,9 +52,6 @@
       "target": "api::artist.artist",
       "mappedBy": "shop"
     },
-    "email": {
-      "type": "email"
-    },
     "city": {
       "type": "string"
     },
@@ -68,6 +65,9 @@
       "type": "component",
       "component": "geo.location",
       "repeatable": false
+    },
+    "email": {
+      "type": "email"
     }
   }
 }
