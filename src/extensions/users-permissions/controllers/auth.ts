@@ -7,6 +7,62 @@ const getService = (name: string) => {
   return strapi.plugin('users-permissions').service(name);
 };
 
+// Helper function to load user with profile
+const getUserWithProfile = async (userId: string) => {
+  const entity = await strapi.entityService.findOne(
+    'plugin::users-permissions.user',
+    userId,
+    {
+      populate: {
+        shop: {
+          populate: {
+            pictures: true,
+            links: true,
+            location: true,
+            openingHours: true,
+            artists: {
+              populate: {
+                avatar: true,
+                links: true,
+                location: true,
+              },
+            },
+          },
+        },
+        artist: {
+          populate: {
+            avatar: true,
+            links: true,
+            location: true,
+            shop: {
+              populate: {
+                pictures: true,
+                links: true,
+                location: true,
+                openingHours: true,
+              },
+            },
+          },
+        },
+      },
+    }
+  ) as any;
+
+  if (!entity) return null;
+
+  let profile = null;
+  if (entity.type === 'shop' && entity.shop) {
+    profile = entity.shop;
+  } else if (entity.type === 'artist' && entity.artist) {
+    profile = entity.artist;
+  }
+
+  return {
+    ...entity,
+    profile,
+  };
+};
+
 // Helper function to sanitize user data
 const sanitizeUser = async (user: any, ctx?: any) => {
   const userSchema = strapi.getModel('plugin::users-permissions.user');
@@ -26,116 +82,77 @@ interface RefreshTokenInput {
   refreshToken: string;
 }
 
-export default {
-  async callback(ctx) {
-    const provider = ctx.params.provider || 'local';
-    const params = ctx.request.body;
+// Auth logic functions for reuse in GraphQL resolvers
+export const authLogic = {
+  getUserWithProfile,
+  sanitizeUser,
 
-    const store = strapi.store({
-      environment: strapi.config.environment,
-      type: 'plugin',
-      name: 'users-permissions',
+  async loginWithRefresh(identifier: string, password: string, ctx?: any) {
+    if (!identifier || !password) {
+      throw new Error('Missing identifier or password');
+    }
+
+    const query = strapi.db.query('plugin::users-permissions.user');
+    const user = await query.findOne({
+      where: {
+        $or: [
+          { email: identifier.toLowerCase() },
+          { username: identifier },
+        ],
+      },
     });
 
-    if (provider === 'local') {
-      const { identifier, password }: AuthInput = params;
-
-      if (!identifier || !password) {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Missing identifier or password')
-        );
-      }
-
-      const query = strapi.db.query('plugin::users-permissions.user');
-      const user = await query.findOne({
-        where: {
-          $or: [
-            { email: identifier.toLowerCase() },
-            { username: identifier },
-          ],
-        },
-      });
-
-      if (!user) {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Invalid identifier or password')
-        );
-      }
-
-      if (!user.password) {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Invalid identifier or password')
-        );
-      }
-
-      const validPassword = await getService('user').validatePassword(
-        password,
-        user.password
-      );
-
-      if (!validPassword) {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Invalid identifier or password')
-        );
-      }
-
-      if (user.confirmed !== true) {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Your account email is not confirmed')
-        );
-      }
-
-      if (user.blocked === true) {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Your account has been blocked by an administrator')
-        );
-      }
-
-      // Create JWT token (short-lived)
-      const jwt = getService('jwt').issue({ id: user.id });
-
-      // Create refresh token (long-lived)
-      const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || 'default-secret';
-      const refreshToken = jwt.sign(
-        { id: user.id, type: 'refresh' },
-        refreshTokenSecret as string,
-        { expiresIn: '30d' }
-      );
-
-      // Save refresh token to user
-      await strapi.entityService.update('plugin::users-permissions.user', user.id, {
-        data: {
-          refreshToken,
-        } as any,
-      });
-
-      ctx.send({
-        jwt,
-        refreshToken,
-        user: await sanitizeUser(user, ctx),
-      });
-    } else {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Provider not supported')
-        );
+    if (!user || !user.password) {
+      throw new Error('Invalid identifier or password');
     }
+
+    const validPassword = await getService('user').validatePassword(
+      password,
+      user.password
+    );
+
+    if (!validPassword) {
+      throw new Error('Invalid identifier or password');
+    }
+
+    if (user.confirmed !== true) {
+      throw new Error('Your account email is not confirmed');
+    }
+
+    if (user.blocked === true) {
+      throw new Error('Your account has been blocked by an administrator');
+    }
+
+    // Create JWT token (short-lived)
+    const jwtToken = getService('jwt').issue({ id: user.id });
+
+    // Create refresh token (long-lived)
+    const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || 'default-secret';
+    const refreshToken = jwt.sign(
+      { id: user.id, type: 'refresh' },
+      refreshTokenSecret as string,
+      { expiresIn: '30d' }
+    );
+
+    // Save refresh token to user
+    await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+      data: {
+        refreshToken,
+      } as any,
+    });
+
+    const sanitizedUser = await sanitizeUser(user, ctx);
+
+    return {
+      jwt: jwtToken,
+      refreshToken,
+      user: sanitizedUser,
+    };
   },
 
-  async refreshToken(ctx) {
-    const { refreshToken }: RefreshTokenInput = ctx.request.body;
-
+  async refreshToken(refreshToken: string, ctx?: any) {
     if (!refreshToken) {
-      return ctx.badRequest(
-        null,
-        new errors.ApplicationError('Missing refresh token')
-      );
+      throw new Error('Missing refresh token');
     }
 
     try {
@@ -145,10 +162,7 @@ export default {
       const decoded: any = jwt.verify(refreshToken, refreshTokenSecret as string);
 
       if (decoded.type !== 'refresh') {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Invalid token type')
-        );
+        throw new Error('Invalid token type');
       }
 
       // Find user with this refresh token
@@ -161,23 +175,17 @@ export default {
       });
 
       if (!user) {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Invalid refresh token')
-        );
+        throw new Error('Invalid refresh token');
       }
 
       if (user.blocked === true) {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Your account has been blocked by an administrator')
-        );
+        throw new Error('Your account has been blocked by an administrator');
       }
 
       // Create new JWT token
       const newJwt = getService('jwt').issue({ id: user.id });
 
-      // Optionally create new refresh token (for token rotation)
+      // Create new refresh token (for token rotation)
       const newRefreshToken = jwt.sign(
         { id: user.id, type: 'refresh' },
         refreshTokenSecret as string,
@@ -191,27 +199,21 @@ export default {
         } as any,
       });
 
-      ctx.send({
+      const sanitizedUser = await sanitizeUser(user, ctx);
+
+      return {
         jwt: newJwt,
         refreshToken: newRefreshToken,
-        user: await sanitizeUser(user, ctx),
-      });
+        user: sanitizedUser,
+      };
     } catch (error) {
-      return ctx.badRequest(
-        null,
-        new errors.ApplicationError('Invalid or expired refresh token')
-      );
+      throw new Error('Invalid or expired refresh token');
     }
   },
 
-  async logout(ctx) {
-    const { refreshToken }: RefreshTokenInput = ctx.request.body;
-
+  async logoutWithRefresh(refreshToken: string) {
     if (!refreshToken) {
-      return ctx.badRequest(
-        null,
-        new errors.ApplicationError('Missing refresh token')
-      );
+      throw new Error('Missing refresh token');
     }
 
     try {
@@ -235,13 +237,67 @@ export default {
         });
       }
 
+      return true;
+    } catch (error) {
+      // Even if token is invalid, we consider logout successful
+      return true;
+    }
+  },
+};
+
+export default {
+  async callback(ctx) {
+    const provider = ctx.params.provider || 'local';
+    const params = ctx.request.body;
+
+    if (provider === 'local') {
+      const { identifier, password }: AuthInput = params;
+
+      try {
+        const result = await authLogic.loginWithRefresh(identifier, password, ctx);
+        ctx.send(result);
+      } catch (error) {
+        return ctx.badRequest(
+          null,
+          new errors.ApplicationError(error.message)
+        );
+      }
+    } else {
+        return ctx.badRequest(
+          null,
+          new errors.ApplicationError('Provider not supported')
+        );
+    }
+  },
+
+  async refreshToken(ctx) {
+    const { refreshToken }: RefreshTokenInput = ctx.request.body;
+
+    try {
+      const result = await authLogic.refreshToken(refreshToken, ctx);
+      ctx.send(result);
+    } catch (error) {
+      return ctx.badRequest(
+        null,
+        new errors.ApplicationError(error.message)
+      );
+    }
+  },
+
+  async logout(ctx) {
+    const { refreshToken }: RefreshTokenInput = ctx.request.body;
+
+    try {
+      const result = await authLogic.logoutWithRefresh(refreshToken);
       ctx.send({
         message: 'Logged out successfully',
+        success: result,
       });
     } catch (error) {
       // Even if token is invalid, we consider logout successful
       ctx.send({
         message: 'Logged out successfully',
+        success: true,
       });
     }
   },
