@@ -5,7 +5,7 @@ export default {
       path: '/auth/local',
       handler: 'auth.callback',
       config: {
-        middlewares: ['plugin::users-permissions.ratelimit'],
+        auth: false,
         prefix: '',
       },
     },
@@ -14,7 +14,7 @@ export default {
       path: '/auth/refreshToken',
       handler: 'auth.refreshToken',
       config: {
-        middlewares: ['plugin::users-permissions.ratelimit'],
+        auth: false,
         prefix: '',
         policies: [],
       },
@@ -24,6 +24,7 @@ export default {
       path: '/auth/logout',
       handler: 'auth.logout',
       config: {
+        auth: false,
         prefix: '',
         policies: [],
       },
