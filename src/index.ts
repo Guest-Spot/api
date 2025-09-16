@@ -1,6 +1,8 @@
 import { citiesExtension } from './extensions/graphql/cities';
 import { shopArtistsExtension } from './extensions/graphql/shop-artists';
 import { usersPermissionsExtension } from './extensions/users-permissions';
+import authRoutes from './extensions/users-permissions/routes/content-api/auth';
+import authController from './extensions/users-permissions/controllers/auth';
 
 export default {
   register({ strapi }) {
@@ -8,10 +10,6 @@ export default {
     strapi.plugin('graphql').service('extension').use(citiesExtension);
     strapi.plugin('graphql').service('extension').use(shopArtistsExtension);
     strapi.plugin('graphql').service('extension').use(usersPermissionsExtension);
-
-    // Register custom auth routes for REST API
-    const authRoutes = require('./extensions/users-permissions/routes/content-api/auth').default;
-    const authController = require('./extensions/users-permissions/controllers/auth').default;
     
     // Register custom routes using strapi.server.routes
     const customRoutes = authRoutes.routes.map(route => ({
