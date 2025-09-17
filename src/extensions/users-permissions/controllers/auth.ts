@@ -52,9 +52,21 @@ const getUserWithProfile = async (userId: string) => {
 
   let profile = null;
   if (entity.type === 'shop' && entity.shop) {
-    profile = entity.shop;
+    profile = {
+      ...entity.shop,
+      pictures: entity.shop.pictures?.map((picture: any) => ({
+        ...picture,
+        id: picture.id || picture.documentId,
+      })) || [],
+    };
   } else if (entity.type === 'artist' && entity.artist) {
-    profile = entity.artist;
+    profile = {
+      ...entity.artist,
+      avatar: entity.artist.avatar ? {
+        ...entity.artist.avatar,
+        id: entity.artist.avatar?.id || entity.artist.avatar?.documentId,
+      } : null,
+    };
   }
 
   return {

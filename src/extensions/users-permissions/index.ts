@@ -66,17 +66,6 @@ export const usersPermissionsExtension = () => ({
             auth: ctx.state.auth,
           });
 
-          // Ensure pictures in profile have both id and documentId
-          const result = sanitized as any;
-          if (result.profile) {
-            if (result.profile.pictures) {
-              result.profile.pictures = result.profile.pictures.map((picture: any) => ({
-                ...picture,
-                id: picture.id || picture.documentId, // Ensure id field exists
-              }));
-            }
-          }
-
           return sanitized;
         },
       },
