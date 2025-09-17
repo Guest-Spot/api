@@ -3,6 +3,7 @@ import { shopArtistsExtension } from './extensions/graphql/shop-artists';
 import { usersPermissionsExtension } from './extensions/users-permissions';
 import authRoutes from './extensions/users-permissions/routes/content-api/auth';
 import authController from './extensions/users-permissions/controllers/auth';
+import userLifecycles from './extensions/users-permissions/content-types/user/lifecycles';
 
 export default {
   register({ strapi }) {
@@ -23,5 +24,13 @@ export default {
     }));
 
     strapi.server.routes(customRoutes);
+  },
+
+  bootstrap({ strapi }) {
+    // Register lifecycle hooks for users-permissions user model
+    strapi.db.lifecycles.subscribe({
+      models: ['plugin::users-permissions.user'],
+      ...userLifecycles,
+    });
   },
 };

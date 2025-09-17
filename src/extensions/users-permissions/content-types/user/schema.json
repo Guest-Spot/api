@@ -84,12 +84,32 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::shop.shop",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "type"
+            },
+            "shop"
+          ]
+        }
+      },
       "inversedBy": "users_permissions_user"
     },
     "artist": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::artist.artist",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "type"
+            },
+            "artist"
+          ]
+        }
+      },
       "inversedBy": "users_permissions_user"
     }
   }
