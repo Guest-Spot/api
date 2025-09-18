@@ -84,13 +84,14 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::shop.shop",
+      "private": true,
       "conditions": {
         "visible": {
-          "==": [
+          "!=": [
             {
               "var": "type"
             },
-            "shop"
+            "artist"
           ]
         }
       },
@@ -100,13 +101,14 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::artist.artist",
+      "private": true,
       "conditions": {
         "visible": {
-          "==": [
+          "!=": [
             {
               "var": "type"
             },
-            "artist"
+            "shop"
           ]
         }
       },

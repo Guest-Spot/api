@@ -448,7 +448,8 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
     users_permissions_user: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
-    >;
+    > &
+      Schema.Attribute.Private;
   };
 }
 
@@ -526,7 +527,8 @@ export interface ApiShopShop extends Struct.CollectionTypeSchema {
     users_permissions_user: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
-    >;
+    > &
+      Schema.Attribute.Private;
   };
 }
 
@@ -1056,7 +1058,8 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
-    artist: Schema.Attribute.Relation<'oneToOne', 'api::artist.artist'>;
+    artist: Schema.Attribute.Relation<'oneToOne', 'api::artist.artist'> &
+      Schema.Attribute.Private;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
@@ -1087,7 +1090,8 @@ export interface PluginUsersPermissionsUser
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    shop: Schema.Attribute.Relation<'oneToOne', 'api::shop.shop'>;
+    shop: Schema.Attribute.Relation<'oneToOne', 'api::shop.shop'> &
+      Schema.Attribute.Private;
     type: Schema.Attribute.Enumeration<['shop', 'artist']> &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;

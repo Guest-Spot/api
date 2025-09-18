@@ -4,6 +4,7 @@ import { usersPermissionsExtension } from './extensions/users-permissions';
 import authRoutes from './extensions/users-permissions/routes/content-api/auth';
 import authController from './extensions/users-permissions/controllers/auth';
 import userLifecycles from './extensions/users-permissions/content-types/user/lifecycles';
+import portfolioLifecycles from './api/portfolio/content-types/portfolio/lifecycles';
 
 export default {
   register({ strapi }) {
@@ -31,6 +32,12 @@ export default {
     strapi.db.lifecycles.subscribe({
       models: ['plugin::users-permissions.user'],
       ...userLifecycles,
+    });
+
+    // Register lifecycle hooks for portfolio model
+    strapi.db.lifecycles.subscribe({
+      models: ['api::portfolio.portfolio'],
+      ...portfolioLifecycles,
     });
   },
 };
