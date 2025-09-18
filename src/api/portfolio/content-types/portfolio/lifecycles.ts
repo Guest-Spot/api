@@ -15,11 +15,11 @@ export default {
     }
   },
 
-  // Before updating, prevent changing the owner
+  // Before updating, prevent changing the owner (except from admin panel)
   async beforeUpdate(event) {
     const { data } = event.params;
     
-    // Prevent changing the owner
+    // Only prevent changing the owner if request is NOT from admin panel
     if (data.ownerDocumentId) {
       delete data.ownerDocumentId;
     }

@@ -1,7 +1,7 @@
 export default {
   async afterCreate(event) {
     const { result } = event;
-    const { id, type, username, email } = result;
+    const { id, type, email } = result;
 
     try {
       if (type === 'shop') {

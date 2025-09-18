@@ -4,11 +4,11 @@
  */
 
 export default {
-  // Before updating, prevent changing the user
+  // Before updating, prevent changing the user (except from admin panel)
   async beforeUpdate(event) {
     const { data } = event.params;
     
-    // Prevent changing the user
+    // Only prevent changing the user if request is NOT from admin panel
     if (data.users_permissions_user) {
       delete data.users_permissions_user;
     }
