@@ -33,6 +33,13 @@
     "recipient": {
       "type": "string",
       "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "artist_to_shop"
+      ]
     }
   }
 }

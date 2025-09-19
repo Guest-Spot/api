@@ -482,6 +482,8 @@ export interface ApiInviteInvite extends Struct.CollectionTypeSchema {
     recipient: Schema.Attribute.String & Schema.Attribute.Required;
     sender: Schema.Attribute.String & Schema.Attribute.Required;
     title: Schema.Attribute.String;
+    type: Schema.Attribute.Enumeration<['artist_to_shop']> &
+      Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
