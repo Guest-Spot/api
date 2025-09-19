@@ -1,10 +1,10 @@
 /**
- * trip router
+ * invite router
  */
 
 import { factories } from '@strapi/strapi';
 
-export default factories.createCoreRouter('api::trip.trip', {
+export default factories.createCoreRouter('api::invite.invite', {
   config: {
     find: {
       middlewares: [],
@@ -12,7 +12,7 @@ export default factories.createCoreRouter('api::trip.trip', {
     },
     findOne: {
       middlewares: [],
-      policies: ['api::trip.is-owner']
+      policies: ['api::invite.is-owner']
     },
     create: {
       middlewares: [],
@@ -20,11 +20,11 @@ export default factories.createCoreRouter('api::trip.trip', {
     },
     update: {
       middlewares: [],
-      policies: ['api::trip.is-owner']
+      policies: ['api::invite.is-owner']
     },
     delete: {
       middlewares: [],
-      policies: ['api::trip.is-owner']
+      policies: ['api::invite.is-owner']
     }
   }
 });

@@ -12,11 +12,11 @@ export default factories.createCoreRouter('api::artist.artist', {
     },
     findOne: {
       middlewares: [],
-      policies: []
+      policies: ['api::artist.is-owner']
     },
     create: {
       middlewares: [],
-      policies: ['api::artist.is-owner']
+      policies: []
     },
     update: {
       middlewares: [],

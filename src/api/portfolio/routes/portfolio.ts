@@ -12,11 +12,11 @@ export default factories.createCoreRouter('api::portfolio.portfolio', {
     },
     findOne: {
       middlewares: [],
-      policies: []
+      policies: ['api::portfolio.is-owner']
     },
     create: {
       middlewares: [],
-      policies: ['api::portfolio.is-owner']
+      policies: []
     },
     update: {
       middlewares: [],

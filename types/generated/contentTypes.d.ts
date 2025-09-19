@@ -453,6 +453,41 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiInviteInvite extends Struct.CollectionTypeSchema {
+  collectionName: 'invites';
+  info: {
+    displayName: 'Invite';
+    pluralName: 'invites';
+    singularName: 'invite';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::invite.invite'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    reaction: Schema.Attribute.Enumeration<
+      ['pending', 'accepted', 'rejected']
+    > &
+      Schema.Attribute.DefaultTo<'pending'>;
+    recipient: Schema.Attribute.String & Schema.Attribute.Required;
+    sender: Schema.Attribute.String & Schema.Attribute.Required;
+    title: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
   collectionName: 'portfolios';
   info: {
@@ -1118,6 +1153,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::artist.artist': ApiArtistArtist;
+      'api::invite.invite': ApiInviteInvite;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
       'api::shop.shop': ApiShopShop;
       'api::trip.trip': ApiTripTrip;

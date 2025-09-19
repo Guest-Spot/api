@@ -4,7 +4,7 @@
  */
 
 interface OwnershipConfig {
-  // For entities that use ownerDocumentId field (like portfolio, trip)
+  // For entities that use owner field (like portfolio, trip)
   ownerField?: string;
   // For entities that use users_permissions_user relation (like artist, shop)
   userRelation?: string;
@@ -20,54 +20,46 @@ export default (policyContext, config: OwnershipConfig, { strapi }) => {
     return false;
   }
 
-  // For update and delete operations, check ownership
-  if (policyContext.request.method === 'PUT' || 
-      policyContext.request.method === 'DELETE') {
-    
-    return new Promise(async (resolve) => {
-      try {
-        const entityId = policyContext.params.id;
-        
-        if (!entityId) {
-          resolve(false);
-          return;
-        }
-
-        // Determine populate options based on ownership pattern
-        const populateOptions = config.userRelation ? { populate: [config.userRelation] } : {};
-
-        // Find the entity by ID
-        const entity = await strapi.entityService.findOne(
-          config.serviceName,
-          entityId,
-          populateOptions
-        );
-
-        if (!entity) {
-          resolve(false);
-          return;
-        }
-
-        let isOwner = false;
-
-        // Check ownership based on the configured pattern
-        if (config.ownerField && config.ownerField === 'ownerDocumentId') {
-          // For entities using ownerDocumentId field
-          isOwner = entity.ownerDocumentId === user.documentId;
-        } else if (config.userRelation) {
-          // For entities using users_permissions_user relation
-          isOwner = entity[config.userRelation]?.id === user.id;
-        }
-
-        resolve(isOwner);
-        
-      } catch (error) {
-        strapi.log.error(`Ownership policy error for ${config.serviceName}:`, error);
+  return new Promise(async (resolve) => {
+    try {
+      const entityId = policyContext.params.id;
+      
+      if (!entityId) {
         resolve(false);
+        return;
       }
-    });
-  }
 
-  // For other operations, allow if user is authenticated
-  return true;
+      // Determine populate options based on ownership pattern
+      const populateOptions = config.userRelation ? { populate: [config.userRelation] } : {};
+
+      // Find the entity by ID
+      const entity = await strapi.entityService.findOne(
+        config.serviceName,
+        entityId,
+        populateOptions
+      );
+
+      if (!entity) {
+        resolve(false);
+        return;
+      }
+
+      let isOwner = false;
+
+      // Check ownership based on the configured pattern
+      if (config.ownerField) {
+        // For entities using owner field
+        isOwner = entity[config.ownerField] === user.documentId;
+      } else if (config.userRelation) {
+        // For entities using users_permissions_user relation
+        isOwner = entity[config.userRelation]?.id === user.id;
+      }
+
+      resolve(isOwner);
+      
+    } catch (error) {
+      strapi.log.error(`Ownership policy error for ${config.serviceName}:`, error);
+      resolve(false);
+    }
+  });
 };
