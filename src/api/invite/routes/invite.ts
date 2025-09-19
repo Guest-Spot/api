@@ -8,7 +8,7 @@ export default factories.createCoreRouter('api::invite.invite', {
   config: {
     find: {
       middlewares: [],
-      policies: []
+      policies: ['global::filter-owner-data']
     },
     findOne: {
       middlewares: [],
