@@ -22,22 +22,18 @@ export default (policyContext, config: OwnershipConfig, { strapi }) => {
 
   return new Promise(async (resolve) => {
     try {
-      const entityId = policyContext.params.id;
+      const entityId = policyContext?.args?.id || policyContext?.args?.documentId;
       
       if (!entityId) {
         resolve(false);
         return;
       }
 
-      // Determine populate options based on ownership pattern
-      const populateOptions = config.userRelation ? { populate: [config.userRelation] } : {};
-
       // Find the entity by ID
-      const entity = await strapi.entityService.findOne(
-        config.serviceName,
-        entityId,
-        populateOptions
-      );
+      const entity = await strapi.documents(config.serviceName).findOne({
+        documentId: entityId,
+        ...(config.userRelation ? { populate: [config.userRelation] } : {})
+      });
 
       if (!entity) {
         resolve(false);
