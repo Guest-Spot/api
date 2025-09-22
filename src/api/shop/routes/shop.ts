@@ -12,11 +12,11 @@ export default factories.createCoreRouter('api::shop.shop', {
     },
     findOne: {
       middlewares: [],
-      policies: []
+      policies: ['api::shop.is-owner']
     },
     create: {
       middlewares: [],
-      policies: ['api::shop.is-owner']
+      policies: []
     },
     update: {
       middlewares: [],

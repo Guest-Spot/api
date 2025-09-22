@@ -1,4 +1,5 @@
 import { authLogic } from './controllers/auth';
+import getUserWithProfile from '../../utils/getUserWithProfile';
 
 export const usersPermissionsExtension = () => ({
   typeDefs: /* GraphQL */ `
@@ -58,7 +59,7 @@ export const usersPermissionsExtension = () => ({
           const authUser = ctx.state.user;
           if (!authUser) return null;
 
-          const userWithProfile = await authLogic.getUserWithProfile(authUser.id);
+          const userWithProfile = await getUserWithProfile(authUser.id);
           if (!userWithProfile) return null;
 
           const schema = strapi.contentType('plugin::users-permissions.user');
