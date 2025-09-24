@@ -2,12 +2,7 @@ export const grapqlPolicies = ({ strapi }) => ({
   resolversConfig: {
     // Query resolvers - require authentication and ownership check
     'Query.invites': {
-      policies: [
-        {
-          name: 'global::filter-owner-data',
-          config: { ownerField: 'sender' }
-        }
-      ]
+      policies: []
     },
     'Query.invite': { 
       policies: []
