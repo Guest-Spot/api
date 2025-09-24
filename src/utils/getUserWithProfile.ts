@@ -59,6 +59,9 @@ export default async (userId: string) => {
     };
   }
 
+  delete entity.shop;
+  delete entity.artist;
+
   return {
     ...entity,
     profile,
