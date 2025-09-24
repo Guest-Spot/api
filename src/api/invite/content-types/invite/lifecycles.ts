@@ -4,8 +4,7 @@
  */
 
 export default {
-  // Before creating a invite, automatically set the owner
-  async beforeCreate(event) {
+  async beforeUpdate(event) {
     const { data } = event.params;
 
     // Check if invite type is artist-to-shop
