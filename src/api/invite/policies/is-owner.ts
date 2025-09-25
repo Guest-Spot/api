@@ -7,7 +7,7 @@ import globalOwnershipPolicy from '../../../policies/is-owner';
 
 export default (policyContext, config, { strapi }) => {
   const inviteConfig = {
-    ownerField: 'sender' as const,
+    ownerField: ['sender' as const, 'recipient' as const],
     serviceName: 'api::invite.invite'
   };
 

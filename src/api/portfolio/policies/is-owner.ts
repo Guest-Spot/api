@@ -7,7 +7,7 @@ import globalOwnershipPolicy from '../../../policies/is-owner';
 
 export default (policyContext, config, { strapi }) => {
   const portfolioConfig = {
-    ownerField: 'ownerDocumentId' as const,
+    ownerField: ['ownerDocumentId' as const],
     serviceName: 'api::portfolio.portfolio'
   };
 

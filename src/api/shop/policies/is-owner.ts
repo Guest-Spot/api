@@ -7,7 +7,7 @@ import globalOwnershipPolicy from '../../../policies/is-owner';
 
 export default (policyContext, config, { strapi }) => {
   const shopConfig = {
-    ownerField: 'documentId',
+    ownerField: ['documentId'],
     serviceName: 'api::shop.shop'
   };
 
