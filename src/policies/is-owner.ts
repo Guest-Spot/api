@@ -7,7 +7,7 @@ import getUserWithProfile from "../utils/getUserWithProfile";
 
 interface OwnershipConfig {
   // For entities that use owner field (like portfolio, trip)
-  ownerField?: string;
+  ownerField?: string[];
   // For entities that use users_permissions_user relation (like artist, shop)
   userRelation?: string;
   // Service name to use in entity operations
@@ -48,7 +48,7 @@ export default (policyContext, config: OwnershipConfig, { strapi }) => {
       // Check ownership based on the configured pattern
       if (config.ownerField) {
         // For entities using owner field
-        isOwner = entity[config.ownerField] === user.profile.documentId;
+        isOwner = config.ownerField.some(field => entity[field] === user.profile.documentId);
       } else if (config.userRelation) {
         // For entities using users_permissions_user relation
         isOwner = entity[config.userRelation]?.documentId === user.profile.documentId;

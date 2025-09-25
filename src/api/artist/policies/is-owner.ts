@@ -7,7 +7,7 @@ import globalOwnershipPolicy from '../../../policies/is-owner';
 
 export default (policyContext, config, { strapi }) => {
   const artistConfig = {
-    ownerField: 'documentId',
+    ownerField: ['documentId'],
     serviceName: 'api::artist.artist'
   };
 
