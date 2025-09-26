@@ -490,6 +490,39 @@ export interface ApiInviteInvite extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiNotifyNotify extends Struct.CollectionTypeSchema {
+  collectionName: 'notifies';
+  info: {
+    displayName: 'Notify';
+    pluralName: 'notifies';
+    singularName: 'notify';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::notify.notify'
+    > &
+      Schema.Attribute.Private;
+    ownerDocumentId: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    recipientDocumentId: Schema.Attribute.String & Schema.Attribute.Required;
+    type: Schema.Attribute.Enumeration<
+      ['remove_artist_from_shop', 'add_artist_to_shop']
+    > &
+      Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
   collectionName: 'portfolios';
   info: {
@@ -1156,6 +1189,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::artist.artist': ApiArtistArtist;
       'api::invite.invite': ApiInviteInvite;
+      'api::notify.notify': ApiNotifyNotify;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
       'api::shop.shop': ApiShopShop;
       'api::trip.trip': ApiTripTrip;

@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "notifies",
+  "info": {
+    "singularName": "notify",
+    "pluralName": "notifies",
+    "displayName": "Notify"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "ownerDocumentId": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "remove_artist_from_shop",
+        "add_artist_to_shop"
+      ]
+    },
+    "recipientDocumentId": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

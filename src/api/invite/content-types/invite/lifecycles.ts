@@ -4,6 +4,7 @@
  */
 
 import { InviteType, InviteReaction } from '../../../../interfaces/enums';
+import { createArtistAddedNotification } from '../../../shop/helpers/createArtistAddedNotification';
 
 export default {
   async beforeUpdate(event) {
@@ -35,6 +36,20 @@ export default {
                 artists: currentArtists
               }
             });
+
+            // Create notification for artist addition
+            try {
+              // Get artist data for notification
+              const artist = await strapi.documents('api::artist.artist').findOne({
+                documentId: currentInvite.recipient
+              });
+              
+              if (artist && shop) {
+                await createArtistAddedNotification(shop, artist);
+              }
+            } catch (notificationError) {
+              console.error('Error creating artist addition notification:', notificationError);
+            }
           }
         } else if (data.reaction === InviteReaction.PENDING || data.reaction === InviteReaction.REJECTED) {
           // Remove artist from shop if invite is pending or rejected
