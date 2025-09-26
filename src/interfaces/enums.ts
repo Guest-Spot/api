@@ -7,3 +7,10 @@ export enum InviteReaction {
   ACCEPTED = 'accepted',
   REJECTED = 'rejected',
 }
+
+export enum NotifyType {
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  ADD = 'add',
+}
