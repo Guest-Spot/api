@@ -4,7 +4,7 @@
  */
 
 import isAdmin from '../../../../utils/isAdmin';
-import { processArtistRemoval } from '../../helpers/notificationHelper';
+import { processArtistRemoval } from '../../helpers/createArtistRemovedNotification';
 
 
 export default {
