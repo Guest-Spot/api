@@ -17,7 +17,7 @@ const processedNotifications = new Map<string, number>();
 export async function createArtistRemovedNotification(shop: any, artist: any): Promise<void> {
   try {
     // Create unique key for this specific artist-shop combination
-    const notificationKey = `${shop.id}_${artist.id}`;
+    const notificationKey = `${shop.id || shop.documentId}_${artist.id || artist.documentId}`;
     const now = Date.now();
     
     // Check if we already processed this exact notification recently (within 3 seconds)
@@ -32,7 +32,8 @@ export async function createArtistRemovedNotification(shop: any, artist: any): P
         title: `Artist removed from shop`,
         description: `Artist "${artist.name}" was removed from shop "${shop.name}"`,
         ownerDocumentId: shop.documentId || shop.id.toString(),
-        type: NotifyType.DELETE,
+        recipientDocumentId: artist.documentId || artist.id.toString(),
+        type: NotifyType.REMOVE_ARTIST_FROM_SHOP,
         publishedAt: new Date()
       }
     });

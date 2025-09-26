@@ -17,7 +17,7 @@ const processedNotifications = new Map<string, number>();
 export async function createArtistAddedNotification(shop: any, artist: any): Promise<void> {
   try {
     // Create unique key for this specific artist-shop combination
-    const notificationKey = `${shop.id}_${artist.id}`;
+    const notificationKey = `${shop.id || shop.documentId}_${artist.id || artist.documentId}`;
     const now = Date.now();
     
     // Check if we already processed this exact notification recently (within 3 seconds)
@@ -29,10 +29,9 @@ export async function createArtistAddedNotification(shop: any, artist: any): Pro
 
     await strapi.entityService.create('api::notify.notify', {
       data: {
-        title: `Artist added to shop`,
-        description: `Artist "${artist.name}" was added to shop "${shop.name}"`,
         ownerDocumentId: shop.documentId || shop.id.toString(),
-        type: NotifyType.ADD,
+        recipientDocumentId: artist.documentId || artist.id.toString(),
+        type: NotifyType.ADD_ARTIST_TO_SHOP,
         publishedAt: new Date()
       }
     });

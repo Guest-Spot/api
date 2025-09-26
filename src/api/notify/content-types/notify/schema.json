@@ -11,12 +11,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "title": {
-      "type": "string"
-    },
-    "description": {
-      "type": "string"
-    },
     "ownerDocumentId": {
       "type": "string",
       "required": true
@@ -25,11 +19,13 @@
       "type": "enumeration",
       "required": true,
       "enum": [
-        "create",
-        "update",
-        "delete",
-        "add"
+        "remove_artist_from_shop",
+        "add_artist_to_shop"
       ]
+    },
+    "recipientDocumentId": {
+      "type": "string",
+      "required": true
     }
   }
 }

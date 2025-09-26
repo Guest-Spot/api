@@ -7,7 +7,33 @@ export const grapqlPolicies = ({ strapi }) => ({
     'Query.invite': { 
       policies: []
     },
-    
+    // NOTIFY Policies
+    'Query.notifies': {
+      policies: [{
+        name: 'global::filter-owner-data',
+        config: {
+          ownerField: ['ownerDocumentId', 'recipientDocumentId']
+        }
+      }]
+    },
+    'Query.notify': { 
+      policies: [{
+        name: 'global::filter-owner-data',
+        config: {
+          ownerField: ['ownerDocumentId', 'recipientDocumentId']
+        }
+      }]
+    },
+    // NOTIFY Policies
+    'Mutation.createNotify': { 
+      policies: []
+    },
+    'Mutation.updateNotify': { 
+      policies: ['api::notify.is-owner']
+    },
+    'Mutation.deleteNotify': { 
+      policies: ['api::notify.is-owner']
+    },
     // INVITE Policies
     'Mutation.createInvite': { 
       policies: []

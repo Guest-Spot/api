@@ -9,8 +9,6 @@ export enum InviteReaction {
 }
 
 export enum NotifyType {
-  CREATE = 'create',
-  UPDATE = 'update',
-  DELETE = 'delete',
-  ADD = 'add',
+  REMOVE_ARTIST_FROM_SHOP = 'remove_artist_from_shop',
+  ADD_ARTIST_TO_SHOP = 'add_artist_to_shop',
 }
