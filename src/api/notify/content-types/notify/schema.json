@@ -27,7 +27,8 @@
       "enum": [
         "create",
         "update",
-        "delete"
+        "delete",
+        "add"
       ]
     }
   }

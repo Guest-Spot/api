@@ -5,6 +5,7 @@
 
 import isAdmin from '../../../../utils/isAdmin';
 import { processArtistRemoval } from '../../helpers/createArtistRemovedNotification';
+import { processArtistAddition } from '../../helpers/createArtistAddedNotification';
 
 
 export default {
@@ -19,5 +20,8 @@ export default {
 
     // Process artist removal and create notifications
     await processArtistRemoval(data, where);
+    
+    // Process artist addition and create notifications
+    await processArtistAddition(data, where);
   }
 };

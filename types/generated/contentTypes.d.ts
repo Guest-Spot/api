@@ -514,7 +514,7 @@ export interface ApiNotifyNotify extends Struct.CollectionTypeSchema {
     ownerDocumentId: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     title: Schema.Attribute.String;
-    type: Schema.Attribute.Enumeration<['create', 'update', 'delete']> &
+    type: Schema.Attribute.Enumeration<['create', 'update', 'delete', 'add']> &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
