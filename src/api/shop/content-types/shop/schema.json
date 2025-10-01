@@ -69,6 +69,11 @@
       "type": "component",
       "component": "geo.location",
       "repeatable": false
+    },
+    "blocked": {
+      "type": "boolean",
+      "required": true,
+      "default": false
     }
   }
 }

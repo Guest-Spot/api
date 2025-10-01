@@ -64,6 +64,11 @@
     },
     "address": {
       "type": "string"
+    },
+    "blocked": {
+      "type": "boolean",
+      "required": true,
+      "default": false
     }
   }
 }

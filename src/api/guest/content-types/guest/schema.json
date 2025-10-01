@@ -32,6 +32,11 @@
     },
     "email": {
       "type": "email"
+    },
+    "blocked": {
+      "type": "boolean",
+      "required": true,
+      "default": false
     }
   }
 }

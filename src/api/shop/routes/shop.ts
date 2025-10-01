@@ -8,11 +8,17 @@ export default factories.createCoreRouter('api::shop.shop', {
   config: {
     find: {
       middlewares: [],
-      policies: []
+      policies: ['global::filter-blocked']
     },
     findOne: {
       middlewares: [],
-      policies: ['api::shop.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::shop.shop'
+        }
+      }]
     },
     create: {
       middlewares: [],
@@ -20,11 +26,23 @@ export default factories.createCoreRouter('api::shop.shop', {
     },
     update: {
       middlewares: [],
-      policies: ['api::shop.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::shop.shop'
+        }
+      }]
     },
     delete: {
       middlewares: [],
-      policies: ['api::shop.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::shop.shop'
+        }
+      }]
     }
   }
 });

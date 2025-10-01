@@ -30,11 +30,23 @@ export default factories.createCoreRouter('api::notify.notify', {
     },
     update: {
       middlewares: [],
-      policies: ['api::notify.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['ownerDocumentId', 'recipientDocumentId'],
+          serviceName: 'api::notify.notify'
+        }
+      }]
     },
     delete: {
       middlewares: [],
-      policies: ['api::notify.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['ownerDocumentId', 'recipientDocumentId'],
+          serviceName: 'api::notify.notify'
+        }
+      }]
     }
   }
 });

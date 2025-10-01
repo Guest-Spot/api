@@ -1,6 +1,6 @@
 import { citiesExtension } from './extensions/graphql/cities';
 import { shopArtistsExtension } from './extensions/graphql/shop-artists';
-import { grapqlPolicies } from './extensions/graphql/policies';
+import { grapqlGuards } from './extensions/graphql/guards';
 import { usersPermissionsExtension } from './extensions/users-permissions';
 
 import authRoutes from './extensions/users-permissions/routes/content-api/auth';
@@ -11,11 +11,12 @@ import portfolioLifecycles from './api/portfolio/content-types/portfolio/lifecyc
 import shopLifecycles from './api/shop/content-types/shop/lifecycles';
 import artistLifecycles from './api/artist/content-types/artist/lifecycles';
 import tripLifecycles from './api/trip/content-types/trip/lifecycles';
+import guestLifecycles from './api/guest/content-types/guest/lifecycles';
 
 export default {
   register({ strapi }) {
     // Register GraphQL extensions
-    strapi.plugin('graphql').service('extension').use(grapqlPolicies);
+    strapi.plugin('graphql').service('extension').use(grapqlGuards);
     strapi.plugin('graphql').service('extension').use(citiesExtension);
     strapi.plugin('graphql').service('extension').use(shopArtistsExtension);
     strapi.plugin('graphql').service('extension').use(usersPermissionsExtension);
@@ -63,6 +64,12 @@ export default {
     strapi.db.lifecycles.subscribe({
       models: ['api::trip.trip'],
       ...tripLifecycles,
+    });
+
+    // Register lifecycle hooks for guest model
+    strapi.db.lifecycles.subscribe({
+      models: ['api::guest.guest'],
+      ...guestLifecycles,
     });
   },
 };

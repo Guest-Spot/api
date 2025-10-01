@@ -423,6 +423,9 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
   attributes: {
     address: Schema.Attribute.String;
     avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    blocked: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
     city: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -465,6 +468,9 @@ export interface ApiGuestGuest extends Struct.CollectionTypeSchema {
   };
   attributes: {
     avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    blocked: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -602,6 +608,9 @@ export interface ApiShopShop extends Struct.CollectionTypeSchema {
   attributes: {
     address: Schema.Attribute.String;
     artists: Schema.Attribute.Relation<'oneToMany', 'api::artist.artist'>;
+    blocked: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
     city: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
