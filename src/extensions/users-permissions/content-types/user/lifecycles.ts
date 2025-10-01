@@ -1,9 +1,43 @@
 import { UserType } from '../../../../interfaces/enums';
 
 export default {
+  async beforeUpdate(event) {
+    const { documentId, type, blocked } = event.params.data;
+
+    const user = await strapi.documents('plugin::users-permissions.user').findOne({
+      documentId,
+      populate: ['guest', 'shop', 'artist'],
+    });
+
+    if (type === UserType.SHOP) {
+      await strapi.documents('api::shop.shop').update({
+        documentId: user.shop.documentId,
+        data: {
+          blocked,
+        },
+        status: 'published',
+      });
+    } else if (type === UserType.ARTIST) {
+      await strapi.documents('api::artist.artist').update({
+        documentId: user.artist.documentId,
+        data: {
+          blocked,
+        },
+        status: 'published',
+      });
+    } else if (type === UserType.GUEST) {
+      await strapi.documents('api::guest.guest').update({
+        documentId: user.guest.documentId,
+        data: {
+          blocked,
+        },
+        status: 'published',
+      });
+    }
+  },
   async afterCreate(event) {
     const { result } = event;
-    const { id, type, email } = result;
+    const { id, type, email, blocked } = result;
 
     try {
       if (type === UserType.SHOP) {
@@ -11,7 +45,8 @@ export default {
         const shop = await strapi.entityService.create('api::shop.shop', {
           data: {
             users_permissions_user: id,
-            email: email,
+            email,
+            blocked,
             publishedAt: new Date(), // For draft & publish
           },
           status: 'published',
@@ -23,7 +58,8 @@ export default {
         const artist = await strapi.entityService.create('api::artist.artist', {
           data: {
             users_permissions_user: id,
-            email: email,
+            email,
+            blocked,
             publishedAt: new Date(), // For draft & publish
           },
           status: 'published',
@@ -35,7 +71,8 @@ export default {
         const guest = await strapi.entityService.create('api::guest.guest', {
           data: {
             users_permissions_user: id,
-            email: email,
+            email,
+            blocked,
             publishedAt: new Date(), // For draft & publish
           },
           status: 'published',

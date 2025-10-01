@@ -18,11 +18,6 @@ const sanitizeUser = async (user: any, ctx?: any) => {
   return strapi.contentAPI.sanitize.output(user, userSchema, { auth });
 };
 
-interface AuthInput {
-  identifier: string;
-  password: string;
-}
-
 interface RefreshTokenInput {
   refreshToken: string;
 }
@@ -190,6 +185,14 @@ export const authLogic = {
 
   async loginWithOAuth(provider: string, ctx: any) {
     const user = await getService('providers').connect(provider, ctx.query);
+
+    if (user.confirmed !== true) {
+      throw new Error('Your account email is not confirmed');
+    }
+
+    if (user.blocked === true) {
+      throw new Error('Your account has been blocked by an administrator');
+    }
 
     // Create JWT token (short-lived)
     const jwtToken = getService('jwt').issue({ id: user.id });

@@ -12,7 +12,13 @@ export default factories.createCoreRouter('api::portfolio.portfolio', {
     },
     findOne: {
       middlewares: [],
-      policies: ['api::portfolio.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::portfolio.portfolio'
+        }
+      }]
     },
     create: {
       middlewares: [],
@@ -20,11 +26,23 @@ export default factories.createCoreRouter('api::portfolio.portfolio', {
     },
     update: {
       middlewares: [],
-      policies: ['api::portfolio.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::portfolio.portfolio'
+        }
+      }]
     },
     delete: {
       middlewares: [],
-      policies: ['api::portfolio.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::portfolio.portfolio'
+        }
+      }]
     }
   }
 });

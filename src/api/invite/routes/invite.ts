@@ -20,11 +20,23 @@ export default factories.createCoreRouter('api::invite.invite', {
     },
     update: {
       middlewares: [],
-      policies: ['api::invite.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['sender', 'recipient'],
+          serviceName: 'api::invite.invite'
+        }
+      }]
     },
     delete: {
       middlewares: [],
-      policies: ['api::invite.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['sender', 'recipient'],
+          serviceName: 'api::invite.invite'
+        }
+      }]
     }
   }
 });

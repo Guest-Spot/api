@@ -12,7 +12,13 @@ export default factories.createCoreRouter('api::trip.trip', {
     },
     findOne: {
       middlewares: [],
-      policies: ['api::trip.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['ownerDocumentId'],
+          serviceName: 'api::trip.trip'
+        }
+      }]
     },
     create: {
       middlewares: [],
@@ -20,11 +26,23 @@ export default factories.createCoreRouter('api::trip.trip', {
     },
     update: {
       middlewares: [],
-      policies: ['api::trip.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['ownerDocumentId'],
+          serviceName: 'api::trip.trip'
+        }
+      }]
     },
     delete: {
       middlewares: [],
-      policies: ['api::trip.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['ownerDocumentId'],
+          serviceName: 'api::trip.trip'
+        }
+      }]
     }
   }
 });

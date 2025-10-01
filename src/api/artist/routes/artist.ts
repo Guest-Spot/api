@@ -8,11 +8,17 @@ export default factories.createCoreRouter('api::artist.artist', {
   config: {
     find: {
       middlewares: [],
-      policies: []
+      policies: ['global::filter-blocked']
     },
     findOne: {
       middlewares: [],
-      policies: ['api::artist.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::artist.artist'
+        }
+      }]
     },
     create: {
       middlewares: [],
@@ -20,11 +26,23 @@ export default factories.createCoreRouter('api::artist.artist', {
     },
     update: {
       middlewares: [],
-      policies: ['api::artist.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::artist.artist'
+        }
+      }]
     },
     delete: {
       middlewares: [],
-      policies: ['api::artist.is-owner']
+      policies: [{
+        name: 'global::is-owner',
+        config: {
+          ownerField: ['documentId'],
+          serviceName: 'api::artist.artist'
+        }
+      }]
     }
   }
 });

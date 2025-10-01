@@ -12,7 +12,21 @@ export default {
   // Before updating, prevent changing the user (except from admin panel)
   async beforeUpdate(event) {
     const { data, where } = event.params;
-    
+
+    if (data?.documentId) {
+      const shop = await strapi.documents('api::shop.shop').findOne({
+        documentId: data.documentId,
+        populate: ['users_permissions_user'],
+      });
+  
+      await strapi.documents('plugin::users-permissions.user').update({
+        documentId: shop.users_permissions_user.documentId,
+        data: {
+          blocked: data.blocked,
+        },
+      });
+    }
+
     // Only prevent changing the user if request is NOT from admin panel
     if (!isAdmin() && data.users_permissions_user) {
       delete data.users_permissions_user;
