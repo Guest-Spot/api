@@ -29,6 +29,9 @@
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "guest"
+    },
+    "email": {
+      "type": "email"
     }
   }
 }

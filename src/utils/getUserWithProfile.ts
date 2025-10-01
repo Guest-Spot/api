@@ -1,3 +1,5 @@
+import { UserType } from '../interfaces/enums';
+
 export default async (userId: string) => {
   const entity = await strapi.entityService.findOne(
     'plugin::users-permissions.user',
@@ -46,7 +48,7 @@ export default async (userId: string) => {
   if (!entity) return null;
 
   let profile = null;
-  if (entity.type === 'shop' && entity.shop) {
+  if (entity.type === UserType.SHOP && entity.shop) {
     profile = {
       ...entity.shop,
       pictures: entity.shop.pictures?.map((picture: any) => ({
@@ -54,7 +56,7 @@ export default async (userId: string) => {
         id: picture.id || picture.documentId,
       })) || [],
     };
-  } else if (entity.type === 'artist' && entity.artist) {
+  } else if (entity.type === UserType.ARTIST && entity.artist) {
     profile = {
       ...entity.artist,
       avatar: entity.artist.avatar ? {
@@ -62,7 +64,7 @@ export default async (userId: string) => {
         id: entity.artist.avatar?.id || entity.artist.avatar?.documentId,
       } : null,
     };
-  } else if (entity.type === 'guest' && entity.guest) {
+  } else if (entity.type === UserType.GUEST && entity.guest) {
     profile = {
       ...entity.guest,
       avatar: entity.guest.avatar ? {

@@ -1,10 +1,12 @@
+import { UserType } from '../../../../interfaces/enums';
+
 export default {
   async afterCreate(event) {
     const { result } = event;
     const { id, type, email } = result;
 
     try {
-      if (type === 'shop') {
+      if (type === UserType.SHOP) {
         // Create shop record and link to user
         const shop = await strapi.entityService.create('api::shop.shop', {
           data: {
@@ -17,7 +19,7 @@ export default {
         });
 
         strapi.log.info(`Shop created for user ${id}: ${shop.id}`);
-      } else if (type === 'artist') {
+      } else if (type === UserType.ARTIST) {
         // Create artist record and link to user
         const artist = await strapi.entityService.create('api::artist.artist', {
           data: {
@@ -30,7 +32,7 @@ export default {
         });
 
         strapi.log.info(`Artist created for user ${id}: ${artist.id}`);
-      } else if (type === 'guest') {
+      } else if (type === UserType.GUEST) {
         // Create guest record and link to user
         const guest = await strapi.entityService.create('api::guest.guest', {
           data: {
