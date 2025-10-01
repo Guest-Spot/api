@@ -187,18 +187,45 @@ export const authLogic = {
       return true;
     }
   },
+
+  async loginWithOAuth(provider: string, ctx: any) {
+    const user = await getService('providers').connect(provider, ctx.query);
+
+    // Create JWT token (short-lived)
+    const jwtToken = getService('jwt').issue({ id: user.id });
+
+    // Create refresh token (long-lived)
+    const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || 'default-secret';
+    const refreshToken = jwt.sign(
+      { id: user.id, type: 'refresh' },
+      refreshTokenSecret as string,
+      { expiresIn: '30d' }
+    );
+
+    // Save refresh token to user
+    await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+      data: {
+        refreshToken,
+      } as any,
+    });
+
+    const sanitizedUser = await sanitizeUser(user, ctx);
+
+    return {
+      jwt: jwtToken,
+      refreshToken,
+      user: sanitizedUser,
+    };
+  },
 };
 
 export default {
   async callback(ctx) {
-    const provider = ctx.params.provider || 'local';
-    const params = ctx.request.body;
+    const provider = ctx.query.provider;
 
-    if (provider === 'local') {
-      const { identifier, password }: AuthInput = params;
-
+    if (provider === 'google') {
       try {
-        const result = await authLogic.loginWithRefresh(identifier, password, ctx);
+        const result = await authLogic.loginWithOAuth(provider, ctx);
         ctx.send(result);
       } catch (error) {
         return ctx.badRequest(
@@ -207,10 +234,10 @@ export default {
         );
       }
     } else {
-        return ctx.badRequest(
-          null,
-          new errors.ApplicationError('Provider not supported')
-        );
+      return ctx.badRequest(
+        null,
+        new errors.ApplicationError('Provider not supported')
+      );
     }
   },
 

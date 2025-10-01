@@ -10,6 +10,16 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/auth/google/callback',
+      handler: 'auth.callback',
+      config: {
+        auth: false,
+        prefix: '',
+        policies: [],
+      },
+    },
+    {
       method: 'POST',
       path: '/auth/refreshToken',
       handler: 'auth.refreshToken',
