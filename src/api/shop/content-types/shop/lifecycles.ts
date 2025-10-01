@@ -19,12 +19,14 @@ export default {
         populate: ['users_permissions_user'],
       });
   
-      await strapi.documents('plugin::users-permissions.user').update({
-        documentId: shop.users_permissions_user.documentId,
-        data: {
-          blocked: data.blocked,
-        },
-      });
+      if (shop?.users_permissions_user?.documentId) {
+        await strapi.documents('plugin::users-permissions.user').update({
+          documentId: shop.users_permissions_user.documentId,
+          data: {
+            blocked: data.blocked,
+          },
+        });
+      }
     }
 
     // Only prevent changing the user if request is NOT from admin panel

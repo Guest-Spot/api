@@ -7,13 +7,15 @@ export default {
         documentId: data.documentId,
         populate: ['users_permissions_user'],
       });
-  
-      await strapi.documents('plugin::users-permissions.user').update({
-        documentId: guest.users_permissions_user.documentId,
-        data: {
-          blocked: data.blocked,
-        },
-      });
+      
+      if (guest?.users_permissions_user?.documentId) {
+        await strapi.documents('plugin::users-permissions.user').update({
+          documentId: guest.users_permissions_user.documentId,
+          data: {
+            blocked: data.blocked,
+          },
+        });
+      }
     }
   },
 };
