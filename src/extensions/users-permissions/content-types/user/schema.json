@@ -75,9 +75,11 @@
     "type": {
       "type": "enumeration",
       "required": true,
+      "default": "guest",
       "enum": [
         "shop",
-        "artist"
+        "artist",
+        "guest"
       ]
     },
     "shop": {
@@ -113,6 +115,12 @@
         }
       },
       "inversedBy": "users_permissions_user"
+    },
+    "guest": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::guest.guest",
+      "mappedBy": "users_permissions_user"
     }
   }
 }
