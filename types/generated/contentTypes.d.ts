@@ -453,6 +453,37 @@ export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiGuestGuest extends Struct.CollectionTypeSchema {
+  collectionName: 'guests';
+  info: {
+    displayName: 'Guest';
+    pluralName: 'guests';
+    singularName: 'guest';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    email: Schema.Attribute.Email;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::guest.guest'> &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    users_permissions_user: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
 export interface ApiInviteInvite extends Struct.CollectionTypeSchema {
   collectionName: 'invites';
   info: {
@@ -1141,6 +1172,7 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    guest: Schema.Attribute.Relation<'oneToOne', 'api::guest.guest'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1162,8 +1194,9 @@ export interface PluginUsersPermissionsUser
     >;
     shop: Schema.Attribute.Relation<'oneToOne', 'api::shop.shop'> &
       Schema.Attribute.Private;
-    type: Schema.Attribute.Enumeration<['shop', 'artist']> &
-      Schema.Attribute.Required;
+    type: Schema.Attribute.Enumeration<['shop', 'artist', 'guest']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'guest'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1188,6 +1221,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::artist.artist': ApiArtistArtist;
+      'api::guest.guest': ApiGuestGuest;
       'api::invite.invite': ApiInviteInvite;
       'api::notify.notify': ApiNotifyNotify;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
