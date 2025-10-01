@@ -4,6 +4,11 @@ export default async (userId: string) => {
     userId,
     {
       populate: {
+        guest: {
+          populate: {
+            avatar: true,
+          },
+        },
         shop: {
           populate: {
             pictures: true,
@@ -57,10 +62,19 @@ export default async (userId: string) => {
         id: entity.artist.avatar?.id || entity.artist.avatar?.documentId,
       } : null,
     };
+  } else if (entity.type === 'guest' && entity.guest) {
+    profile = {
+      ...entity.guest,
+      avatar: entity.guest.avatar ? {
+        ...entity.guest.avatar,
+        id: entity.guest.avatar?.id || entity.guest.avatar?.documentId,
+      } : null,
+    };
   }
 
   delete entity.shop;
   delete entity.artist;
+  delete entity.guest;
 
   return {
     ...entity,
