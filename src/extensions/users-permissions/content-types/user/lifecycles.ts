@@ -11,7 +11,6 @@ export default {
         const shop = await strapi.entityService.create('api::shop.shop', {
           data: {
             users_permissions_user: id,
-            name: 'N/A',
             email: email,
             publishedAt: new Date(), // For draft & publish
           },
@@ -24,7 +23,6 @@ export default {
         const artist = await strapi.entityService.create('api::artist.artist', {
           data: {
             users_permissions_user: id,
-            name: 'N/A',
             email: email,
             publishedAt: new Date(), // For draft & publish
           },
@@ -37,7 +35,6 @@ export default {
         const guest = await strapi.entityService.create('api::guest.guest', {
           data: {
             users_permissions_user: id,
-            name: 'N/A',
             email: email,
             publishedAt: new Date(), // For draft & publish
           },
