@@ -15,13 +15,15 @@ export default {
         documentId: data.documentId,
         populate: ['users_permissions_user'],
       });
-  
-      await strapi.documents('plugin::users-permissions.user').update({
-        documentId: artist.users_permissions_user.documentId,
-        data: {
-          blocked: data.blocked,
-        },
-      });
+      
+      if (artist?.users_permissions_user.documentId) {
+        await strapi.documents('plugin::users-permissions.user').update({
+          documentId: artist.users_permissions_user.documentId,
+          data: {
+            blocked: data.blocked,
+          },
+        });
+      }
     }
 
     // Only prevent changing the user if request is NOT from admin panel
