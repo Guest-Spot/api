@@ -1987,7 +1987,7 @@
     semver "7.5.4"
     umzug "3.8.1"
 
-"@strapi/design-system@^2.0.0-rc.16", "@strapi/design-system@2.0.0-rc.29":
+"@strapi/design-system@^2.0.0-rc.16", "@strapi/design-system@^2.0.0-rc.29", "@strapi/design-system@2.0.0-rc.29":
   version "2.0.0-rc.29"
   resolved "https://registry.npmjs.org/@strapi/design-system/-/design-system-2.0.0-rc.29.tgz"
   integrity sha512-Up8wGVdo1mvTK/F/u7qEgHn298rRaitBI+hn0RgtU90CynLO+Lo+b2mo7aGY+ZRk6hYp7xkXBW9fgS+DrnDNZA==
@@ -2065,7 +2065,7 @@
     yup "0.32.9"
     zod "3.25.67"
 
-"@strapi/icons@^2.0.0 || ^2.0.0-beta || ^2.0.0-alpha", "@strapi/icons@^2.0.0-rc.16", "@strapi/icons@2.0.0-rc.29":
+"@strapi/icons@^2.0.0 || ^2.0.0-beta || ^2.0.0-alpha", "@strapi/icons@^2.0.0-rc.16", "@strapi/icons@^2.0.0-rc.29", "@strapi/icons@2.0.0-rc.29":
   version "2.0.0-rc.29"
   resolved "https://registry.npmjs.org/@strapi/icons/-/icons-2.0.0-rc.29.tgz"
   integrity sha512-VFmvS41vYq6qgRShIMlZZPkr6DteINYya67Ghxtd5b+agWziKSpV6W1yMyFLJwSEXEyPxhvaVHw/xG4BUfpYNg==
@@ -4775,6 +4775,15 @@ elliptic@^6.5.4, elliptic@^6.6.1:
     inherits "^2.0.4"
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
+
+email-bulk-sender@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.npmjs.org/email-bulk-sender/-/email-bulk-sender-0.0.0.tgz"
+  integrity sha512-4yzzKJpie2AQQ4+fh0+C91rT3fP+UP4vbEupuQ42JxoWkL+jD2OS5p9/h+m2ArHzX3nvNEoeK5JlBuhpueEZAQ==
+  dependencies:
+    "@strapi/design-system" "^2.0.0-rc.29"
+    "@strapi/icons" "^2.0.0-rc.29"
+    react-intl "^7.1.11"
 
 emittery@^0.13.0:
   version "0.13.1"
@@ -8947,6 +8956,20 @@ react-helmet@^6.1.0:
     prop-types "^15.7.2"
     react-fast-compare "^3.1.1"
     react-side-effect "^2.1.0"
+
+react-intl@^7.1.11:
+  version "7.1.11"
+  resolved "https://registry.npmjs.org/react-intl/-/react-intl-7.1.11.tgz"
+  integrity sha512-tnVoRCWvW5Ie2ikYSdPF7z3+880yCe/9xPmitFeRPw3RYDcCfR4m8ZYa4MBq19W4adt9Z+PQA4FaMBCJ7E+HCQ==
+  dependencies:
+    "@formatjs/ecma402-abstract" "2.3.4"
+    "@formatjs/icu-messageformat-parser" "2.11.2"
+    "@formatjs/intl" "3.1.6"
+    "@types/hoist-non-react-statics" "^3.3.1"
+    "@types/react" "16 || 17 || 18 || 19"
+    hoist-non-react-statics "^3.3.2"
+    intl-messageformat "10.7.16"
+    tslib "^2.8.0"
 
 react-intl@^7.1.6:
   version "7.1.11"
