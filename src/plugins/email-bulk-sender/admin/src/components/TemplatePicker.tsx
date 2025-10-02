@@ -9,9 +9,14 @@ interface TemplatePickerProps {
 
 const TemplatePicker: React.FC<TemplatePickerProps> = ({ onClose, documents }) => {
   const [template, setTemplate] = React.useState('template1.html');
+  const [documentsList, setDocumentsList] = React.useState(documents);
+
+  const handleRemoveDocument = (documentId: string | number) => {
+    setDocumentsList(prev => prev.filter(doc => doc.id !== documentId));
+  };
 
   const send = async () => {
-    console.log('send', template, documents);
+    console.log('send', template, documentsList);
     onClose();
   };
 
@@ -21,13 +26,16 @@ const TemplatePicker: React.FC<TemplatePickerProps> = ({ onClose, documents }) =
     React.createElement(
       Box,
       {},
-      React.createElement(DocumentList, { documents }),
+      React.createElement(DocumentList, {
+        documents: documentsList,
+        onRemoveDocument: handleRemoveDocument
+      }),
       React.createElement(
         Box,
         { marginTop: 3 },
         React.createElement(
           Button,
-          { onClick: send },
+          { onClick: send, disabled: documentsList.length === 0 },
           `Send with ${template}`
         )
       )
