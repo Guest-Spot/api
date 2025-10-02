@@ -1,10 +1,14 @@
 import { PLUGIN_ID } from './pluginId';
 import { Initializer } from './components/Initializer';
 import { PluginIcon } from './components/PluginIcon';
-import SendEmailButton from './components/SendEmailButton';
+import TemplatePicker from './components/TemplatePicker';
+import React from 'react';
+
 
 export default {
   register(app: any) {
+    const apis = app.getPlugin('content-manager').apis;
+
     app.addMenuLink({
       to: `plugins/${PLUGIN_ID}`,
       icon: PluginIcon,
@@ -26,10 +30,21 @@ export default {
       name: PLUGIN_ID,
     });
 
-    app.getPlugin('content-manager').injectComponent('listView', 'actions', {
-      name: 'sendEmailButton',
-      Component: SendEmailButton,
-    });
+    apis.addBulkAction([
+      // Компонент-описатель действия получает контекст списка
+      ({ documents, model }: { documents: any, model: any }) => {
+        return {
+          label: 'Send Email',
+          disabled: documents.length === 0,
+          dialog: {
+            type: 'modal',
+            title: 'Send email to selected',
+            content: ({ onClose }: { onClose: () => void }) =>
+              React.createElement(TemplatePicker, { onClose, documents })
+          },
+        };
+      },
+    ]);
   },
 
   async registerTrads({ locales }: { locales: string[] }) {
