@@ -2,6 +2,13 @@ import type { Core } from '@strapi/strapi';
 import * as fs from 'fs';
 import * as path from 'path';
 
+interface EmailBulkSenderConfig {
+  emailTemplate?: {
+    enabled?: boolean;
+    path?: string;
+  };
+}
+
 const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
   index(ctx) {
     ctx.body = strapi
@@ -13,7 +20,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
 
   async getTemplates(ctx) {
     try {
-      const config = strapi.config.get('plugin.email-bulk-sender');
+      const config = strapi.config.get('plugin.email-bulk-sender') as EmailBulkSenderConfig;
       const templatePath = config?.emailTemplate?.path || 'templates';
       const fullPath = path.resolve(process.cwd(), templatePath);
 
@@ -42,7 +49,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
   async getTemplateContent(ctx) {
     try {
       const { templatePath } = ctx.params;
-      const config = strapi.config.get('plugin.email-bulk-sender');
+      const config = strapi.config.get('plugin.email-bulk-sender') as EmailBulkSenderConfig;
       const basePath = config?.emailTemplate?.path || 'templates';
       const fullPath = path.resolve(process.cwd(), basePath, templatePath);
 
@@ -80,7 +87,7 @@ const controller = ({ strapi }: { strapi: Core.Strapi }) => ({
       }
 
       // Get template content
-      const config = strapi.config.get('plugin.email-bulk-sender');
+      const config = strapi.config.get('plugin.email-bulk-sender') as EmailBulkSenderConfig;
       const basePath = config?.emailTemplate?.path || 'templates';
       const templatePath = path.resolve(process.cwd(), basePath, `${template}.html`);
 
