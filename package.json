@@ -22,7 +22,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/lodash": "^4.17.20",
     "better-sqlite3": "11.3.0",
-    "email-bulk-sender": "^0.0.0",
+    "email-bulk-sender": "^0.0.3",
     "export-import-kkm": "^1.1.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
