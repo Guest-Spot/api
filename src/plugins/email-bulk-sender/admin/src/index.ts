@@ -31,8 +31,7 @@ export default {
     });
 
     apis.addBulkAction([
-      // Компонент-описатель действия получает контекст списка
-      ({ documents, model }: { documents: any, model: any }) => {
+      ({ documents }: { documents: any }) => {
         return {
           label: 'Send Email',
           disabled: documents.length === 0,
