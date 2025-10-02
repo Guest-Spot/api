@@ -35,4 +35,8 @@ export default ({ env }) => ({
   'media-prefix': {
     enabled: true,
   },
+  'email-bulk-sender': {
+    enabled: true,
+    resolve: './src/plugins/email-bulk-sender'
+  },
 });
