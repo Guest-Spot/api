@@ -1,1 +1,0 @@
-# email-bulk-sender
