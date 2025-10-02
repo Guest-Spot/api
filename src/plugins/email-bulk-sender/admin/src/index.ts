@@ -1,7 +1,7 @@
-import { getTranslation } from './utils/getTranslation';
 import { PLUGIN_ID } from './pluginId';
 import { Initializer } from './components/Initializer';
 import { PluginIcon } from './components/PluginIcon';
+import SendEmailButton from './components/SendEmailButton';
 
 export default {
   register(app: any) {
@@ -24,6 +24,11 @@ export default {
       initializer: Initializer,
       isReady: false,
       name: PLUGIN_ID,
+    });
+
+    app.getPlugin('content-manager').injectComponent('listView', 'actions', {
+      name: 'sendEmailButton',
+      Component: SendEmailButton,
     });
   },
 
