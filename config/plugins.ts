@@ -37,6 +37,12 @@ export default ({ env }) => ({
   },
   'email-bulk-sender': {
     enabled: true,
-    resolve: './src/plugins/email-bulk-sender'
+    resolve: './src/plugins/email-bulk-sender',
+    config: {
+      emailTemplate: {
+        enabled: true,
+        path: 'templates',
+      },
+    },
   },
 });

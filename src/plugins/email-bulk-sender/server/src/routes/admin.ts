@@ -1,20 +1,10 @@
 export default [
   {
     method: 'GET',
-    path: '/',
-    // name of the controller file & the method.
-    handler: 'controller.index',
-    config: {
-      policies: [],
-    },
-  },
-  {
-    method: 'GET',
     path: '/templates',
     handler: 'controller.getTemplates',
     config: {
       policies: [],
-      auth: false,
     },
   },
   {
@@ -23,7 +13,6 @@ export default [
     handler: 'controller.getTemplateContent',
     config: {
       policies: [],
-      auth: false,
     },
   },
 ];
