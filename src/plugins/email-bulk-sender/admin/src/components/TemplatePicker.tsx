@@ -1,6 +1,7 @@
 import React from 'react';
-import { Button, Box } from '@strapi/design-system';
+import { Button, Box, Typography, Alert } from '@strapi/design-system';
 import DocumentList from './DocumentList';
+import { useEmailSender } from '../utils/templateUtils';
 
 interface TemplatePickerProps {
   onClose: () => void;
@@ -10,6 +11,11 @@ interface TemplatePickerProps {
 const TemplatePicker: React.FC<TemplatePickerProps> = ({ onClose, documents }) => {
   const [template, setTemplate] = React.useState<string>('');
   const [documentsList, setDocumentsList] = React.useState(documents);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [result, setResult] = React.useState<any>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const { sendBulkEmails } = useEmailSender();
 
   const handleRemoveDocument = (documentId: string | number) => {
     setDocumentsList(prev => prev.filter(doc => doc.id !== documentId));
@@ -20,8 +26,27 @@ const TemplatePicker: React.FC<TemplatePickerProps> = ({ onClose, documents }) =
   };
 
   const send = async () => {
-    console.log('send', template, documentsList);
-    onClose();
+    if (!template || documentsList.length === 0) {
+      setError('Please select a template and at least one document');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const response = await sendBulkEmails(template, documentsList);
+      setResult(response);
+
+      if (response.summary.failed > 0) {
+        setError(`Some emails failed to send. ${response.summary.sent} sent, ${response.summary.failed} failed.`);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to send emails');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return React.createElement(
@@ -36,13 +61,62 @@ const TemplatePicker: React.FC<TemplatePickerProps> = ({ onClose, documents }) =
         onTemplateChange: handleTemplateChange,
         selectedTemplate: template
       }),
+
+      // Error display
+      error && React.createElement(
+        Alert,
+        {
+          closeLabel: 'Close',
+          title: 'Error',
+          variant: 'danger',
+          onClose: () => setError(null)
+        },
+        error
+      ),
+
+      // Success result display
+      result && React.createElement(
+        Alert,
+        {
+          closeLabel: 'Close',
+          title: 'Email Sending Results',
+          variant: result.summary.failed > 0 ? 'warning' : 'success',
+          onClose: () => setResult(null)
+        },
+        React.createElement(
+          Box,
+          {},
+          React.createElement(Typography, { variant: 'omega' }, result.message),
+          React.createElement(
+            Box,
+            { marginTop: 2 },
+            React.createElement(Typography, { variant: 'pi' },
+              `Total: ${result.summary.total} | Sent: ${result.summary.sent} | Failed: ${result.summary.failed}`
+            )
+          )
+        )
+      ),
+
       React.createElement(
         Box,
-        { marginTop: 3 },
+        { marginTop: 3, display: 'flex', gap: 2 },
         React.createElement(
           Button,
-          { onClick: send, disabled: documentsList.length === 0 || !template },
-          `Send with template: ${template || 'selected template'}`
+          {
+            onClick: send,
+            disabled: documentsList.length === 0 || !template || isLoading,
+            loading: isLoading
+          },
+          isLoading ? 'Sending...' : `Send ${documentsList.length} email(s) with template: ${template || 'selected template'}`
+        ),
+        React.createElement(
+          Button,
+          {
+            onClick: onClose,
+            variant: 'secondary',
+            disabled: isLoading
+          },
+          'Close'
         )
       )
     )

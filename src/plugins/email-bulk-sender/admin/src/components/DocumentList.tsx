@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Typography, Table, Thead, Tbody, Tr, Th, Td, Button, SingleSelect, SingleSelectOption } from '@strapi/design-system';
-import { Trash } from '@strapi/icons';
 import { useTemplates, Template } from '../utils/templateUtils';
 
 interface DocumentListProps {
@@ -55,7 +54,7 @@ const DocumentList: React.FC<DocumentListProps> = ({
       { marginTop: 3 },
       React.createElement(
         Typography,
-        { variant: 'pi', textColor: 'neutral700', marginBottom: 2 },
+        { variant: 'pi', textColor: 'neutral700', marginBottom: 4 },
         'Email Template:'
       ),
       loading ? React.createElement(

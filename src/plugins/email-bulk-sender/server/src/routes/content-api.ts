@@ -26,4 +26,13 @@ export default [
       auth: false,
     },
   },
+  {
+    method: 'POST',
+    path: '/send-bulk-emails',
+    handler: 'controller.sendBulkEmails',
+    config: {
+      policies: [],
+      auth: false,
+    },
+  },
 ];

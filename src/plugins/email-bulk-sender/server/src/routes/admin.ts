@@ -15,4 +15,12 @@ export default [
       policies: [],
     },
   },
+  {
+    method: 'POST',
+    path: '/send-bulk-emails',
+    handler: 'controller.sendBulkEmails',
+    config: {
+      policies: [],
+    },
+  },
 ];
