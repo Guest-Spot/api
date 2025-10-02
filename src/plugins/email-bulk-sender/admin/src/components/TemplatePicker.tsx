@@ -1,12 +1,76 @@
 import React from 'react';
-import { Button, Box, Typography, Alert } from '@strapi/design-system';
+import { Button, Box, Typography, Alert, SingleSelect, SingleSelectOption } from '@strapi/design-system';
 import DocumentList from './DocumentList';
-import { useEmailSender } from '../utils/templateUtils';
+import { useEmailSender, useTemplates, Template } from '../utils/templateUtils';
 
 interface TemplatePickerProps {
   onClose: () => void;
   documents: any[];
 }
+
+// Template Selector Component
+interface TemplateSelectorProps {
+  selectedTemplate: string;
+  onTemplateChange: (template: string) => void;
+}
+
+const TemplateSelector: React.FC<TemplateSelectorProps> = ({ selectedTemplate, onTemplateChange }) => {
+  const [templates, setTemplates] = React.useState<Template[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const { getTemplates } = useTemplates();
+
+  React.useEffect(() => {
+    const loadTemplates = async () => {
+      try {
+        const templateList = await getTemplates();
+        setTemplates(templateList);
+      } catch (error) {
+        console.error('Failed to load templates:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadTemplates();
+  }, [getTemplates]);
+
+  const handleTemplateChange = (value: string) => {
+    onTemplateChange(value);
+  };
+
+  return React.createElement(
+    Box,
+    { marginBottom: 3 },
+    React.createElement(
+      Typography,
+      { variant: 'beta', textColor: 'neutral700', marginBottom: 4, },
+      'Email Template:'
+    ),
+    loading ? React.createElement(
+      Typography,
+      { variant: 'pi', textColor: 'neutral500' },
+      'Loading templates...'
+    ) : templates.length > 0 ? React.createElement(
+      SingleSelect,
+      {
+        value: selectedTemplate,
+        onChange: handleTemplateChange,
+        placeholder: 'Select a template'
+      },
+      templates.map(template =>
+        React.createElement(
+          SingleSelectOption,
+          { key: template.name, value: template.name },
+          template.name
+        )
+      )
+    ) : React.createElement(
+      Typography,
+      { variant: 'pi', textColor: 'neutral500' },
+      'No templates found'
+    )
+  );
+};
 
 const TemplatePicker: React.FC<TemplatePickerProps> = ({ onClose, documents }) => {
   const [template, setTemplate] = React.useState<string>('');
@@ -55,11 +119,16 @@ const TemplatePicker: React.FC<TemplatePickerProps> = ({ onClose, documents }) =
     React.createElement(
       Box,
       {},
+      // Template Selector
+      React.createElement(TemplateSelector, {
+        selectedTemplate: template,
+        onTemplateChange: handleTemplateChange
+      }),
+
+      // Document List
       React.createElement(DocumentList, {
         documents: documentsList,
-        onRemoveDocument: handleRemoveDocument,
-        onTemplateChange: handleTemplateChange,
-        selectedTemplate: template
+        onRemoveDocument: handleRemoveDocument
       }),
 
       // Error display
@@ -105,9 +174,12 @@ const TemplatePicker: React.FC<TemplatePickerProps> = ({ onClose, documents }) =
           {
             onClick: send,
             disabled: documentsList.length === 0 || !template || isLoading,
-            loading: isLoading
+            loading: isLoading,
+            style: { marginRight: '8px' }
           },
-          isLoading ? 'Sending...' : `Send ${documentsList.length} email(s) with template: ${template || 'selected template'}`
+          isLoading ? 'Sending...' :
+            !template ? 'Select a template to send emails' :
+            `Send ${documentsList.length} email(s) with template: ${template}`
         ),
         React.createElement(
           Button,
