@@ -4776,10 +4776,10 @@ elliptic@^6.5.4, elliptic@^6.6.1:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
-email-bulk-sender@^0.0.6:
-  version "0.0.6"
-  resolved "https://registry.npmjs.org/email-bulk-sender/-/email-bulk-sender-0.0.6.tgz"
-  integrity sha512-TxHwWqskBOkTKlB5bn33tKhlHXUV/lUWOBjg/XGZ95RidjvYWwtl/UDNBO9VcNkZu++cL8RlL3OoEqZMj4BXjg==
+email-bulk-sender@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.npmjs.org/email-bulk-sender/-/email-bulk-sender-0.0.7.tgz"
+  integrity sha512-pkUSRslJQ9oTISYbtvEfSSIxfIXW4JBM0BnB0JDAkeoB7AXHbPQPPRPDegro3zE9Yr+Iw6o+BhnRHMhg6WCNfA==
   dependencies:
     "@strapi/design-system" "^2.0.0-rc.29"
     "@strapi/icons" "^2.0.0-rc.29"
