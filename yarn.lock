@@ -4776,15 +4776,6 @@ elliptic@^6.5.4, elliptic@^6.6.1:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
-email-bulk-sender@^0.0.0:
-  version "0.0.0"
-  resolved "https://registry.npmjs.org/email-bulk-sender/-/email-bulk-sender-0.0.0.tgz"
-  integrity sha512-4yzzKJpie2AQQ4+fh0+C91rT3fP+UP4vbEupuQ42JxoWkL+jD2OS5p9/h+m2ArHzX3nvNEoeK5JlBuhpueEZAQ==
-  dependencies:
-    "@strapi/design-system" "^2.0.0-rc.29"
-    "@strapi/icons" "^2.0.0-rc.29"
-    react-intl "^7.1.11"
-
 emittery@^0.13.0:
   version "0.13.1"
   resolved "https://registry.npmjs.org/emittery/-/emittery-0.13.1.tgz"
@@ -10119,6 +10110,15 @@ stdin-discarder@^0.2.2:
   version "0.2.2"
   resolved "https://registry.npmjs.org/stdin-discarder/-/stdin-discarder-0.2.2.tgz"
   integrity sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==
+
+strapi-plugin-email-bulk-sender@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.npmjs.org/strapi-plugin-email-bulk-sender/-/strapi-plugin-email-bulk-sender-0.1.0.tgz"
+  integrity sha512-73Z6ZaOS/jrKPwBdMh/60BeBqJ8UGI/kXDuwddKTpEBsdFN55NDrEl9FyhtaASwMDfPmm7tvTdxJYXk/gf6wYw==
+  dependencies:
+    "@strapi/design-system" "^2.0.0-rc.29"
+    "@strapi/icons" "^2.0.0-rc.29"
+    react-intl "^7.1.11"
 
 strapi-plugin-media-prefix@^1.0.6:
   version "1.0.6"

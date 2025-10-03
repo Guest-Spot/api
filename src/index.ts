@@ -36,6 +36,8 @@ export default {
   },
 
   bootstrap({ strapi }) {
+    console.log(process.env);
+
     // Register lifecycle hooks for users-permissions user model
     strapi.db.lifecycles.subscribe({
       models: ['plugin::users-permissions.user'],
