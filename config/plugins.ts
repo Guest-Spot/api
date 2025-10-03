@@ -21,7 +21,6 @@ export default ({ env }) => ({
     },
   },
   email: {
-    enabled: true,
     config: {
       provider: 'strapi-provider-email-resend',
       providerOptions: {
