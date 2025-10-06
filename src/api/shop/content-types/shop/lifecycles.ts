@@ -39,5 +39,5 @@ export default {
     
     // Process artist addition and create notifications
     await processArtistAddition(data, where);
-  }
+  },
 };

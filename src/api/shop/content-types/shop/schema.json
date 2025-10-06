@@ -74,6 +74,12 @@
       "type": "boolean",
       "required": true,
       "default": false
+    },
+    "contactName": {
+      "type": "string"
+    },
+    "experience": {
+      "type": "integer"
     }
   }
 }
