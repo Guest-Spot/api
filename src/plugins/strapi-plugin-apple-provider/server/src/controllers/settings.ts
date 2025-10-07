@@ -19,13 +19,17 @@ const settingsController = ({ strapi }: { strapi: Core.Strapi }) => {
     },
 
     async update(ctx: Core.KoaContext) {
-      const { redirectUrl } = ctx.request.body ?? {};
+      const { redirectUrl, teamId, clientId, keyId, enabled } = ctx.request.body ?? {};
       const authKey = ctx.request.files?.authKey;
 
       try {
         const updatedSettings = await getService().updateSettings({
           redirectUrl,
           authKey,
+          teamId,
+          clientId,
+          keyId,
+          enabled,
         });
 
         ctx.body = updatedSettings;

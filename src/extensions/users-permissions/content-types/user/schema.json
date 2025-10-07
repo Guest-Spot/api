@@ -30,6 +30,11 @@
       "type": "string",
       "configurable": false
     },
+    "appleSub": {
+      "type": "string",
+      "configurable": false,
+      "private": true
+    },
     "password": {
       "type": "password",
       "minLength": 6,

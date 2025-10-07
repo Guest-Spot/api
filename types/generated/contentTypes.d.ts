@@ -1203,6 +1203,7 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
+    appleSub: Schema.Attribute.String & Schema.Attribute.Private;
     artist: Schema.Attribute.Relation<'oneToOne', 'api::artist.artist'> &
       Schema.Attribute.Private;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;

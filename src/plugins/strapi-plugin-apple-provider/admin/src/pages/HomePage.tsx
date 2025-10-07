@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Loader, TextInput, Typography } from '@strapi/design-system';
+import { Box, Button, Field, Flex, Loader, TextInput, Toggle, Typography } from '@strapi/design-system';
 import { Layouts, useFetchClient, useNotification } from '@strapi/strapi/admin';
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
@@ -11,10 +11,18 @@ const API_PREFIX = '/strapi-plugin-apple-provider';
 type PluginSettings = {
   redirectUrl: string;
   authKeyFilename: string | null;
+  teamId: string;
+  clientId: string;
+  keyId: string;
+  enabled: boolean;
 };
 
 const HomePage = () => {
   const [redirectUrl, setRedirectUrl] = useState('');
+  const [teamId, setTeamId] = useState('');
+  const [clientId, setClientId] = useState('');
+  const [keyId, setKeyId] = useState('');
+  const [enabled, setEnabled] = useState(false);
   const [authKeyFile, setAuthKeyFile] = useState<File | null>(null);
   const [authKeyFilename, setAuthKeyFilename] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +42,10 @@ const HomePage = () => {
       const { data } = await fetchClient.get<PluginSettings>(`${API_PREFIX}/settings`);
 
       setRedirectUrl(data.redirectUrl ?? '');
+      setTeamId(data.teamId ?? '');
+      setClientId(data.clientId ?? '');
+      setKeyId(data.keyId ?? '');
+      setEnabled(Boolean(data.enabled));
       setAuthKeyFilename(data.authKeyFilename ?? null);
     } catch (error: any) {
       const message =
@@ -61,6 +73,10 @@ const HomePage = () => {
 
     const formData = new FormData();
     formData.append('redirectUrl', redirectUrl);
+    formData.append('teamId', teamId);
+    formData.append('clientId', clientId);
+    formData.append('keyId', keyId);
+    formData.append('enabled', String(enabled));
     if (authKeyFile) {
       formData.append('authKey', authKeyFile);
     }
@@ -72,6 +88,9 @@ const HomePage = () => {
       );
 
       setRedirectUrl(data.redirectUrl ?? '');
+      setTeamId(data.teamId ?? '');
+      setClientId(data.clientId ?? '');
+      setKeyId(data.keyId ?? '');
       setAuthKeyFilename(data.authKeyFilename ?? null);
       setAuthKeyFile(null);
 
@@ -122,6 +141,94 @@ const HomePage = () => {
 
         <Box paddingTop={6}>
           <Box as="form" onSubmit={handleSubmit}>
+            <Box paddingBottom={6}>
+              <Field.Root
+                hint={formatSettingsMessage(
+                  'settings.enabled.hint',
+                  'Allow users to log in with Sign in with Apple once configuration is complete.'
+                )}
+                name="enabled"
+              >
+                <Field.Label>
+                  {formatSettingsMessage('settings.enabled.label', 'Enable Sign in with Apple')}
+                </Field.Label>
+                <Toggle
+                  aria-label="enabled"
+                  checked={enabled}
+                  offLabel={formatSettingsMessage('settings.toggle.off', 'Off')}
+                  onLabel={formatSettingsMessage('settings.toggle.on', 'On')}
+                  onChange={(event) => setEnabled(event.target.checked)}
+                />
+                <Field.Hint />
+              </Field.Root>
+            </Box>
+
+            <Box paddingBottom={6}>
+              <Typography as="label" htmlFor="clientId" variant="pi" fontWeight="bold">
+                {formatSettingsMessage(
+                  'settings.client-id.label',
+                  'Client ID (Service ID)'
+                )}
+              </Typography>
+              <Box paddingTop={2} paddingBottom={2}>
+                <TextInput
+                  id="clientId"
+                  name="clientId"
+                  placeholder="com.example.service"
+                  value={clientId}
+                  onChange={(event) => setClientId(event.target.value)}
+                />
+              </Box>
+              <Typography variant="pi" textColor="neutral500">
+                {formatSettingsMessage(
+                  'settings.client-id.hint',
+                  'The Service ID configured for Sign in with Apple.'
+                )}
+              </Typography>
+            </Box>
+
+            <Box paddingBottom={6}>
+              <Typography as="label" htmlFor="teamId" variant="pi" fontWeight="bold">
+                {formatSettingsMessage('settings.team-id.label', 'Team ID')}
+              </Typography>
+              <Box paddingTop={2} paddingBottom={2}>
+                <TextInput
+                  id="teamId"
+                  name="teamId"
+                  placeholder="XXXXXXXXXX"
+                  value={teamId}
+                  onChange={(event) => setTeamId(event.target.value)}
+                />
+              </Box>
+              <Typography variant="pi" textColor="neutral500">
+                {formatSettingsMessage(
+                  'settings.team-id.hint',
+                  'Find it in the top-right corner of your Apple Developer account.'
+                )}
+              </Typography>
+            </Box>
+
+            <Box paddingBottom={6}>
+              <Typography as="label" htmlFor="keyId" variant="pi" fontWeight="bold">
+                {formatSettingsMessage('settings.key-id.label', 'Key ID')}
+              </Typography>
+              <Box paddingTop={2} paddingBottom={2}>
+                <TextInput
+                  id="keyId"
+                  name="keyId"
+                  placeholder="XXXXXXXXXX"
+                  value={keyId}
+                  onChange={(event) => setKeyId(event.target.value)}
+                />
+              </Box>
+              <Typography variant="pi" textColor="neutral500">
+                {formatSettingsMessage(
+                  'settings.key-id.hint',
+                  'The identifier of the AuthKey used for generating the client secret.'
+                )}
+              </Typography>
+            </Box>
+
             <Box paddingBottom={6}>
               <Typography as="label" htmlFor="redirectUrl" variant="pi" fontWeight="bold">
                 {formatSettingsMessage(
