@@ -11,7 +11,17 @@ export default {
     },
     {
       method: 'GET',
-      path: '/auth/google/callback',
+      path: '/auth/:provider/callback',
+      handler: 'auth.callback',
+      config: {
+        auth: false,
+        prefix: '',
+        policies: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/auth/:provider/callback',
       handler: 'auth.callback',
       config: {
         auth: false,

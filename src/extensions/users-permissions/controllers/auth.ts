@@ -184,7 +184,18 @@ export const authLogic = {
   },
 
   async loginWithOAuth(provider: string, ctx: any) {
-    const user = await getService('providers').connect(provider, ctx.query);
+    const queryParams = (ctx?.query && typeof ctx.query === 'object') ? ctx.query : {};
+    const bodyParams =
+      ctx?.request?.body && typeof ctx.request.body === 'object'
+        ? ctx.request.body
+        : {};
+
+    const oauthPayload = {
+      ...queryParams,
+      ...bodyParams,
+    };
+
+    const user = await getService('providers').connect(provider, oauthPayload);
 
     if (user.confirmed !== true) {
       throw new Error('Your account email is not confirmed');
@@ -224,22 +235,50 @@ export const authLogic = {
 
 export default {
   async callback(ctx) {
-    const provider = ctx.query.provider;
+    const providerFromParams = ctx.params?.provider;
+    const providerFromQuery = ctx.query?.provider as string | undefined;
+    const provider = (providerFromParams ?? providerFromQuery ?? '').toString();
 
-    if (provider === 'google') {
+    const supportedProviders = new Set(['google', 'apple']);
+
+    if (provider && provider !== 'local') {
+      if (!supportedProviders.has(provider)) {
+        return ctx.badRequest(
+          null,
+          new errors.ApplicationError('Provider not supported')
+        );
+      }
+
       try {
         const result = await authLogic.loginWithOAuth(provider, ctx);
         ctx.send(result);
-      } catch (error) {
+        return;
+      } catch (error: any) {
         return ctx.badRequest(
           null,
-          new errors.ApplicationError(error.message)
+          new errors.ApplicationError(error?.message ?? 'Authentication failed')
         );
       }
-    } else {
+    }
+
+    const { identifier, password } = ctx.request.body ?? {};
+    const identifierValue = typeof identifier === 'string' ? identifier : '';
+    const passwordValue = typeof password === 'string' ? password : '';
+
+    if (!identifierValue || !passwordValue) {
       return ctx.badRequest(
         null,
-        new errors.ApplicationError('Provider not supported')
+        new errors.ValidationError('Missing identifier or password')
+      );
+    }
+
+    try {
+      const result = await authLogic.loginWithRefresh(identifierValue, passwordValue, ctx);
+      ctx.send(result);
+    } catch (error: any) {
+      return ctx.badRequest(
+        null,
+        new errors.ApplicationError(error?.message ?? 'Authentication failed')
       );
     }
   },
