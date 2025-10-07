@@ -1,0 +1,14 @@
+{
+  "plugin.name": "Apple Auth Provider",
+  "settings.save": "Save",
+  "settings.redirect-url.label": "The redirect URL to your front-end app",
+  "settings.redirect-url.hint": "Your users will be redirected to this URL with the Apple authorization code.",
+  "settings.auth-key.label": "AuthKey_XXXXXXXXXX.p8 file",
+  "settings.auth-key.hint": "Upload the private key downloaded from the Apple Developer portal.",
+  "settings.auth-key.current": "Current file: {file}",
+  "settings.auth-key.none": "No key has been uploaded yet.",
+  "settings.auth-key.pending": "Selected file: {file}",
+  "notifications.load-error": "Failed to load settings",
+  "notifications.save-success": "Settings saved",
+  "notifications.save-error": "Failed to save settings"
+}

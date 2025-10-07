@@ -35,4 +35,8 @@ export default ({ env }) => ({
   'media-prefix': {
     enabled: true,
   },
+  'strapi-plugin-apple-provider': {
+    enabled: true,
+    resolve: './src/plugins/strapi-plugin-apple-provider'
+  },
 });
