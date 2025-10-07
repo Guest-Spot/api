@@ -184,7 +184,18 @@ export const authLogic = {
   },
 
   async loginWithOAuth(provider: string, ctx: any) {
-    const user = await getService('providers').connect(provider, ctx.query);
+    const queryParams = (ctx?.query && typeof ctx.query === 'object') ? ctx.query : {};
+    const bodyParams =
+      ctx?.request?.body && typeof ctx.request.body === 'object'
+        ? ctx.request.body
+        : {};
+
+    const oauthPayload = {
+      ...queryParams,
+      ...bodyParams,
+    };
+
+    const user = await getService('providers').connect(provider, oauthPayload);
 
     if (user.confirmed !== true) {
       throw new Error('Your account email is not confirmed');

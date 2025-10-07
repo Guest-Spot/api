@@ -21,6 +21,16 @@ export default {
     },
     {
       method: 'POST',
+      path: '/auth/:provider/callback',
+      handler: 'auth.callback',
+      config: {
+        auth: false,
+        prefix: '',
+        policies: [],
+      },
+    },
+    {
+      method: 'POST',
       path: '/auth/refreshToken',
       handler: 'auth.refreshToken',
       config: {

@@ -49,6 +49,9 @@ const SETTINGS_KEY = 'settings';
 const APPLE_TOKEN_URL = 'https://appleid.apple.com/auth/token';
 const APPLE_AUDIENCE = 'https://appleid.apple.com';
 const APPLE_PROVIDER_NAME = 'apple';
+const APPLE_REQUIRED_CUSTOM_PARAMS = {
+  response_mode: 'form_post',
+} as const;
 
 const ensureErrorWithStatus = (message: string, status = 400) => {
   const error = new Error(message);
@@ -320,6 +323,10 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
         callback: getCallbackUrl(),
         callbackUrl: getCallbackUrl(),
         scope: ['name', 'email'],
+        custom_params: {
+          ...(existingAppleConfig.custom_params ?? {}),
+          ...APPLE_REQUIRED_CUSTOM_PARAMS,
+        },
       },
     };
 
@@ -356,6 +363,7 @@ const service = ({ strapi }: { strapi: Core.Strapi }) => {
         callbackUrl: getCallbackUrl(),
         callback: getCallbackUrl(),
         scope: ['name', 'email'],
+        custom_params: APPLE_REQUIRED_CUSTOM_PARAMS,
       },
       async authCallback({ accessToken, query }) {
         const pluginService = strapi
