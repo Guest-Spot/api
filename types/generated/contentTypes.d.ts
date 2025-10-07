@@ -521,6 +521,45 @@ export interface ApiInviteInvite extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiMembershipRequestMembershipRequest
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'membership_requests';
+  info: {
+    displayName: 'Membership Request';
+    pluralName: 'membership-requests';
+    singularName: 'membership-request';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    address: Schema.Attribute.String;
+    city: Schema.Attribute.String;
+    contactName: Schema.Attribute.String;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
+    email: Schema.Attribute.Email;
+    experience: Schema.Attribute.Integer;
+    link: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::membership-request.membership-request'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    phone: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    tempPassword: Schema.Attribute.String;
+    type: Schema.Attribute.Enumeration<['shop', 'artist']>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiNotifyNotify extends Struct.CollectionTypeSchema {
   collectionName: 'notifies';
   info: {
@@ -583,43 +622,6 @@ export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     tags: Schema.Attribute.Component<'tag.portfolio', true>;
     title: Schema.Attribute.String;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiShopRequestShopRequest extends Struct.CollectionTypeSchema {
-  collectionName: 'shop_requests';
-  info: {
-    displayName: 'ShopRequest';
-    pluralName: 'shop-requests';
-    singularName: 'shop-request';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    address: Schema.Attribute.String;
-    city: Schema.Attribute.String;
-    contactName: Schema.Attribute.String;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    email: Schema.Attribute.Email;
-    experience: Schema.Attribute.Integer;
-    link: Schema.Attribute.String;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::shop-request.shop-request'
-    > &
-      Schema.Attribute.Private;
-    name: Schema.Attribute.String;
-    phone: Schema.Attribute.String;
-    publishedAt: Schema.Attribute.DateTime;
-    tempPassword: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1265,9 +1267,9 @@ declare module '@strapi/strapi' {
       'api::feedback.feedback': ApiFeedbackFeedback;
       'api::guest.guest': ApiGuestGuest;
       'api::invite.invite': ApiInviteInvite;
+      'api::membership-request.membership-request': ApiMembershipRequestMembershipRequest;
       'api::notify.notify': ApiNotifyNotify;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
-      'api::shop-request.shop-request': ApiShopRequestShopRequest;
       'api::shop.shop': ApiShopShop;
       'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;

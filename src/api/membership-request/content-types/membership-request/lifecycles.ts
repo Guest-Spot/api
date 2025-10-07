@@ -25,9 +25,10 @@ export default {
           },
           status: 'published',
         });
-        await strapi.documents('api::shop-request.shop-request').delete({
+        await strapi.documents('api::membership-request.membership-request').delete({
           documentId: data.documentId,
         });
+        // TODO: add template for email
         await strapi.plugins.email.services.email.send({
           to: data.email,
           subject: 'Hello from Strapi!',

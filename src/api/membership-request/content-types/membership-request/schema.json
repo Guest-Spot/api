@@ -1,10 +1,10 @@
 {
   "kind": "collectionType",
-  "collectionName": "shop_requests",
+  "collectionName": "membership_requests",
   "info": {
-    "singularName": "shop-request",
-    "pluralName": "shop-requests",
-    "displayName": "ShopRequest"
+    "singularName": "membership-request",
+    "pluralName": "membership-requests",
+    "displayName": "Membership Request"
   },
   "options": {
     "draftAndPublish": true
@@ -40,6 +40,13 @@
     },
     "tempPassword": {
       "type": "string"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "shop",
+        "artist"
+      ]
     }
   }
 }
