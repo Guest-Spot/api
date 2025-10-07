@@ -14,6 +14,12 @@ export default {
 
     if (isDraft) {
       data.tempPassword = Math.random().toString(36).substring(2, 8);
+      // TODO: add template for email
+      await strapi.plugins.email.services.email.send({
+        to: process.env.EMAIL_REPLY_TO,
+        subject: 'New membership request',
+        text: `This is a new membership request from ${data.name} with email ${data.email} and phone ${data.phone} and address ${data.address} and city ${data.city} and experience ${data.experience} and link ${data.link} and type ${data.type}.`,
+      });
     } else {
       try {
         await strapi.documents('plugin::users-permissions.user').create({

@@ -7,7 +7,7 @@ export default ({ env }) => ({
       },
       settings: {
         defaultFrom: env('EMAIL_FROM'), // Required
-        defaultReplyTo: env('EMAIL_FROM'), // Required
+        defaultReplyTo: env('EMAIL_REPLY_TO'), // Required
       },
     }
   },
