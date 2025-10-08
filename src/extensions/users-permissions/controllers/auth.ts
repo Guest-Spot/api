@@ -185,16 +185,46 @@ export const authLogic = {
   },
 
   async loginWithOAuth(provider: string, ctx: any) {
-    const queryParams = (ctx?.query && typeof ctx.query === 'object') ? ctx.query : {};
-    const bodyParams =
+    const queryParams: Record<string, unknown> =
+      ctx?.query && typeof ctx.query === 'object' ? ctx.query : {};
+    const bodyParams: Record<string, unknown> =
       ctx?.request?.body && typeof ctx.request.body === 'object'
         ? ctx.request.body
         : {};
 
-    const oauthPayload = {
+    const oauthPayload: Record<string, unknown> = {
       ...queryParams,
       ...bodyParams,
     };
+
+    const extractString = (value: unknown): string | undefined =>
+      typeof value === 'string' && value.trim() ? value.trim() : undefined;
+
+    if (!extractString(oauthPayload.code)) {
+      const codeCandidate =
+        extractString(bodyParams.code) ??
+        extractString(bodyParams.authorizationCode) ??
+        extractString(queryParams.code);
+
+      if (codeCandidate) {
+        oauthPayload.code = codeCandidate;
+      }
+    }
+
+    if (!extractString(oauthPayload.access_token)) {
+      const tokenCandidate =
+        extractString(oauthPayload.code) ??
+        extractString(bodyParams.access_token) ??
+        extractString(bodyParams.id_token) ??
+        extractString(bodyParams.identity_token) ??
+        extractString(queryParams.access_token) ??
+        extractString(queryParams.id_token) ??
+        extractString(queryParams.identity_token);
+
+      if (tokenCandidate) {
+        oauthPayload.access_token = tokenCandidate;
+      }
+    }
 
     const user = await getService('providers').connect(provider, oauthPayload);
 
