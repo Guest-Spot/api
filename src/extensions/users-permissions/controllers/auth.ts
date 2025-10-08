@@ -197,14 +197,64 @@ export const authLogic = {
       ...bodyParams,
     };
 
-    const extractString = (value: unknown): string | undefined =>
-      typeof value === 'string' && value.trim() ? value.trim() : undefined;
+    const extractString = (value: unknown): string | undefined => {
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed ? trimmed : undefined;
+      }
+
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          const candidate = extractString(item);
+          if (candidate) {
+            return candidate;
+          }
+        }
+      }
+
+      if (value && typeof value === 'object') {
+        const record = value as Record<string, unknown>;
+
+        if ('code' in record) {
+          const nestedCode = extractString(record.code);
+          if (nestedCode) {
+            return nestedCode;
+          }
+        }
+
+        if ('value' in record) {
+          return extractString(record.value);
+        }
+      }
+
+      return undefined;
+    };
+
+    const pickFirst = (...candidates: unknown[]) => {
+      for (const candidate of candidates) {
+        const extracted = extractString(candidate);
+        if (extracted) {
+          return extracted;
+        }
+      }
+      return undefined;
+    };
 
     if (!extractString(oauthPayload.code)) {
-      const codeCandidate =
-        extractString(bodyParams.code) ??
-        extractString(bodyParams.authorizationCode) ??
-        extractString(queryParams.code);
+      const codeCandidate = pickFirst(
+        bodyParams.code,
+        bodyParams.authorizationCode,
+        (bodyParams as Record<string, unknown>).authorization_code,
+        (bodyParams as Record<string, unknown>).authorization,
+        (bodyParams as Record<string, unknown>).user,
+        (bodyParams as Record<string, unknown>).data,
+        queryParams.code,
+        queryParams.authorizationCode,
+        (queryParams as Record<string, unknown>).authorization_code,
+        (queryParams as Record<string, unknown>).authorization,
+        (queryParams as Record<string, unknown>).user,
+        (queryParams as Record<string, unknown>).data
+      );
 
       if (codeCandidate) {
         oauthPayload.code = codeCandidate;
@@ -212,14 +262,19 @@ export const authLogic = {
     }
 
     if (!extractString(oauthPayload.access_token)) {
-      const tokenCandidate =
-        extractString(oauthPayload.code) ??
-        extractString(bodyParams.access_token) ??
-        extractString(bodyParams.id_token) ??
-        extractString(bodyParams.identity_token) ??
-        extractString(queryParams.access_token) ??
-        extractString(queryParams.id_token) ??
-        extractString(queryParams.identity_token);
+      const tokenCandidate = pickFirst(
+        oauthPayload.code,
+        bodyParams.access_token,
+        (bodyParams as Record<string, unknown>).user,
+        (bodyParams as Record<string, unknown>).token,
+        bodyParams.id_token,
+        bodyParams.identity_token,
+        queryParams.access_token,
+        (queryParams as Record<string, unknown>).user,
+        (queryParams as Record<string, unknown>).token,
+        queryParams.id_token,
+        queryParams.identity_token
+      );
 
       if (tokenCandidate) {
         oauthPayload.access_token = tokenCandidate;
