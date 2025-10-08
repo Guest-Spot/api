@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import { errors } from '@strapi/utils';
+import grantFactory from 'grant';
 
 // Helper function to get users-permissions services
 const getService = (name: string) => {
@@ -313,5 +314,74 @@ export default {
         success: true,
       });
     }
+  },
+
+  async connect(ctx, next) {
+    const grant = grantFactory.koa();
+
+    const providers = (await strapi
+      .store({ type: 'plugin', name: 'users-permissions', key: 'grant' })
+      .get()) as Record<string, any>;
+
+    const apiPrefix =
+      (strapi.config.get('api.rest.prefix') as string | undefined) ?? '/api';
+
+    const grantConfig: Record<string, any> = {
+      defaults: {
+        prefix: `${apiPrefix}/connect`,
+      },
+      ...providers,
+    };
+
+    const requestUrl = typeof ctx.request.url === 'string' ? ctx.request.url : '';
+    const [requestPath] = requestUrl.split('?');
+    const providerSegment = requestPath.split('/connect/')[1];
+    const providerName = providerSegment?.split('/')[0];
+
+    if (!providerName) {
+      throw new errors.ApplicationError('Provider not specified');
+    }
+
+    if (!_.get(grantConfig[providerName], 'enabled')) {
+      throw new errors.ApplicationError('This provider is disabled');
+    }
+
+    const serverUrl = (strapi.config.get('server.url') as string | undefined) ?? '';
+
+    if (!serverUrl.startsWith('http')) {
+      strapi.log.warn(
+        'You are using a third party provider for login. Make sure to set an absolute url in config/server.js. More info here: https://docs.strapi.io/developer-docs/latest/plugins/users-permissions.html#setting-up-the-server-url'
+      );
+    }
+
+    const queryCustomCallback = _.get(ctx, 'query.callback');
+    const dynamicSessionCallback = _.get(ctx, 'session.grant.dynamic.callback');
+    const customCallback = queryCustomCallback ?? dynamicSessionCallback;
+
+    if (!grantConfig[providerName]) {
+      grantConfig[providerName] = {};
+    }
+
+    if (customCallback !== undefined) {
+      try {
+        const callbackConfig = strapi
+          .plugin('users-permissions')
+          .config('callback') as { validate: (callback: string, config: Record<string, unknown>) => Promise<void> };
+
+        await callbackConfig.validate(customCallback as string, grantConfig[providerName]);
+        grantConfig[providerName].callback = customCallback;
+      } catch (error) {
+        throw new errors.ValidationError('Invalid callback URL provided', {
+          callback: customCallback,
+        });
+      }
+    }
+
+    grantConfig[providerName] = {
+      ...grantConfig[providerName],
+      redirect_uri: getService('providers').buildRedirectUri(providerName),
+    };
+
+    return grant(grantConfig)(ctx, next);
   },
 };

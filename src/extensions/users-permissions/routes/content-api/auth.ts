@@ -20,6 +20,26 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/connect/(.*)',
+      handler: 'auth.connect',
+      config: {
+        auth: false,
+        prefix: '',
+        policies: [],
+      },
+    },
+    {
+      method: 'POST',
+      path: '/connect/(.*)',
+      handler: 'auth.connect',
+      config: {
+        auth: false,
+        prefix: '',
+        policies: [],
+      },
+    },
+    {
       method: 'POST',
       path: '/auth/:provider/callback',
       handler: 'auth.callback',
