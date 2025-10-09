@@ -5,6 +5,7 @@
 
 import { UserType } from '../../../../interfaces/enums';
 import { sendMembershipRequestEmail } from '../../../../utils/email/membership-request';
+import { sendRequestApprovedEmail } from '../../../../utils/email/request-approved';
 
 export default {
   // Before updating, prevent changing the user (except from admin panel)
@@ -30,11 +31,11 @@ export default {
         await strapi.documents('api::membership-request.membership-request').delete({
           documentId: data.documentId,
         });
-        // TODO: add template for email
-        await strapi.plugins.email.services.email.send({
-          to: data.email,
-          subject: 'Hello from Strapi!',
-          text: 'This is a test email from Strapi v5.',
+        await sendRequestApprovedEmail({
+          email: data.email,
+          name: data.name,
+          tempPassword: data.tempPassword,
+          type: data.type,
         });
       } catch (error) {
         console.error(error);
