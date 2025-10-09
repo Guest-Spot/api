@@ -3,7 +3,6 @@
  * Automatically handle user assignment without custom controllers
  */
 
-import { UserType } from '../../../../interfaces/enums';
 import { sendMembershipRequestEmail } from '../../../../utils/email/membership-request';
 import { sendRequestApprovedEmail } from '../../../../utils/email/request-approved';
 
@@ -24,7 +23,7 @@ export default {
             username: data.name,
             email: data.email,
             password: data.tempPassword,
-            type: UserType.SHOP,
+            type: data.type,
             confirmed: true,
           },
           status: 'published',
