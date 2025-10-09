@@ -93,8 +93,8 @@ const buildRequestApprovedEmail = async (
   const applicationType = (payload.type ?? 'shop').toLowerCase();
   const applicationTypeLabel = getApplicationTypeLabel(applicationType);
   const name = payload.name?.trim() || 'GuestSpot Member';
-  const loginEmail = payload.email?.trim() || 'No email provided';
-  const temporaryPassword = payload.tempPassword?.trim() || 'Set via support';
+  const email = payload.email?.trim() || 'No email provided';
+  const tempPassword = payload.tempPassword?.trim() || 'Set via support';
   const appUrl = getAppUrl();
   const supportEmail = getSupportEmail();
   const currentYear = new Date().getFullYear().toString();
@@ -102,8 +102,8 @@ const buildRequestApprovedEmail = async (
   const variables: Record<string, string> = {
     applicationTypeLabel: escapeHtml(applicationTypeLabel),
     name: escapeHtml(name),
-    loginEmail: escapeHtml(loginEmail),
-    temporaryPassword: escapeHtml(temporaryPassword),
+    email: escapeHtml(email),
+    tempPassword: escapeHtml(tempPassword),
     appUrl: escapeHtml(appUrl),
     supportEmail: escapeHtml(supportEmail),
     currentYear: escapeHtml(currentYear),
@@ -114,8 +114,8 @@ const buildRequestApprovedEmail = async (
   const textLines = [
     `Welcome to GuestSpot, ${name}!`,
     `Your ${applicationTypeLabel} application has been approved.`,
-    `Login email: ${loginEmail}`,
-    `Temporary password: ${temporaryPassword}`,
+    `Login email: ${email}`,
+    `Temporary password: ${tempPassword}`,
     `App URL: ${appUrl}`,
     `Support: ${supportEmail}`,
   ];

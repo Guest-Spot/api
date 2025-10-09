@@ -25,6 +25,7 @@ export default {
             email: data.email,
             password: data.tempPassword,
             type: UserType.SHOP,
+            confirmed: true,
           },
           status: 'published',
         });
