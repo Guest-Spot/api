@@ -10242,10 +10242,10 @@ stdin-discarder@^0.2.2:
   resolved "https://registry.npmjs.org/stdin-discarder/-/stdin-discarder-0.2.2.tgz"
   integrity sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==
 
-strapi-plugin-apple-provider@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.npmjs.org/strapi-plugin-apple-provider/-/strapi-plugin-apple-provider-0.0.4.tgz"
-  integrity sha512-lhcRh2LybUbAc5iAb8EzAoE6y9eAcIcDrzFU6wcxd1/POT8Hiww18FZ7yTz9Wr+Tc6LCYcWdn7zaxOE7krWgMA==
+strapi-plugin-apple-provider@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.npmjs.org/strapi-plugin-apple-provider/-/strapi-plugin-apple-provider-0.0.5.tgz"
+  integrity sha512-VsuTD7ta1Y14QmhpoKndu9tytV/XpGJVTLUwG8f95d139nh8Zkp2vILaaTeZHmj4HvVKDv/ZqRZywsKjNu9QIQ==
   dependencies:
     "@strapi/design-system" "^2.0.0-rc.30"
     "@strapi/icons" "^2.0.0-rc.30"
