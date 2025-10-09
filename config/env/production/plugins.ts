@@ -29,6 +29,8 @@ export default ({ env }) => {
     responseType: appleResponseType,
   };
 
+  console.log('######### Apple Provider Config', appleProviderConfig);
+
   return {
     'users-permissions': {
       enabled: true,
