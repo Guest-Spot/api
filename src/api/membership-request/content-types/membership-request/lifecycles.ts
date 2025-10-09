@@ -18,15 +18,22 @@ export default {
       await sendMembershipRequestEmail(data);
     } else {
       try {
-        await strapi.documents('plugin::users-permissions.user').create({
-          data: {
-            username: data.name,
-            email: data.email,
-            password: data.tempPassword,
-            type: data.type,
-            confirmed: true,
-          },
-          status: 'published',
+        const authenticatedRole = await strapi.db
+          .query('plugin::users-permissions.role')
+          .findOne({ where: { type: 'authenticated' } });
+
+        if (!authenticatedRole) {
+          throw new Error('Authenticated role not found');
+        }
+
+        await strapi.plugin('users-permissions').service('user').add({
+          username: data.name,
+          email: data.email,
+          password: data.tempPassword,
+          provider: 'local',
+          type: data.type,
+          confirmed: true,
+          role: authenticatedRole.id,
         });
         await strapi.documents('api::membership-request.membership-request').delete({
           documentId: data.documentId,
