@@ -2,6 +2,7 @@ import { citiesExtension } from './extensions/graphql/cities';
 import { shopArtistsExtension } from './extensions/graphql/shop-artists';
 import { grapqlGuards } from './extensions/graphql/guards';
 import { usersPermissionsExtension } from './extensions/users-permissions';
+import { registerAppleAuthProvider } from './extensions/users-permissions/providers/apple';
 
 import authRoutes from './extensions/users-permissions/routes/content-api/auth';
 import authController from './extensions/users-permissions/controllers/auth';
@@ -20,6 +21,8 @@ export default {
     strapi.plugin('graphql').service('extension').use(citiesExtension);
     strapi.plugin('graphql').service('extension').use(shopArtistsExtension);
     strapi.plugin('graphql').service('extension').use(usersPermissionsExtension);
+
+    registerAppleAuthProvider({ strapi });
     
     // Register custom routes using strapi.server.routes
     const customRoutes = authRoutes.routes.map(route => ({

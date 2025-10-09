@@ -582,16 +582,6 @@
     decimal.js "^10.4.3"
     tslib "^2.8.0"
 
-"@formatjs/ecma402-abstract@2.3.5":
-  version "2.3.5"
-  resolved "https://registry.npmjs.org/@formatjs/ecma402-abstract/-/ecma402-abstract-2.3.5.tgz"
-  integrity sha512-1HTESOq1IUa23g1lFZEGIXsfZKZOwWmB9RROwGn+xariiQnd++wwTMvlRAbZ8wtXRHFUamJPxsKcxpSzeCvFWQ==
-  dependencies:
-    "@formatjs/fast-memoize" "2.2.7"
-    "@formatjs/intl-localematcher" "0.6.2"
-    decimal.js "^10.4.3"
-    tslib "^2.8.0"
-
 "@formatjs/fast-memoize@2.2.0":
   version "2.2.0"
   resolved "https://registry.npmjs.org/@formatjs/fast-memoize/-/fast-memoize-2.2.0.tgz"
@@ -613,15 +603,6 @@
   dependencies:
     "@formatjs/ecma402-abstract" "2.3.4"
     "@formatjs/icu-skeleton-parser" "1.8.14"
-    tslib "^2.8.0"
-
-"@formatjs/icu-messageformat-parser@2.11.3":
-  version "2.11.3"
-  resolved "https://registry.npmjs.org/@formatjs/icu-messageformat-parser/-/icu-messageformat-parser-2.11.3.tgz"
-  integrity sha512-H/KfWSosaiDiOaW4nHe1Fn4Cgzm+oFQ8giTmB5RJzTBNSMmd+j2NVrvvZHAmlxJHcuOelzKBLjQ2EDcyH4NSWw==
-  dependencies:
-    "@formatjs/ecma402-abstract" "2.3.5"
-    "@formatjs/icu-skeleton-parser" "1.8.15"
     tslib "^2.8.0"
 
 "@formatjs/icu-messageformat-parser@2.7.6":
@@ -647,14 +628,6 @@
   integrity sha512-i4q4V4qslThK4Ig8SxyD76cp3+QJ3sAqr7f6q9VVfeGtxG9OhiAk3y9XF6Q41OymsKzsGQ6OQQoJNY4/lI8TcQ==
   dependencies:
     "@formatjs/ecma402-abstract" "2.3.4"
-    tslib "^2.8.0"
-
-"@formatjs/icu-skeleton-parser@1.8.15":
-  version "1.8.15"
-  resolved "https://registry.npmjs.org/@formatjs/icu-skeleton-parser/-/icu-skeleton-parser-1.8.15.tgz"
-  integrity sha512-qNrKxWJmnWxin5U4A4Evy7C0rgRiNw3IqXu9OGuT31B8lDxBGl+OgT8kcq0ZVKK0gqA4l4SQB9x+SFAvLT5hcQ==
-  dependencies:
-    "@formatjs/ecma402-abstract" "2.3.5"
     tslib "^2.8.0"
 
 "@formatjs/intl-displaynames@6.6.6":
@@ -689,13 +662,6 @@
   dependencies:
     tslib "^2.8.0"
 
-"@formatjs/intl-localematcher@0.6.2":
-  version "0.6.2"
-  resolved "https://registry.npmjs.org/@formatjs/intl-localematcher/-/intl-localematcher-0.6.2.tgz"
-  integrity sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA==
-  dependencies:
-    tslib "^2.8.0"
-
 "@formatjs/intl@2.10.0":
   version "2.10.0"
   resolved "https://registry.npmjs.org/@formatjs/intl/-/intl-2.10.0.tgz"
@@ -718,17 +684,6 @@
     "@formatjs/fast-memoize" "2.2.7"
     "@formatjs/icu-messageformat-parser" "2.11.2"
     intl-messageformat "10.7.16"
-    tslib "^2.8.0"
-
-"@formatjs/intl@3.1.7":
-  version "3.1.7"
-  resolved "https://registry.npmjs.org/@formatjs/intl/-/intl-3.1.7.tgz"
-  integrity sha512-8nT63H95wtIN1o5BcpqWnTdzl3+78gPXguaqBpoUlCeQtBtrNWDsEDMHz8v60fyHDTZ6mTNKnac9THqwD3/cug==
-  dependencies:
-    "@formatjs/ecma402-abstract" "2.3.5"
-    "@formatjs/fast-memoize" "2.2.7"
-    "@formatjs/icu-messageformat-parser" "2.11.3"
-    intl-messageformat "10.7.17"
     tslib "^2.8.0"
 
 "@graphql-tools/merge@^8.4.1":
@@ -2063,37 +2018,6 @@
     lodash "4.17.21"
     react-remove-scroll "2.5.10"
 
-"@strapi/design-system@^2.0.0-rc.30":
-  version "2.0.0-rc.30"
-  resolved "https://registry.npmjs.org/@strapi/design-system/-/design-system-2.0.0-rc.30.tgz"
-  integrity sha512-RJSUzAXfWlZZz01vX975FekB5ZWqd7eoVH2+p+KZR06BJSbem06UHZStlrsak6v+UyLcaAW+fzTUIq3Sjpn32g==
-  dependencies:
-    "@codemirror/lang-json" "6.0.1"
-    "@floating-ui/react-dom" "2.1.0"
-    "@internationalized/date" "3.5.4"
-    "@internationalized/number" "3.5.3"
-    "@radix-ui/react-accordion" "1.1.2"
-    "@radix-ui/react-alert-dialog" "1.0.5"
-    "@radix-ui/react-avatar" "1.0.4"
-    "@radix-ui/react-checkbox" "1.0.4"
-    "@radix-ui/react-dialog" "1.0.5"
-    "@radix-ui/react-dismissable-layer" "1.0.5"
-    "@radix-ui/react-dropdown-menu" "2.0.6"
-    "@radix-ui/react-focus-guards" "1.0.1"
-    "@radix-ui/react-focus-scope" "1.0.4"
-    "@radix-ui/react-popover" "1.0.7"
-    "@radix-ui/react-progress" "1.0.3"
-    "@radix-ui/react-radio-group" "1.1.3"
-    "@radix-ui/react-scroll-area" "1.0.5"
-    "@radix-ui/react-switch" "1.0.3"
-    "@radix-ui/react-tabs" "1.0.4"
-    "@radix-ui/react-tooltip" "1.0.7"
-    "@radix-ui/react-use-callback-ref" "1.0.1"
-    "@strapi/ui-primitives" "2.0.0-rc.30"
-    "@uiw/react-codemirror" "4.22.2"
-    lodash "4.17.21"
-    react-remove-scroll "2.5.10"
-
 "@strapi/email@5.23.3":
   version "5.23.3"
   resolved "https://registry.npmjs.org/@strapi/email/-/email-5.23.3.tgz"
@@ -2145,11 +2069,6 @@
   version "2.0.0-rc.29"
   resolved "https://registry.npmjs.org/@strapi/icons/-/icons-2.0.0-rc.29.tgz"
   integrity sha512-VFmvS41vYq6qgRShIMlZZPkr6DteINYya67Ghxtd5b+agWziKSpV6W1yMyFLJwSEXEyPxhvaVHw/xG4BUfpYNg==
-
-"@strapi/icons@^2.0.0-rc.30":
-  version "2.0.0-rc.30"
-  resolved "https://registry.npmjs.org/@strapi/icons/-/icons-2.0.0-rc.30.tgz"
-  integrity sha512-XOqbr573AP8eOwyMPTn7tDtFV1HFlqDlwr8qNgPzo29V2+449NE8Bk0aG8PZ+kGmbnxzyQC8OQDtWlvRBEL5uA==
 
 "@strapi/logger@5.23.3":
   version "5.23.3"
@@ -2319,7 +2238,7 @@
     typescript "5.4.4"
     yup "0.32.9"
 
-"@strapi/strapi@^5.0.0", "@strapi/strapi@^5.10.3", "@strapi/strapi@^5.23.3", "@strapi/strapi@>=3.0.0", "@strapi/strapi@5.23.3":
+"@strapi/strapi@^5.0.0", "@strapi/strapi@^5.10.3", "@strapi/strapi@>=3.0.0", "@strapi/strapi@5.23.3":
   version "5.23.3"
   resolved "https://registry.npmjs.org/@strapi/strapi/-/strapi-5.23.3.tgz"
   integrity sha512-qcDOxyNyC6kEjUSteqNJuACrho1eYCqZIiqnJMZdxL7o1RIGUgd8wN1VsRdp0jIFGp4Qgep0zpnJf9fFwP+ItQ==
@@ -2427,32 +2346,6 @@
   version "2.0.0-rc.29"
   resolved "https://registry.npmjs.org/@strapi/ui-primitives/-/ui-primitives-2.0.0-rc.29.tgz"
   integrity sha512-jLVuK0BMEG11INhdNgEuzvRQovxSEgcJ0BKCmOf4i5V2nygtliaBmhqy1bsu4sz+D/pEP4ZZLjjHzEnqr0XYoQ==
-  dependencies:
-    "@radix-ui/number" "1.0.1"
-    "@radix-ui/primitive" "1.0.1"
-    "@radix-ui/react-collection" "1.0.3"
-    "@radix-ui/react-compose-refs" "1.0.1"
-    "@radix-ui/react-context" "1.0.1"
-    "@radix-ui/react-direction" "1.0.1"
-    "@radix-ui/react-dismissable-layer" "1.0.5"
-    "@radix-ui/react-focus-guards" "1.0.1"
-    "@radix-ui/react-focus-scope" "1.0.4"
-    "@radix-ui/react-id" "1.0.1"
-    "@radix-ui/react-popper" "1.1.3"
-    "@radix-ui/react-portal" "1.0.4"
-    "@radix-ui/react-primitive" "1.0.3"
-    "@radix-ui/react-slot" "1.0.2"
-    "@radix-ui/react-use-controllable-state" "1.0.1"
-    "@radix-ui/react-use-layout-effect" "1.0.1"
-    "@radix-ui/react-use-previous" "1.0.1"
-    "@radix-ui/react-visually-hidden" "1.0.3"
-    aria-hidden "1.2.4"
-    react-remove-scroll "2.5.10"
-
-"@strapi/ui-primitives@2.0.0-rc.30":
-  version "2.0.0-rc.30"
-  resolved "https://registry.npmjs.org/@strapi/ui-primitives/-/ui-primitives-2.0.0-rc.30.tgz"
-  integrity sha512-K1jYRfbdb0uSgSjf1xKEB2bAQhYojBUCSfBUaSf/oDjS+eHXjb6IpC5jz50B2UpugZBvhZuqVfXJqhO+Q9yiXA==
   dependencies:
     "@radix-ui/number" "1.0.1"
     "@radix-ui/primitive" "1.0.1"
@@ -6529,16 +6422,6 @@ intl-messageformat@10.7.16:
     "@formatjs/icu-messageformat-parser" "2.11.2"
     tslib "^2.8.0"
 
-intl-messageformat@10.7.17:
-  version "10.7.17"
-  resolved "https://registry.npmjs.org/intl-messageformat/-/intl-messageformat-10.7.17.tgz"
-  integrity sha512-0Ugaf65B2J76rb31drgNF1l6bGEDkbIiYc2Glx6jaZINHnwa5kDRGy8KXYuA+/8P4G0c9prAFhfVhQJJfzUuvQ==
-  dependencies:
-    "@formatjs/ecma402-abstract" "2.3.5"
-    "@formatjs/fast-memoize" "2.2.7"
-    "@formatjs/icu-messageformat-parser" "2.11.3"
-    tslib "^2.8.0"
-
 invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.npmjs.org/invariant/-/invariant-2.2.4.tgz"
@@ -9079,20 +8962,6 @@ react-intl@^7.1.11:
     intl-messageformat "10.7.16"
     tslib "^2.8.0"
 
-react-intl@^7.1.13:
-  version "7.1.13"
-  resolved "https://registry.npmjs.org/react-intl/-/react-intl-7.1.13.tgz"
-  integrity sha512-wiRmYyWfaDDxv4QxRKXCscbSV2ZzrNnm1t7iC5qZKNDGtM2YrQO+C86QzXq7wz/ahVjJrgeSahY5h2rYlOGcyg==
-  dependencies:
-    "@formatjs/ecma402-abstract" "2.3.5"
-    "@formatjs/icu-messageformat-parser" "2.11.3"
-    "@formatjs/intl" "3.1.7"
-    "@types/hoist-non-react-statics" "^3.3.1"
-    "@types/react" "16 || 17 || 18 || 19"
-    hoist-non-react-statics "^3.3.2"
-    intl-messageformat "10.7.17"
-    tslib "^2.8.0"
-
 react-intl@^7.1.6:
   version "7.1.11"
   resolved "https://registry.npmjs.org/react-intl/-/react-intl-7.1.11.tgz"
@@ -9199,7 +9068,7 @@ react-remove-scroll@2.5.5:
     use-callback-ref "^1.3.0"
     use-sidecar "^1.1.2"
 
-react-router-dom@^6.0.0, react-router-dom@^6.29.0, react-router-dom@^6.30.1:
+react-router-dom@^6.0.0, react-router-dom@^6.29.0:
   version "6.30.1"
   resolved "https://registry.npmjs.org/react-router-dom/-/react-router-dom-6.30.1.tgz"
   integrity sha512-llKsgOkZdbPU1Eg3zK8lCn+sjD9wMRZZPuzmdWWX5SUs8OFkN5HnFVC0u5KMeMaC9aoancFI/KoLuKPqN+hxHw==
@@ -10242,15 +10111,6 @@ stdin-discarder@^0.2.2:
   resolved "https://registry.npmjs.org/stdin-discarder/-/stdin-discarder-0.2.2.tgz"
   integrity sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==
 
-strapi-plugin-apple-provider@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.npmjs.org/strapi-plugin-apple-provider/-/strapi-plugin-apple-provider-0.0.5.tgz"
-  integrity sha512-VsuTD7ta1Y14QmhpoKndu9tytV/XpGJVTLUwG8f95d139nh8Zkp2vILaaTeZHmj4HvVKDv/ZqRZywsKjNu9QIQ==
-  dependencies:
-    "@strapi/design-system" "^2.0.0-rc.30"
-    "@strapi/icons" "^2.0.0-rc.30"
-    react-intl "^7.1.13"
-
 strapi-plugin-email-bulk-sender@^0.1.0:
   version "0.1.0"
   resolved "https://registry.npmjs.org/strapi-plugin-email-bulk-sender/-/strapi-plugin-email-bulk-sender-0.1.0.tgz"
@@ -10407,7 +10267,7 @@ style-mod@^4.0.0, style-mod@^4.1.0:
   resolved "https://registry.npmjs.org/style-mod/-/style-mod-4.1.2.tgz"
   integrity sha512-wnD1HyVqpJUI2+eKZ+eo1UwghftP6yuFheBqqe+bWCotBjC2K1YnteJILRMs3SM4V/0dLEW1SC27MWP5y+mwmw==
 
-styled-components@^6.0.0, styled-components@^6.1.15, styled-components@^6.1.19:
+styled-components@^6.0.0, styled-components@^6.1.15:
   version "6.1.19"
   resolved "https://registry.npmjs.org/styled-components/-/styled-components-6.1.19.tgz"
   integrity sha512-1v/e3Dl1BknC37cXMhwGomhO8AkYmN41CqyX9xhUDxry1ns3BFQy2lLDRQXJRdVVWB9OHemv/53xaStimvWyuA==
@@ -10778,11 +10638,6 @@ typescript@5.4.4:
   version "5.4.4"
   resolved "https://registry.npmjs.org/typescript/-/typescript-5.4.4.tgz"
   integrity sha512-dGE2Vv8cpVvw28v8HCPqyb08EzbBURxDpuhJvTrusShUfGnhHBafDsLdS1EhhxyL6BJQE+2cT3dDPAv+MQ6oLw==
-
-typescript@5.8.3:
-  version "5.8.3"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-5.8.3.tgz"
-  integrity sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==
 
 uc.micro@^1.0.1, uc.micro@^1.0.5:
   version "1.0.6"
