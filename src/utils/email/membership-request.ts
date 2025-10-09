@@ -4,8 +4,8 @@ import path from 'path';
 const MEMBERSHIP_REQUEST_TEMPLATE_NAME = 'membership-request.html';
 
 const APPLICATION_TYPE_LABELS: Record<string, string> = {
-  shop: 'Studio',
-  artist: 'Guest Artist',
+  shop: 'Shop',
+  artist: 'Artist',
 };
 
 export type MembershipRequestEmailPayload = {
@@ -47,7 +47,7 @@ const toDisplayValue = (value: unknown, fallback = 'Not provided'): string => {
 
 const getApplicationTypeLabel = (type?: string | null): string => {
   if (!type) {
-    return 'Studio';
+    return 'Shop';
   }
 
   return APPLICATION_TYPE_LABELS[type] ?? type;

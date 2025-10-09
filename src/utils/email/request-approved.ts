@@ -11,8 +11,8 @@ type RequestApprovedEmailPayload = {
 const REQUEST_APPROVED_TEMPLATE_NAME = 'request-approved.html';
 
 const APPLICATION_TYPE_LABELS: Record<string, string> = {
-  shop: 'Studio',
-  artist: 'Guest Artist',
+  shop: 'Shop',
+  artist: 'Artist',
 };
 
 let cachedRequestApprovedTemplate: string | null = null;
@@ -27,7 +27,7 @@ const escapeHtml = (value: string): string =>
 
 const getApplicationTypeLabel = (type?: string | null): string => {
   if (!type) {
-    return 'Studio';
+    return 'Shop';
   }
 
   return APPLICATION_TYPE_LABELS[type] ?? type;
@@ -92,7 +92,7 @@ const buildRequestApprovedEmail = async (
 
   const applicationType = (payload.type ?? 'shop').toLowerCase();
   const applicationTypeLabel = getApplicationTypeLabel(applicationType);
-  const name = payload.name?.trim() || 'GuestSpot Member';
+  const name = payload.name?.trim() || 'GuestSpot User';
   const email = payload.email?.trim() || 'No email provided';
   const tempPassword = payload.tempPassword?.trim() || 'Set via support';
   const appUrl = getAppUrl();
