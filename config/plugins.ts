@@ -1,5 +1,4 @@
 export default ({ env }) => {
-  const appleEnabled = env.bool('APPLE_AUTH_ENABLED', false);
   const appleClientId = env('APPLE_CLIENT_ID');
   const appleTeamId = env('APPLE_TEAM_ID');
   const appleKeyId = env('APPLE_KEY_ID');
@@ -17,7 +16,7 @@ export default ({ env }) => {
   const appleResponseType = env('APPLE_RESPONSE_TYPE', 'code');
 
   const appleProviderConfig = {
-    enabled: appleEnabled,
+    enabled: true,
     key: appleClientId,
     keyId: appleKeyId,
     teamId: appleTeamId,
