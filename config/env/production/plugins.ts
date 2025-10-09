@@ -30,27 +30,28 @@ export default ({ env }) => {
   };
 
   return {
-  'users-permissions': {
-    enabled: true,
-    config: {
-      jwt: {
-        expiresIn: '15m',
-      },
-      providers: {
-        apple: appleProviderConfig,
+    'users-permissions': {
+      enabled: true,
+      config: {
+        jwt: {
+          expiresIn: '15m',
+        },
+        providers: {
+          apple: appleProviderConfig,
+        },
       },
     },
-  },
-  email: {
-    config: {
-      provider: 'strapi-provider-email-resend',
-      providerOptions: {
-        apiKey: env('RESEND_API_KEY'), // Required
-      },
-      settings: {
-        defaultFrom: env('EMAIL_FROM'), // Required
-        defaultReplyTo: env('EMAIL_REPLY_TO'), // Required
-      },
-    }
-  },
+    email: {
+      config: {
+        provider: 'strapi-provider-email-resend',
+        providerOptions: {
+          apiKey: env('RESEND_API_KEY'), // Required
+        },
+        settings: {
+          defaultFrom: env('EMAIL_FROM'), // Required
+          defaultReplyTo: env('EMAIL_REPLY_TO'), // Required
+        },
+      }
+    },
+  };
 };
