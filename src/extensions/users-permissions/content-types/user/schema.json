@@ -150,6 +150,16 @@
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
+      "conditions": {
+        "visible": {
+          "!=": [
+            {
+              "var": "type"
+            },
+            "shop"
+          ]
+        }
+      },
       "inversedBy": "childs"
     },
     "childs": {

@@ -1,5 +1,4 @@
 import { authLogic } from './controllers/auth';
-import getUserWithProfile from '../../utils/getUserWithProfile';
 
 export const usersPermissionsExtension = () => ({
   typeDefs: /* GraphQL */ `
@@ -10,6 +9,7 @@ export const usersPermissionsExtension = () => ({
     extend type UsersPermissionsMe {
       type: String
       name: String
+      email: String
       avatar: UploadFile
       pictures: [UploadFile]
       description: String
@@ -49,13 +49,24 @@ export const usersPermissionsExtension = () => ({
           const authUser = ctx.state.user;
           if (!authUser) return null;
 
-          const userWithProfile = await getUserWithProfile(authUser.id);
-          if (!userWithProfile) return null;
-
           const schema = strapi.contentType('plugin::users-permissions.user');
-          const sanitized = await strapi.contentAPI.sanitize.output(userWithProfile, schema, {
-            auth: ctx.state.auth,
-          });
+          const userWithRelations = await strapi.entityService.findOne(
+            'plugin::users-permissions.user',
+            authUser.id,
+            {
+              populate: ['avatar', 'pictures'],
+            }
+          );
+
+          if (!userWithRelations) return null;
+
+          const sanitized = await strapi.contentAPI.sanitize.output(
+            userWithRelations,
+            schema,
+            {
+              auth: ctx.state.auth,
+            }
+          );
 
           return sanitized;
         },
