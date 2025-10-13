@@ -60,8 +60,8 @@ export async function processArtistRemoval(data: any, where: any): Promise<void>
   if (data.artists && data.artists.disconnect && data.artists.disconnect.length > 0) {
     try {
       // Get current shop data
-      const currentShop: any = await strapi.entityService.findOne('api::shop.shop', where.id, {
-        populate: { artists: true }
+      const currentShop: any = await strapi.entityService.findOne('plugin::users-permissions.user', where.id, {
+        populate: { childs: true }
       });
 
       if (currentShop) {
@@ -70,7 +70,7 @@ export async function processArtistRemoval(data: any, where: any): Promise<void>
           const artistId = disconnectedArtist.id || disconnectedArtist;
           
           // Find the artist details from current shop data
-          const removedArtist = currentShop.artists?.find((artist: any) => artist.id === artistId);
+          const removedArtist = currentShop.childs?.find((artist: any) => artist.id === artistId);
 
           if (removedArtist) {
             await createArtistRemovedNotification(currentShop, removedArtist);

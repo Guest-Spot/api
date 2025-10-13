@@ -58,8 +58,8 @@ export async function processArtistAddition(data: any, where: any): Promise<void
   if (data.artists && data.artists.connect && data.artists.connect.length > 0) {
     try {
       // Get current shop data
-      const currentShop: any = await strapi.entityService.findOne('api::shop.shop', where.id, {
-        populate: { artists: true }
+      const currentShop: any = await strapi.entityService.findOne('plugin::users-permissions.user', where.id, {
+        populate: { childs: true }
       });
 
       if (currentShop) {
@@ -71,10 +71,10 @@ export async function processArtistAddition(data: any, where: any): Promise<void
           let addedArtist;
           if (typeof connectedArtist === 'object' && connectedArtist.id) {
             // If connectedArtist is an object with id, fetch the full artist data
-            addedArtist = await strapi.entityService.findOne('api::artist.artist', artistId);
+            addedArtist = await strapi.entityService.findOne('plugin::users-permissions.user', artistId);
           } else {
             // If connectedArtist is just an id, fetch the full artist data
-            addedArtist = await strapi.entityService.findOne('api::artist.artist', artistId);
+            addedArtist = await strapi.entityService.findOne('plugin::users-permissions.user', artistId);
           }
 
           if (addedArtist) {

@@ -373,52 +373,6 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiArtistArtist extends Struct.CollectionTypeSchema {
-  collectionName: 'artists';
-  info: {
-    displayName: 'Artist';
-    pluralName: 'artists';
-    singularName: 'artist';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    address: Schema.Attribute.String;
-    avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
-    blocked: Schema.Attribute.Boolean &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<false>;
-    city: Schema.Attribute.String;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    email: Schema.Attribute.Email;
-    experience: Schema.Attribute.Integer;
-    links: Schema.Attribute.Component<'contact.social-links', true>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::artist.artist'
-    > &
-      Schema.Attribute.Private;
-    location: Schema.Attribute.Component<'geo.location', false>;
-    name: Schema.Attribute.String;
-    phone: Schema.Attribute.String;
-    publishedAt: Schema.Attribute.DateTime;
-    shop: Schema.Attribute.Relation<'manyToOne', 'api::shop.shop'>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    users_permissions_user: Schema.Attribute.Relation<
-      'oneToOne',
-      'plugin::users-permissions.user'
-    > &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface ApiFeedbackFeedback extends Struct.CollectionTypeSchema {
   collectionName: 'feedbacks';
   info: {
@@ -447,40 +401,6 @@ export interface ApiFeedbackFeedback extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-  };
-}
-
-export interface ApiGuestGuest extends Struct.CollectionTypeSchema {
-  collectionName: 'guests';
-  info: {
-    displayName: 'Guest';
-    pluralName: 'guests';
-    singularName: 'guest';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
-    blocked: Schema.Attribute.Boolean &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<false>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    email: Schema.Attribute.Email;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::guest.guest'> &
-      Schema.Attribute.Private;
-    name: Schema.Attribute.String;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    users_permissions_user: Schema.Attribute.Relation<
-      'oneToOne',
-      'plugin::users-permissions.user'
-    >;
   };
 }
 
@@ -624,55 +544,6 @@ export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
     title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
-export interface ApiShopShop extends Struct.CollectionTypeSchema {
-  collectionName: 'shops';
-  info: {
-    displayName: 'Shop';
-    pluralName: 'shops';
-    singularName: 'shop';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    address: Schema.Attribute.String;
-    artists: Schema.Attribute.Relation<'oneToMany', 'api::artist.artist'>;
-    blocked: Schema.Attribute.Boolean &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<false>;
-    city: Schema.Attribute.String;
-    contactName: Schema.Attribute.String;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    email: Schema.Attribute.Email;
-    experience: Schema.Attribute.Integer;
-    link: Schema.Attribute.String;
-    links: Schema.Attribute.Component<'contact.social-links', true>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<'oneToMany', 'api::shop.shop'> &
-      Schema.Attribute.Private;
-    location: Schema.Attribute.Component<'geo.location', false>;
-    name: Schema.Attribute.String;
-    openingHours: Schema.Attribute.Component<'time.opening-hour', true>;
-    phone: Schema.Attribute.String;
-    pictures: Schema.Attribute.Media<
-      'images' | 'files' | 'videos' | 'audios',
-      true
-    >;
-    publishedAt: Schema.Attribute.DateTime;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    users_permissions_user: Schema.Attribute.Relation<
-      'oneToOne',
-      'plugin::users-permissions.user'
-    > &
       Schema.Attribute.Private;
   };
 }
@@ -1203,32 +1074,51 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
+    address: Schema.Attribute.String;
     appleSub: Schema.Attribute.String & Schema.Attribute.Private;
-    artist: Schema.Attribute.Relation<'oneToOne', 'api::artist.artist'> &
-      Schema.Attribute.Private;
+    avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    childs: Schema.Attribute.Relation<
+      'oneToMany',
+      'plugin::users-permissions.user'
+    >;
+    city: Schema.Attribute.String;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    contactName: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    description: Schema.Attribute.Text;
     email: Schema.Attribute.Email &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
-    guest: Schema.Attribute.Relation<'oneToOne', 'api::guest.guest'>;
+    experience: Schema.Attribute.Integer;
+    link: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'plugin::users-permissions.user'
     > &
       Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    openingHours: Schema.Attribute.Component<'time.opening-hour', true>;
+    parent: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    phone: Schema.Attribute.String;
+    pictures: Schema.Attribute.Media<
+      'images' | 'files' | 'videos' | 'audios',
+      true
+    >;
     provider: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
     refreshToken: Schema.Attribute.String & Schema.Attribute.Private;
@@ -1237,8 +1127,6 @@ export interface PluginUsersPermissionsUser
       'manyToOne',
       'plugin::users-permissions.role'
     >;
-    shop: Schema.Attribute.Relation<'oneToOne', 'api::shop.shop'> &
-      Schema.Attribute.Private;
     type: Schema.Attribute.Enumeration<['shop', 'artist', 'guest']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'guest'>;
@@ -1264,14 +1152,11 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
-      'api::artist.artist': ApiArtistArtist;
       'api::feedback.feedback': ApiFeedbackFeedback;
-      'api::guest.guest': ApiGuestGuest;
       'api::invite.invite': ApiInviteInvite;
       'api::membership-request.membership-request': ApiMembershipRequestMembershipRequest;
       'api::notify.notify': ApiNotifyNotify;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
-      'api::shop.shop': ApiShopShop;
       'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

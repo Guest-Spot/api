@@ -1,24 +1,5 @@
 export const grapqlGuards = () => ({
   resolversConfig: {
-    // FILTER BLOCKED
-    'Query.shops': {
-      policies: ['global::filter-blocked']
-    },
-    'Query.shops_connection': {
-      policies: ['global::filter-blocked']
-    },
-    'Query.artists': {
-      policies: ['global::filter-blocked']
-    },
-    'Query.artists_connection': {
-      policies: ['global::filter-blocked']
-    },
-    'Query.guests': {
-      policies: ['global::filter-blocked']
-    },
-    'Query.guests_connection': {
-      policies: ['global::filter-blocked']
-    },
     // Query resolvers - require authentication and ownership check
     'Query.invites': {
       policies: []
@@ -84,50 +65,6 @@ export const grapqlGuards = () => ({
         config: {
           ownerField: ['sender', 'recipient'],
           serviceName: 'api::invite.invite'
-        }
-      }]
-    },
-    // SHOP Policies
-    'Mutation.createShop': { 
-      policies: []
-    },
-    'Mutation.updateShop': { 
-      policies: [{
-        name: 'global::is-owner',
-        config: {
-          ownerField: ['documentId'],
-          serviceName: 'api::shop.shop'
-        }
-      }]
-    },
-    'Mutation.deleteShop': { 
-      policies: [{
-        name: 'global::is-owner',
-        config: {
-          ownerField: ['documentId'],
-          serviceName: 'api::shop.shop'
-        }
-      }]
-    },
-    // ARTIST Policies
-    'Mutation.createArtist': { 
-      policies: []
-    },
-    'Mutation.updateArtist': { 
-      policies: [{
-        name: 'global::is-owner',
-        config: {
-          ownerField: ['documentId'],
-          serviceName: 'api::artist.artist'
-        }
-      }]
-    },
-    'Mutation.deleteArtist': { 
-      policies: [{
-        name: 'global::is-owner',
-        config: {
-          ownerField: ['documentId'],
-          serviceName: 'api::artist.artist'
         }
       }]
     },

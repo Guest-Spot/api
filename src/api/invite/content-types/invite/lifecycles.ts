@@ -4,7 +4,7 @@
  */
 
 import { InviteType, InviteReaction } from '../../../../interfaces/enums';
-import { createArtistAddedNotification } from '../../../shop/helpers/createArtistAddedNotification';
+import { createArtistAddedNotification } from '../../helpers/createArtistAddedNotification';
 
 export default {
   async beforeUpdate(event) {
@@ -16,13 +16,13 @@ export default {
     if (currentInvite && currentInvite.type === InviteType.ARTIST_TO_SHOP) {
       try {
         // Get current shop data to access existing artists
-        const shop = await strapi.documents('api::shop.shop').findOne({
+        const shop = await strapi.documents('plugin::users-permissions.user').findOne({
           documentId: currentInvite.sender,
-          populate: ['artists']
+          populate: ['childs']
         });
 
         // Get current artists array or initialize empty array
-        const currentArtists = (shop as any).artists ? (shop as any).artists.map((artist: any) => artist.documentId) : [];
+        const currentArtists = (shop as any).childs ? (shop as any).childs.map((artist: any) => artist.documentId) : [];
         
         if (data.reaction === InviteReaction.ACCEPTED) {
           // Add new artist ID if not already present
@@ -30,17 +30,17 @@ export default {
             currentArtists.push(currentInvite.recipient);
             
             // Update the shop's artists field
-            await strapi.documents('api::shop.shop').update({
+            await strapi.documents('plugin::users-permissions.user').update({
               documentId: currentInvite.sender,
               data: {
-                artists: currentArtists
+                childs: currentArtists
               }
             });
 
             // Create notification for artist addition
             try {
               // Get artist data for notification
-              const artist = await strapi.documents('api::artist.artist').findOne({
+              const artist = await strapi.documents('plugin::users-permissions.user').findOne({
                 documentId: currentInvite.recipient
               });
               
@@ -57,10 +57,10 @@ export default {
 
           // Update the shop's artists field only if there was a change
           if (updatedArtists.length !== currentArtists.length) {
-            await strapi.documents('api::shop.shop').update({
+            await strapi.documents('plugin::users-permissions.user').update({
               documentId: currentInvite.sender,
               data: {
-                artists: updatedArtists
+                childs: updatedArtists
               }
             });
           }

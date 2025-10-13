@@ -87,28 +87,69 @@
         "guest"
       ]
     },
-    "shop": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::shop.shop",
-      "private": true,
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "pictures": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "avatar": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "city": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "openingHours": {
+      "type": "component",
       "conditions": {
         "visible": {
-          "!=": [
+          "==": [
             {
               "var": "type"
             },
-            "artist"
+            "shop"
           ]
         }
       },
-      "inversedBy": "users_permissions_user"
+      "component": "time.opening-hour",
+      "repeatable": true
     },
-    "artist": {
+    "contactName": {
+      "type": "string"
+    },
+    "experience": {
+      "type": "integer"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "link": {
+      "type": "string"
+    },
+    "parent": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::artist.artist",
-      "private": true,
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
       "conditions": {
         "visible": {
           "!=": [
@@ -119,13 +160,13 @@
           ]
         }
       },
-      "inversedBy": "users_permissions_user"
+      "inversedBy": "childs"
     },
-    "guest": {
+    "childs": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::guest.guest",
-      "mappedBy": "users_permissions_user"
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "parent"
     }
   }
 }

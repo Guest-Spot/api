@@ -3,8 +3,6 @@
  * Checks ownership for update and delete operations based on different ownership patterns
  */
 
-import getUserWithProfile from "../utils/getUserWithProfile";
-
 interface OwnershipConfig {
   // For entities that use owner field (like portfolio, trip)
   ownerField?: string[];
@@ -24,7 +22,6 @@ export default (policyContext, config: OwnershipConfig, { strapi }) => {
 
   return new Promise(async (resolve) => {
     try {
-      const user = await getUserWithProfile(state?.user?.id);
       const entityId = policyContext?.args?.id || policyContext?.args?.documentId;
       
       if (!entityId) {
@@ -48,10 +45,10 @@ export default (policyContext, config: OwnershipConfig, { strapi }) => {
       // Check ownership based on the configured pattern
       if (config.ownerField) {
         // For entities using owner field
-        isOwner = config.ownerField.some(field => entity[field] === user.profile.documentId);
+        isOwner = config.ownerField.some(field => entity[field] === state?.user?.documentId);
       } else if (config.userRelation) {
         // For entities using users_permissions_user relation
-        isOwner = entity[config.userRelation]?.documentId === user.profile.documentId;
+        isOwner = entity[config.userRelation]?.documentId === state?.user?.documentId;
       }
 
       resolve(isOwner);
