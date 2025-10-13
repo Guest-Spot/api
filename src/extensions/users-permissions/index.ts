@@ -7,28 +7,18 @@ export const usersPermissionsExtension = () => ({
       id: ID
     }
 
-    type Profile {
-      id: ID
-      documentId: String
+    extend type UsersPermissionsMe {
+      type: String
       name: String
-      description: String
-      pictures: [UploadFile]
       avatar: UploadFile
-      experience: Int
-      phone: String
-      email: String
-      links: [ComponentContactSocialLinks]
-      location: ComponentGeoLocation
+      pictures: [UploadFile]
+      description: String
       city: String
       address: String
       link: String
+      phone: String
+      experience: Int
       openingHours: [ComponentTimeOpeningHour]
-      artists: [Artist]
-    }
-
-    extend type UsersPermissionsMe {
-      type: String
-      profile: Profile!
     }
 
     type AuthPayload {

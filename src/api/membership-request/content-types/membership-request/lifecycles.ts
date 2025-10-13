@@ -27,11 +27,10 @@ export default {
         }
 
         await strapi.plugin('users-permissions').service('user').add({
-          username: data.name,
-          email: data.email,
+          ...data,
+          username: data.email,
           password: data.tempPassword,
           provider: 'local',
-          type: data.type,
           confirmed: true,
           role: authenticatedRole.id,
         });
