@@ -1,6 +1,5 @@
 import { citiesExtension } from './extensions/graphql/cities';
 import { grapqlGuards } from './extensions/graphql/guards';
-import { userChildsExtension } from './extensions/graphql/user-childs';
 import { usersPermissionsExtension } from './extensions/users-permissions';
 import { registerAppleAuthProvider } from './extensions/users-permissions/providers/apple';
 
@@ -16,7 +15,6 @@ export default {
     strapi.plugin('graphql').service('extension').use(grapqlGuards);
     strapi.plugin('graphql').service('extension').use(citiesExtension);
     strapi.plugin('graphql').service('extension').use(usersPermissionsExtension);
-    strapi.plugin('graphql').service('extension').use(userChildsExtension);
 
     registerAppleAuthProvider({ strapi });
     
