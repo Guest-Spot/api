@@ -69,5 +69,15 @@ export default {
         policies: [],
       },
     },
+    {
+      method: 'GET',
+      path: '/auth/email-exists',
+      handler: 'auth.emailExists',
+      config: {
+        auth: false,
+        prefix: '',
+        policies: [],
+      },
+    },
   ],
 };

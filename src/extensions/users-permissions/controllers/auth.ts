@@ -2,12 +2,12 @@ import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import { errors } from '@strapi/utils';
 import grantFactory from 'grant';
+import { checkUserEmailExists } from '../../../utils/checkUserEmailExists';
 
 // Helper function to get users-permissions services
 const getService = (name: string) => {
   return strapi.plugin('users-permissions').service(name);
 };
-
 
 // Helper function to sanitize user data
 const sanitizeUser = async (user: any, ctx?: any) => {
@@ -319,7 +319,7 @@ export const authLogic = {
   },
 };
 
-export default {
+const customAuthController = (..._args: any[]) => ({
   async callback(ctx) {
     const providerFromParams = ctx.params?.provider;
     const providerFromQuery = ctx.query?.provider as string | undefined;
@@ -402,6 +402,23 @@ export default {
     }
   },
 
+  async emailExists(ctx) {
+    if (!ctx.query.email) {
+      return ctx.badRequest(
+        null,
+        new errors.ValidationError('Missing email')
+      );
+    }
+
+    try {
+      const exists = await checkUserEmailExists(strapi, ctx.query.email);
+      ctx.send({ exists });
+    } catch (error) {
+      strapi.log?.error?.('Failed to check email existence via REST', error);
+      ctx.send({ exists: false });
+    }
+  },
+
   async connect(ctx, next) {
     const grant = grantFactory.koa();
 
@@ -470,4 +487,6 @@ export default {
 
     return grant(grantConfig)(ctx, next);
   },
-};
+});
+
+export default customAuthController;

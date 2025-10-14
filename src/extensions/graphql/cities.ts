@@ -7,12 +7,12 @@ export const citiesExtension = ({ strapi }) => ({
   resolvers: {
     Query: {
       async cities(parent, args, ctx) {
-        const shops = await strapi
-          .documents('api::shop.shop')
+        const users = await strapi
+          .documents('plugin::users-permissions.user')
           .findMany();
 
         const all = [
-          ...shops.map(s => s?.city).filter(Boolean),
+          ...users.map(u => u?.city).filter(Boolean),
         ];
 
         return Array.from(new Set(all));
