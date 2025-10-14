@@ -54,7 +54,7 @@ export const usersPermissionsExtension = () => ({
             'plugin::users-permissions.user',
             authUser.id,
             {
-              populate: ['avatar', 'pictures'],
+              populate: ['avatar', 'pictures', 'openingHours', 'parent', 'childs'],
             }
           );
 
