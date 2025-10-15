@@ -513,6 +513,42 @@ export interface ApiNotifyNotify extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiOpeningHourOpeningHour extends Struct.CollectionTypeSchema {
+  collectionName: 'opening_hours';
+  info: {
+    displayName: 'OpeningHour';
+    pluralName: 'opening-hours';
+    singularName: 'opening-hour';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    day: Schema.Attribute.Enumeration<
+      ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+    >;
+    end: Schema.Attribute.Time;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::opening-hour.opening-hour'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    start: Schema.Attribute.Time;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    user: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+  };
+}
+
 export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
   collectionName: 'portfolios';
   info: {
@@ -1104,7 +1140,10 @@ export interface PluginUsersPermissionsUser
     > &
       Schema.Attribute.Private;
     name: Schema.Attribute.String;
-    openingHours: Schema.Attribute.Component<'time.opening-hour', true>;
+    openingHours: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::opening-hour.opening-hour'
+    >;
     parent: Schema.Attribute.Relation<
       'manyToOne',
       'plugin::users-permissions.user'
@@ -1156,6 +1195,7 @@ declare module '@strapi/strapi' {
       'api::invite.invite': ApiInviteInvite;
       'api::membership-request.membership-request': ApiMembershipRequestMembershipRequest;
       'api::notify.notify': ApiNotifyNotify;
+      'api::opening-hour.opening-hour': ApiOpeningHourOpeningHour;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
       'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;

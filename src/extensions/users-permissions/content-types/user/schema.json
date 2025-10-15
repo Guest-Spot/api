@@ -119,21 +119,6 @@
     "address": {
       "type": "string"
     },
-    "openingHours": {
-      "type": "component",
-      "conditions": {
-        "visible": {
-          "==": [
-            {
-              "var": "type"
-            },
-            "shop"
-          ]
-        }
-      },
-      "component": "time.opening-hour",
-      "repeatable": true
-    },
     "contactName": {
       "type": "string"
     },
@@ -167,6 +152,12 @@
       "relation": "oneToMany",
       "target": "plugin::users-permissions.user",
       "mappedBy": "parent"
+    },
+    "openingHours": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::opening-hour.opening-hour",
+      "mappedBy": "user"
     }
   }
 }
