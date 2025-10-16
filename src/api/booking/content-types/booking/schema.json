@@ -66,6 +66,9 @@
         "accepted",
         "rejected"
       ]
+    },
+    "rejectNote": {
+      "type": "text"
     }
   }
 }
