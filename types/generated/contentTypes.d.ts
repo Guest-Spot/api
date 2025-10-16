@@ -417,6 +417,7 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
       'images' | 'files' | 'videos' | 'audios',
       true
     >;
+    rejectNote: Schema.Attribute.Text;
     size: Schema.Attribute.String;
     start: Schema.Attribute.Time;
     updatedAt: Schema.Attribute.DateTime;
