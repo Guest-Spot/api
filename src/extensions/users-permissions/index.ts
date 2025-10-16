@@ -19,6 +19,8 @@ export const usersPermissionsExtension = () => ({
       phone: String
       experience: Int
       openingHours: [ComponentTimeOpeningHour]
+      parent: UsersPermissionsMe
+      childs: [UsersPermissionsMe]
     }
 
     type AuthPayload {
