@@ -60,13 +60,14 @@ function getUserDocumentId(user: any): string | null {
 /**
  * Create notify entity with provided payload
  */
-async function createNotification(ownerDocumentId: string, recipientDocumentId: string, type: NotifyType) {
+async function createNotification(ownerDocumentId: string, recipientDocumentId: string, type: NotifyType, booking: any) {
   try {
     await strapi.entityService.create('api::notify.notify', {
       data: {
         ownerDocumentId,
         recipientDocumentId,
         type,
+        body: booking,
         publishedAt: new Date(),
       },
     });
@@ -137,7 +138,7 @@ export default {
     }
 
     // Create in-app notification
-    await createNotification(guestId, artistId, NotifyType.BOOKING_CREATED);
+    await createNotification(guestId, artistId, NotifyType.BOOKING_CREATED, booking);
 
     // Send email notification to artist
     try {
@@ -199,7 +200,7 @@ export default {
       currentReaction === 'accepted' ? NotifyType.BOOKING_ACCEPTED : NotifyType.BOOKING_REJECTED;
 
     // Create in-app notification
-    await createNotification(artistId, guestId, type);
+    await createNotification(artistId, guestId, type, booking);
 
     // Send email notification to guest
     try {
