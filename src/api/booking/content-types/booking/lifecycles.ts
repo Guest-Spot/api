@@ -3,7 +3,10 @@
  * Handles notification creation for booking-related events
  */
 
-import { NotifyType } from '../../../../interfaces/enums';
+import { BookingReaction, NotifyType } from '../../../../interfaces/enums';
+import { sendBookingNotificationEmail } from '../../../../utils/email/booking-notification';
+import { sendBookingResponseEmail } from '../../../../utils/email/booking-response';
+import isAdmin from '../../../../utils/isAdmin';
 
 type BookingIdentifier = { id?: number; documentId?: string };
 
@@ -111,7 +114,7 @@ export default {
     const result = event.result;
     const isDraft = !result.publishedAt;
 
-    if (isDraft) {
+    if (isDraft || isAdmin()) {
       return;
     }
 
@@ -122,7 +125,7 @@ export default {
 
     const booking = await findBooking(identifier);
 
-    if (!booking) {
+    if (!booking || booking.reaction !== BookingReaction.PENDING) {
       return;
     }
 
@@ -133,7 +136,28 @@ export default {
       return;
     }
 
+    // Create in-app notification
     await createNotification(guestId, artistId, NotifyType.BOOKING_CREATED);
+
+    // Send email notification to artist
+    try {
+      await sendBookingNotificationEmail({
+        artistName: booking.artist?.username || booking.artist?.email || 'Artist',
+        artistEmail: booking.artist?.email,
+        guestName: booking.name || booking.owner?.username || 'Guest',
+        guestEmail: booking.email,
+        guestPhone: booking.phone,
+        location: booking.location,
+        placement: booking.placement,
+        size: booking.size,
+        description: booking.description,
+        day: booking.day,
+        start: booking.start,
+        documentId: booking.documentId,
+      });
+    } catch (error) {
+      strapi.log.error('Error sending booking notification email:', error);
+    }
   },
 
   /**
@@ -141,11 +165,6 @@ export default {
    */
   async afterUpdate(event) {
     const updated = event.result;
-    
-    const isDraft = !updated.publishedAt;
-    if (isDraft) {
-      return;
-    }
 
     const previousReaction = event.state?.previousBooking?.reaction;
     const identifier: BookingIdentifier = {
@@ -179,6 +198,23 @@ export default {
     const type =
       currentReaction === 'accepted' ? NotifyType.BOOKING_ACCEPTED : NotifyType.BOOKING_REJECTED;
 
+    // Create in-app notification
     await createNotification(artistId, guestId, type);
+
+    // Send email notification to guest
+    try {
+      await sendBookingResponseEmail({
+        guestName: booking.name || booking.owner?.username || 'Guest',
+        guestEmail: booking.email || booking.owner?.email,
+        artistName: booking.artist?.username || booking.artist?.email || 'Artist',
+        reaction: currentReaction,
+        day: booking.day,
+        start: booking.start,
+        location: booking.location,
+        rejectNote: currentReaction === 'rejected' ? booking.rejectNote : null,
+      });
+    } catch (error) {
+      strapi.log.error('Error sending booking response email:', error);
+    }
   },
 };
