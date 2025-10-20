@@ -20,12 +20,18 @@
       "required": true,
       "enum": [
         "remove_artist_from_shop",
-        "add_artist_to_shop"
+        "add_artist_to_shop",
+        "booking_created",
+        "booking_accepted",
+        "booking_rejected"
       ]
     },
     "recipientDocumentId": {
       "type": "string",
       "required": true
+    },
+    "body": {
+      "type": "json"
     }
   }
 }

@@ -544,6 +544,7 @@ export interface ApiNotifyNotify extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    body: Schema.Attribute.JSON;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -557,7 +558,13 @@ export interface ApiNotifyNotify extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     recipientDocumentId: Schema.Attribute.String & Schema.Attribute.Required;
     type: Schema.Attribute.Enumeration<
-      ['remove_artist_from_shop', 'add_artist_to_shop']
+      [
+        'remove_artist_from_shop',
+        'add_artist_to_shop',
+        'booking_created',
+        'booking_accepted',
+        'booking_rejected',
+      ]
     > &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
