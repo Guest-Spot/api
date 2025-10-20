@@ -33,6 +33,9 @@ export default ({ env }) => {
     'users-permissions': {
       enabled: true,
       config: {
+        register: {
+          allowedFields: ['name', 'phone'],
+        },
         jwt: {
           expiresIn: '15m',
         },
