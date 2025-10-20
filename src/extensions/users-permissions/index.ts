@@ -38,6 +38,11 @@ export const usersPermissionsExtension = () => ({
       refreshToken: String!
     }
 
+    extend input UsersPermissionsRegisterInput {
+      name: String
+      phone: String
+    }
+
     extend type Mutation {
       loginWithRefresh(input: LoginInput!): AuthPayload
       refreshToken(input: RefreshTokenInput!): AuthPayload
