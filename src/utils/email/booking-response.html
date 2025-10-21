@@ -17,8 +17,7 @@
         {{ day }}                       -> Booking day
         {{ start }}                     -> Booking start time
         {{ location }}                  -> Location or "Not specified"
-        {{ rejectNote }}                -> Rejection note (only for rejected bookings)
-        {{ showRejectNote }}            -> "yes" | "no" - whether to show reject note section
+        {{ rejectNoteSection }}         -> Rejection note block (only for rejected bookings)
         {{ currentYear }}               -> Current year for footer copyright
     -->
 
@@ -81,7 +80,7 @@
                 </table>
 
                 <!-- Conditional reject note section -->
-                {{ showRejectNote }}
+                {{ rejectNoteSection }}
               </td>
             </tr>
 
@@ -97,4 +96,3 @@
     </table>
   </body>
 </html>
-

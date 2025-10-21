@@ -130,7 +130,7 @@ const buildBookingResponseHtml = async (
   const guestName = payload.guestName || 'Guest';
   const statusInfo = getStatusInfo(payload.reaction, artistName);
 
-  const rejectNoteSection = payload.reaction === 'rejected' 
+  const rejectNoteSection = payload.reaction === 'rejected'
     ? buildRejectNoteSection(payload.rejectNote)
     : '';
 
@@ -143,8 +143,7 @@ const buildBookingResponseHtml = async (
     day: formatDate(payload.day),
     start: formatTime(payload.start),
     location: toDisplayValue(payload.location, 'Not specified'),
-    rejectNote: toDisplayValue(payload.rejectNote),
-    showRejectNote: rejectNoteSection,
+    rejectNoteSection,
     currentYear: escapeHtml(currentYear),
   };
 
@@ -199,4 +198,3 @@ export const sendBookingResponseEmail = async (
     );
   }
 };
-
