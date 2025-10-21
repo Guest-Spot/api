@@ -15,7 +15,9 @@ export default {
 
     if (isDraft) {
       data.tempPassword = Math.random().toString(36).substring(2, 8);
-      await sendMembershipRequestEmail(data);
+      if (data.email) {
+        await sendMembershipRequestEmail(data);
+      }
     } else {
       try {
         const authenticatedRole = await strapi.db
@@ -37,12 +39,14 @@ export default {
         await strapi.documents('api::membership-request.membership-request').delete({
           documentId: data.documentId,
         });
-        await sendRequestApprovedEmail({
-          email: data.email,
-          name: data.name,
-          tempPassword: data.tempPassword,
-          type: data.type,
-        });
+        if (data.email) {
+          await sendRequestApprovedEmail({
+            email: data.email,
+            name: data.name,
+            tempPassword: data.tempPassword,
+            type: data.type,
+          });
+        }
       } catch (error) {
         console.error(error);
       }
