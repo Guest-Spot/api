@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { errors } from '@strapi/utils';
 import grantFactory from 'grant';
 import { checkUserEmailExists } from '../../../utils/checkUserEmailExists';
+import { ensureAppleUser, type AppleNativeAuthInput } from '../services/apple-native-auth';
 
 // Helper function to get users-permissions services
 const getService = (name: string) => {
@@ -281,6 +282,37 @@ export const authLogic = {
       }
     }
 
+    if (!extractString(oauthPayload.identityToken)) {
+      const identityTokenCandidate = pickFirst(
+        oauthPayload.access_token,
+        bodyParams.identityToken,
+        bodyParams.identity_token,
+        bodyParams.id_token,
+        queryParams.identityToken,
+        (queryParams as Record<string, unknown>).identity_token,
+        queryParams.id_token
+      );
+
+      if (identityTokenCandidate) {
+        oauthPayload.identityToken = identityTokenCandidate;
+      }
+    }
+
+    if (provider === 'apple') {
+      const identityToken = extractString(oauthPayload.identityToken);
+
+      if (!identityToken) {
+        throw new Error('Missing Apple identity token');
+      }
+
+      return authLogic.loginWithAppleNative(
+        {
+          identityToken,
+        },
+        ctx
+      );
+    }
+
     const user = await getService('providers').connect(provider, oauthPayload);
 
     if (user.confirmed !== true) {
@@ -303,6 +335,37 @@ export const authLogic = {
     );
 
     // Save refresh token to user
+    await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+      data: {
+        refreshToken,
+      } as any,
+    });
+
+    const sanitizedUser = await sanitizeUser(user, ctx);
+
+    return {
+      jwt: jwtToken,
+      refreshToken,
+      user: sanitizedUser,
+    };
+  },
+
+  async loginWithAppleNative(input: AppleNativeAuthInput, ctx?: any) {
+    const { user } = await ensureAppleUser(strapi, input);
+
+    if (user.blocked === true) {
+      throw new Error('Your account has been blocked by an administrator');
+    }
+
+    const jwtToken = getService('jwt').issue({ id: user.id });
+
+    const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || 'default-secret';
+    const refreshToken = jwt.sign(
+      { id: user.id, type: 'refresh' },
+      refreshTokenSecret as string,
+      { expiresIn: '30d' }
+    );
+
     await strapi.entityService.update('plugin::users-permissions.user', user.id, {
       data: {
         refreshToken,

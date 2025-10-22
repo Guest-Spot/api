@@ -2,7 +2,6 @@ import { citiesExtension } from './extensions/graphql/cities';
 import { userEmailExistsExtension } from './extensions/graphql/user-email-exists';
 import { grapqlGuards } from './extensions/graphql/guards';
 import { usersPermissionsExtension } from './extensions/users-permissions';
-import { registerAppleAuthProvider } from './extensions/users-permissions/providers/apple';
 
 import portfolioLifecycles from './api/portfolio/content-types/portfolio/lifecycles';
 import tripLifecycles from './api/trip/content-types/trip/lifecycles';
@@ -14,8 +13,6 @@ export default {
     strapi.plugin('graphql').service('extension').use(citiesExtension);
     strapi.plugin('graphql').service('extension').use(userEmailExistsExtension);
     strapi.plugin('graphql').service('extension').use(usersPermissionsExtension);
-
-    registerAppleAuthProvider({ strapi });
   },
 
   bootstrap({ strapi }) {

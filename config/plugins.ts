@@ -14,10 +14,24 @@ export default ({ env }) => {
   const appleAudience = env('APPLE_AUDIENCE', 'https://appleid.apple.com');
   const appleResponseMode = env('APPLE_RESPONSE_MODE', 'form_post');
   const appleResponseType = env('APPLE_RESPONSE_TYPE', 'code');
+  const appleNativeClientId = env('APPLE_NATIVE_CLIENT_ID', 'com.guestspot.app');
+  const appleAdditionalAudiences = env('APPLE_ALLOWED_AUDIENCES', '')
+    .split(/[\s,]+/)
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  const appleAllowedAudiences = Array.from(
+    new Set([
+      appleClientId,
+      appleAudience,
+      appleNativeClientId,
+      ...appleAdditionalAudiences,
+    ].filter(Boolean))
+  );
 
   const appleProviderConfig = {
     enabled: true,
     key: appleClientId,
+    clientId: appleClientId,
     keyId: appleKeyId,
     teamId: appleTeamId,
     privateKey: applePrivateKey,
@@ -27,6 +41,8 @@ export default ({ env }) => {
     audience: appleAudience,
     responseMode: appleResponseMode,
     responseType: appleResponseType,
+    nativeClientId: appleNativeClientId,
+    allowedAudiences: appleAllowedAudiences,
   };
 
   return {
@@ -41,7 +57,7 @@ export default ({ env }) => {
         },
         providers: {
           apple: appleProviderConfig,
-        },
+        }
       },
     },
     'graphql': {
