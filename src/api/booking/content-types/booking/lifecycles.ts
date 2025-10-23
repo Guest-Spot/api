@@ -8,6 +8,7 @@ import { sendBookingNotificationEmail } from '../../../../utils/email/booking-no
 import { sendBookingResponseEmail } from '../../../../utils/email/booking-response';
 import { sendFirebaseNotificationToUser } from '../../../../utils/push-notification';
 import isAdmin from '../../../../utils/isAdmin';
+import { formatTimeToAmPm } from '../../../../utils/formatTime';
 
 type BookingIdentifier = { id?: number; documentId?: string };
 
@@ -59,6 +60,39 @@ function getUserDocumentId(user: any): string | null {
 }
 
 /**
+ * Resolve artist display name with optional email fallback
+ */
+function getArtistDisplayName(
+  artist: any,
+  options: { includeEmailFallback?: boolean } = {}
+): string {
+  if (!artist) {
+    return 'Artist';
+  }
+
+  const { includeEmailFallback = false } = options;
+  const preferredKeys: Array<'name' | 'contactName' | 'username'> = ['name', 'contactName', 'username'];
+
+  for (const key of preferredKeys) {
+    const value = artist[key];
+
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+
+      if (trimmed) {
+        return trimmed;
+      }
+    }
+  }
+
+  if (includeEmailFallback && typeof artist.email === 'string' && artist.email.trim()) {
+    return artist.email.trim();
+  }
+
+  return 'Artist';
+}
+
+/**
  * Create notify entity with provided payload
  */
 async function createNotification(ownerDocumentId: string, recipientDocumentId: string, type: NotifyType, booking: any) {
@@ -101,8 +135,10 @@ async function sendBookingCreatedPushNotification(
     notificationBodyParts.push(`on ${formattedDate}`);
   }
 
-  if (booking.start) {
-    notificationBodyParts.push(`at ${booking.start}`);
+  const formattedStartTime = formatTimeToAmPm(booking.start);
+
+  if (formattedStartTime) {
+    notificationBodyParts.push(`at ${formattedStartTime}`);
   }
 
   const notificationBody = notificationBodyParts.join(' ');
@@ -151,8 +187,10 @@ async function sendBookingReactionPushNotification(
     bodyParts.push(`for ${formattedDate}`);
   }
 
-  if (booking.start) {
-    bodyParts.push(`at ${booking.start}`);
+  const formattedStartTime = formatTimeToAmPm(booking.start);
+
+  if (formattedStartTime) {
+    bodyParts.push(`at ${formattedStartTime}`);
   }
 
   if (!isAccepted) {
@@ -251,8 +289,10 @@ export default {
 
     // Send email notification to artist
     try {
+      const formattedStartTime = formatTimeToAmPm(booking.start);
+
       await sendBookingNotificationEmail({
-        artistName: booking.artist?.username || booking.artist?.email || 'Artist',
+        artistName: getArtistDisplayName(booking.artist, { includeEmailFallback: true }),
         artistEmail: booking.artist?.email,
         guestName,
         guestEmail: booking.email,
@@ -262,7 +302,7 @@ export default {
         size: booking.size,
         description: booking.description,
         day: booking.day,
-        start: booking.start,
+        start: formattedStartTime ?? booking.start ?? null,
         documentId: booking.documentId,
       });
     } catch (error) {
@@ -300,7 +340,8 @@ export default {
     const artistId = getUserDocumentId(booking.artist);
     const guestId = getUserDocumentId(booking.owner);
     const guestUserId = typeof booking.owner?.id === 'number' ? booking.owner.id : null;
-    const artistName = booking.artist?.username || booking.artist?.email || 'Artist';
+    const artistPushName = getArtistDisplayName(booking.artist);
+    const artistEmailName = getArtistDisplayName(booking.artist, { includeEmailFallback: true });
 
     if (!artistId || !guestId) {
       return;
@@ -318,18 +359,20 @@ export default {
       guestDocumentId: guestId,
       artistDocumentId: artistId,
       type,
-      artistName,
+      artistName: artistPushName,
     });
 
     // Send email notification to guest
     try {
+      const formattedStartTime = formatTimeToAmPm(booking.start);
+
       await sendBookingResponseEmail({
         guestName: booking.name || booking.owner?.username || 'Guest',
         guestEmail: booking.email || booking.owner?.email,
-        artistName: booking.artist?.username || booking.artist?.email || 'Artist',
+        artistName: artistEmailName,
         reaction: currentReaction,
         day: booking.day,
-        start: booking.start,
+        start: formattedStartTime ?? booking.start ?? null,
         location: booking.location,
         rejectNote: currentReaction === 'rejected' ? booking.rejectNote : null,
       });
