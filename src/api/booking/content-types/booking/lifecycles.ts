@@ -6,6 +6,7 @@
 import { BookingReaction, NotifyType } from '../../../../interfaces/enums';
 import { sendBookingNotificationEmail } from '../../../../utils/email/booking-notification';
 import { sendBookingResponseEmail } from '../../../../utils/email/booking-response';
+import { sendFirebaseNotificationToUser } from '../../../../utils/push-notification';
 import isAdmin from '../../../../utils/isAdmin';
 
 type BookingIdentifier = { id?: number; documentId?: string };
@@ -76,6 +77,105 @@ async function createNotification(ownerDocumentId: string, recipientDocumentId: 
   }
 }
 
+/**
+ * Send push notification to artist about a new booking request
+ */
+async function sendBookingCreatedPushNotification(
+  booking: any,
+  context: { guestName: string; guestDocumentId: string; artistUserId: number | null }
+) {
+  const { guestName, guestDocumentId, artistUserId } = context;
+
+  if (!artistUserId || !guestDocumentId) {
+    return;
+  }
+
+  const bookingDate = booking.day ? new Date(booking.day) : null;
+  const formattedDate =
+    bookingDate && !Number.isNaN(bookingDate.getTime())
+      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(bookingDate)
+      : null;
+  const notificationBodyParts = [`Request from ${guestName}`];
+
+  if (formattedDate) {
+    notificationBodyParts.push(`on ${formattedDate}`);
+  }
+
+  if (booking.start) {
+    notificationBodyParts.push(`at ${booking.start}`);
+  }
+
+  const notificationBody = notificationBodyParts.join(' ');
+
+  await sendFirebaseNotificationToUser(artistUserId, {
+    title: 'New booking request',
+    body: notificationBody,
+    data: {
+      notifyType: NotifyType.BOOKING_CREATED,
+      bookingDocumentId: booking.documentId ?? undefined,
+      bookingId: booking.id ? String(booking.id) : undefined,
+      ownerDocumentId: guestDocumentId,
+    },
+  });
+}
+
+/**
+ * Send push notification to guest when artist reacts to a booking
+ */
+async function sendBookingReactionPushNotification(
+  booking: any,
+  context: {
+    guestUserId: number | null;
+    guestDocumentId: string;
+    artistDocumentId: string;
+    type: NotifyType;
+    artistName: string;
+  }
+) {
+  const { guestUserId, guestDocumentId, artistDocumentId, type, artistName } = context;
+
+  if (!guestUserId) {
+    return;
+  }
+
+  const isAccepted = type === NotifyType.BOOKING_ACCEPTED;
+  const bookingDate = booking.day ? new Date(booking.day) : null;
+  const formattedDate =
+    bookingDate && !Number.isNaN(bookingDate.getTime())
+      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(bookingDate)
+      : null;
+
+  const bodyParts = [`${artistName} ${isAccepted ? 'accepted' : 'declined'} your booking request`];
+
+  if (formattedDate) {
+    bodyParts.push(`for ${formattedDate}`);
+  }
+
+  if (booking.start) {
+    bodyParts.push(`at ${booking.start}`);
+  }
+
+  if (!isAccepted) {
+    const rejectNote =
+      typeof booking.rejectNote === 'string' ? booking.rejectNote.trim() : '';
+
+    if (rejectNote) {
+      bodyParts.push(`Reason: ${rejectNote}`);
+    }
+  }
+
+  await sendFirebaseNotificationToUser(guestUserId, {
+    title: isAccepted ? 'Booking accepted' : 'Booking rejected',
+    body: bodyParts.join(' '),
+    data: {
+      notifyType: type,
+      bookingDocumentId: booking.documentId ?? undefined,
+      bookingId: booking.id ? String(booking.id) : undefined,
+      ownerDocumentId: artistDocumentId,
+    },
+  });
+}
+
 export default {
   /**
    * Store current booking state before update to detect reaction changes
@@ -130,22 +230,31 @@ export default {
       return;
     }
 
-    const artistId = getUserDocumentId(booking.artist);
-    const guestId = getUserDocumentId(booking.owner);
+    const artistDocumentId = getUserDocumentId(booking.artist);
+    const guestDocumentId = getUserDocumentId(booking.owner);
+    const artistUserId = typeof booking.artist?.id === 'number' ? booking.artist.id : null;
+    const guestName = booking.name || booking.owner?.username || 'Guest';
 
-    if (!artistId || !guestId) {
+    if (!artistDocumentId || !guestDocumentId) {
       return;
     }
 
     // Create in-app notification
-    await createNotification(guestId, artistId, NotifyType.BOOKING_CREATED, booking);
+    await createNotification(guestDocumentId, artistDocumentId, NotifyType.BOOKING_CREATED, booking);
+
+    // Send push notification to artist
+    await sendBookingCreatedPushNotification(booking, {
+      guestName,
+      guestDocumentId,
+      artistUserId,
+    });
 
     // Send email notification to artist
     try {
       await sendBookingNotificationEmail({
         artistName: booking.artist?.username || booking.artist?.email || 'Artist',
         artistEmail: booking.artist?.email,
-        guestName: booking.name || booking.owner?.username || 'Guest',
+        guestName,
         guestEmail: booking.email,
         guestPhone: booking.phone,
         location: booking.location,
@@ -166,7 +275,6 @@ export default {
    */
   async afterUpdate(event) {
     const updated = event.result;
-
     const previousReaction = event.state?.previousBooking?.reaction;
     const identifier: BookingIdentifier = {
       documentId: updated?.documentId,
@@ -191,6 +299,8 @@ export default {
 
     const artistId = getUserDocumentId(booking.artist);
     const guestId = getUserDocumentId(booking.owner);
+    const guestUserId = typeof booking.owner?.id === 'number' ? booking.owner.id : null;
+    const artistName = booking.artist?.username || booking.artist?.email || 'Artist';
 
     if (!artistId || !guestId) {
       return;
@@ -201,6 +311,15 @@ export default {
 
     // Create in-app notification
     await createNotification(artistId, guestId, type, booking);
+
+    // Send push notification to guest
+    await sendBookingReactionPushNotification(booking, {
+      guestUserId,
+      guestDocumentId: guestId,
+      artistDocumentId: artistId,
+      type,
+      artistName,
+    });
 
     // Send email notification to guest
     try {

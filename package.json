@@ -23,6 +23,7 @@
     "@types/lodash": "^4.17.20",
     "better-sqlite3": "11.3.0",
     "export-import-kkm": "^1.1.1",
+    "firebase-admin": "^13.5.0",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "react": "^18.0.0",
