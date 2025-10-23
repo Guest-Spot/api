@@ -158,6 +158,12 @@
       "relation": "oneToMany",
       "target": "api::opening-hour.opening-hour",
       "mappedBy": "user"
+    },
+    "device_tokens": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::device-token.device-token",
+      "mappedBy": "user"
     }
   }
 }

@@ -21,6 +21,7 @@ export const usersPermissionsExtension = () => ({
       openingHours: [ComponentTimeOpeningHour]
       parent: UsersPermissionsMe
       childs: [UsersPermissionsMe]
+      device_tokens: [DeviceToken]
     }
 
     type AuthPayload {
@@ -61,7 +62,7 @@ export const usersPermissionsExtension = () => ({
             'plugin::users-permissions.user',
             authUser.id,
             {
-              populate: ['avatar', 'pictures', 'openingHours', 'parent', 'childs'],
+              populate: ['avatar', 'pictures', 'openingHours', 'parent', 'childs', 'device_tokens'],
             }
           );
 
