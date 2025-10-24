@@ -243,7 +243,7 @@ export default {
 
     const booking = await findBooking(identifier);
 
-    if (!booking || booking.reaction !== BookingReaction.PENDING) {
+    if (!booking) {
       return;
     }
 
@@ -256,117 +256,86 @@ export default {
       return;
     }
 
-    // Create in-app notification
-    await createNotification({
-      ownerDocumentId: guestDocumentId,
-      recipientDocumentId: artistDocumentId,
-      type: NotifyType.BOOKING_CREATED,
-      body: booking,
-    });
-
-    // Send push notification to artist
-    await sendBookingCreatedPushNotification(booking, {
-      guestName,
-      guestDocumentId,
-      artistUserId,
-    });
-
-    // Send email notification to artist
-    try {
-      const formattedStartTime = formatTimeToAmPm(booking.start);
-
-      await sendBookingNotificationEmail({
-        artistName: getArtistDisplayName(booking.artist, { includeEmailFallback: true }),
-        artistEmail: booking.artist?.email,
+    if (booking.reaction === BookingReaction.PENDING) {
+      // Create in-app notification
+      await createNotification({
+        ownerDocumentId: guestDocumentId,
+        recipientDocumentId: artistDocumentId,
+        type: NotifyType.BOOKING_CREATED,
+        body: booking,
+      });
+  
+      // Send push notification to artist
+      await sendBookingCreatedPushNotification(booking, {
         guestName,
-        guestEmail: booking.email,
-        guestPhone: booking.phone,
-        location: booking.location,
-        placement: booking.placement,
-        size: booking.size,
-        description: booking.description,
-        day: booking.day,
-        start: formattedStartTime ?? booking.start ?? null,
-        documentId: booking.documentId,
+        guestDocumentId,
+        artistUserId,
       });
-    } catch (error) {
-      strapi.log.error('Error sending booking notification email:', error);
-    }
-  },
+  
+      // Send email notification to artist
+      try {
+        const formattedStartTime = formatTimeToAmPm(booking.start);
+  
+        await sendBookingNotificationEmail({
+          artistName: getArtistDisplayName(booking.artist, { includeEmailFallback: true }),
+          artistEmail: booking.artist?.email,
+          guestName,
+          guestEmail: booking.email,
+          guestPhone: booking.phone,
+          location: booking.location,
+          placement: booking.placement,
+          size: booking.size,
+          description: booking.description,
+          day: booking.day,
+          start: formattedStartTime ?? booking.start ?? null,
+          documentId: booking.documentId,
+        });
+      } catch (error) {
+        strapi.log.error('Error sending booking notification email:', error);
+      }
+    } else {
+      const type =
+        booking.reaction === BookingReaction.ACCEPTED ? NotifyType.BOOKING_ACCEPTED : NotifyType.BOOKING_REJECTED;
+      const artistId = getUserDocumentId(booking.artist);
+      const guestId = getUserDocumentId(booking.owner);
+      const guestUserId = typeof booking.owner?.id === 'number' ? booking.owner.id : null;
+      const artistPushName = getArtistDisplayName(booking.artist);
+      const artistEmailName = getArtistDisplayName(booking.artist, { includeEmailFallback: true });
 
-  /**
-   * Notify guest when artist updates booking reaction (accept/reject)
-   */
-  async afterUpdate(event) {
-    const updated = event.result;
-    const previousReaction = event.state?.previousBooking?.reaction;
-    const identifier: BookingIdentifier = {
-      documentId: updated?.documentId,
-      id: updated?.id,
-    };
-
-    const booking = await findBooking(identifier);
-
-    if (!booking) {
-      return;
-    }
-
-    const currentReaction = booking.reaction;
-
-    if (
-      !currentReaction ||
-      currentReaction === previousReaction ||
-      (currentReaction !== 'accepted' && currentReaction !== 'rejected')
-    ) {
-      return;
-    }
-
-    const artistId = getUserDocumentId(booking.artist);
-    const guestId = getUserDocumentId(booking.owner);
-    const guestUserId = typeof booking.owner?.id === 'number' ? booking.owner.id : null;
-    const artistPushName = getArtistDisplayName(booking.artist);
-    const artistEmailName = getArtistDisplayName(booking.artist, { includeEmailFallback: true });
-
-    if (!artistId || !guestId) {
-      return;
-    }
-
-    const type =
-      currentReaction === 'accepted' ? NotifyType.BOOKING_ACCEPTED : NotifyType.BOOKING_REJECTED;
-
-    // Create in-app notification
-    await createNotification({
-      ownerDocumentId: artistId,
-      recipientDocumentId: guestId,
-      type,
-      body: booking,
-    });
-
-    // Send push notification to guest
-    await sendBookingReactionPushNotification(booking, {
-      guestUserId,
-      guestDocumentId: guestId,
-      artistDocumentId: artistId,
-      type,
-      artistName: artistPushName,
-    });
-
-    // Send email notification to guest
-    try {
-      const formattedStartTime = formatTimeToAmPm(booking.start);
-
-      await sendBookingResponseEmail({
-        guestName: booking.name || booking.owner?.username || 'Guest',
-        guestEmail: booking.email || booking.owner?.email,
-        artistName: artistEmailName,
-        reaction: currentReaction,
-        day: booking.day,
-        start: formattedStartTime ?? booking.start ?? null,
-        location: booking.location,
-        rejectNote: currentReaction === 'rejected' ? booking.rejectNote : null,
+      // Create in-app notification
+      await createNotification({
+        ownerDocumentId: artistId,
+        recipientDocumentId: guestId,
+        type,
+        body: booking,
       });
-    } catch (error) {
-      strapi.log.error('Error sending booking response email:', error);
+
+      // Send push notification to guest
+      await sendBookingReactionPushNotification(booking, {
+        guestUserId,
+        guestDocumentId: guestId,
+        artistDocumentId: artistId,
+        type,
+        artistName: artistPushName,
+      });
+
+      // Send email notification to guest
+      try {
+        const formattedStartTime = formatTimeToAmPm(booking.start);
+
+        await sendBookingResponseEmail({
+          guestName: booking.name || booking.owner?.username || 'Guest',
+          guestEmail: booking.email || booking.owner?.email,
+          artistName: artistEmailName,
+          reaction: booking.reaction,
+          day: booking.day,
+          start: formattedStartTime ?? booking.start ?? null,
+          location: booking.location,
+          rejectNote: booking.reaction === BookingReaction.REJECTED ? booking.rejectNote : null,
+        });
+      } catch (error) {
+        strapi.log.error('Error sending booking response email:', error);
+      }
     }
   },
 };
