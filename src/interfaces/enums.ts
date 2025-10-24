@@ -20,6 +20,9 @@ export enum NotifyType {
   BOOKING_CREATED = 'booking_created',
   BOOKING_ACCEPTED = 'booking_accepted',
   BOOKING_REJECTED = 'booking_rejected',
+  INVITE_CREATED = 'invite_created',
+  INVITE_ACCEPTED = 'invite_accepted',
+  INVITE_REJECTED = 'invite_rejected',
 }
 
 export enum UserType {

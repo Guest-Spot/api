@@ -33,8 +33,7 @@ export async function createArtistAddedNotification(shop: any, artist: any): Pro
       recipientDocumentId: artist.documentId || artist.id.toString(),
       type: NotifyType.ADD_ARTIST_TO_SHOP,
       body: {
-        shopName: shop.name,
-        artistName: artist.name,
+        shop,
       },
     });
 

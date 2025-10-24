@@ -132,8 +132,6 @@ async function sendBookingCreatedPushNotification(
     data: {
       notifyType: NotifyType.BOOKING_CREATED,
       bookingDocumentId: booking.documentId ?? undefined,
-      bookingId: booking.id ? String(booking.id) : undefined,
-      ownerDocumentId: guestDocumentId,
     },
   });
 }
@@ -191,8 +189,6 @@ async function sendBookingReactionPushNotification(
     data: {
       notifyType: type,
       bookingDocumentId: booking.documentId ?? undefined,
-      bookingId: booking.id ? String(booking.id) : undefined,
-      ownerDocumentId: artistDocumentId,
     },
   });
 }

@@ -26,20 +26,22 @@
         "rejected"
       ]
     },
-    "sender": {
-      "type": "string",
-      "required": true
-    },
-    "recipient": {
-      "type": "string",
-      "required": true
-    },
     "type": {
       "type": "enumeration",
       "required": true,
       "enum": [
         "artist_to_shop"
       ]
+    },
+    "sender": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "recipient": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     }
   }
 }

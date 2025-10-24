@@ -517,8 +517,14 @@ export interface ApiInviteInvite extends Struct.CollectionTypeSchema {
       ['pending', 'accepted', 'rejected']
     > &
       Schema.Attribute.DefaultTo<'pending'>;
-    recipient: Schema.Attribute.String & Schema.Attribute.Required;
-    sender: Schema.Attribute.String & Schema.Attribute.Required;
+    recipient: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    sender: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
     title: Schema.Attribute.String;
     type: Schema.Attribute.Enumeration<['artist_to_shop']> &
       Schema.Attribute.Required;
