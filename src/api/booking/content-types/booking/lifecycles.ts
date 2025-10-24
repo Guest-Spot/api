@@ -9,6 +9,7 @@ import { sendBookingResponseEmail } from '../../../../utils/email/booking-respon
 import { sendFirebaseNotificationToUser } from '../../../../utils/push-notification';
 import isAdmin from '../../../../utils/isAdmin';
 import { formatTimeToAmPm } from '../../../../utils/formatTime';
+import { createNotification } from '../../../../utils/notification';
 
 type BookingIdentifier = { id?: number; documentId?: string };
 
@@ -92,24 +93,6 @@ function getArtistDisplayName(
   return 'Artist';
 }
 
-/**
- * Create notify entity with provided payload
- */
-async function createNotification(ownerDocumentId: string, recipientDocumentId: string, type: NotifyType, booking: any) {
-  try {
-    await strapi.entityService.create('api::notify.notify', {
-      data: {
-        ownerDocumentId,
-        recipientDocumentId,
-        type,
-        body: booking,
-        publishedAt: new Date(),
-      },
-    });
-  } catch (error) {
-    strapi.log.error(`Error creating booking notification of type ${type}:`, error);
-  }
-}
 
 /**
  * Send push notification to artist about a new booking request
@@ -278,7 +261,12 @@ export default {
     }
 
     // Create in-app notification
-    await createNotification(guestDocumentId, artistDocumentId, NotifyType.BOOKING_CREATED, booking);
+    await createNotification({
+      ownerDocumentId: guestDocumentId,
+      recipientDocumentId: artistDocumentId,
+      type: NotifyType.BOOKING_CREATED,
+      body: booking,
+    });
 
     // Send push notification to artist
     await sendBookingCreatedPushNotification(booking, {
@@ -351,7 +339,12 @@ export default {
       currentReaction === 'accepted' ? NotifyType.BOOKING_ACCEPTED : NotifyType.BOOKING_REJECTED;
 
     // Create in-app notification
-    await createNotification(artistId, guestId, type, booking);
+    await createNotification({
+      ownerDocumentId: artistId,
+      recipientDocumentId: guestId,
+      type,
+      body: booking,
+    });
 
     // Send push notification to guest
     await sendBookingReactionPushNotification(booking, {

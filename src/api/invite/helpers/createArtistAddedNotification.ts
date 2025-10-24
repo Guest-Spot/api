@@ -4,6 +4,7 @@
  */
 
 import { NotifyType } from '../../../interfaces/enums';
+import { createNotification } from '../../../utils/notification';
 
 // Map to track processed notifications and prevent duplicates
 // Key: "shopId_artistId", Value: timestamp
@@ -27,13 +28,14 @@ export async function createArtistAddedNotification(shop: any, artist: any): Pro
       return;
     }
 
-    await strapi.entityService.create('api::notify.notify', {
-      data: {
-        ownerDocumentId: shop.documentId || shop.id.toString(),
-        recipientDocumentId: artist.documentId || artist.id.toString(),
-        type: NotifyType.ADD_ARTIST_TO_SHOP,
-        publishedAt: new Date()
-      }
+    await createNotification({
+      ownerDocumentId: shop.documentId || shop.id.toString(),
+      recipientDocumentId: artist.documentId || artist.id.toString(),
+      type: NotifyType.ADD_ARTIST_TO_SHOP,
+      body: {
+        shopName: shop.name,
+        artistName: artist.name,
+      },
     });
 
     // Record this notification as processed
