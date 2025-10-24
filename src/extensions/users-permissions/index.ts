@@ -37,6 +37,7 @@ export const usersPermissionsExtension = () => ({
 
     input RefreshTokenInput {
       refreshToken: String!
+      platform: String
     }
 
     extend input UsersPermissionsRegisterInput {
@@ -95,8 +96,8 @@ export const usersPermissionsExtension = () => ({
       },
       logoutWithRefresh: {
         resolve: async (parent: unknown, args: any, ctx: any) => {
-          const { refreshToken } = args.input;
-          return authLogic.logoutWithRefresh(refreshToken);
+          const { refreshToken, platform } = args.input;
+          return authLogic.logoutWithRefresh(refreshToken, platform);
         },
       },
     },
