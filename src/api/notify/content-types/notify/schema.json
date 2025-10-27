@@ -23,7 +23,10 @@
         "add_artist_to_shop",
         "booking_created",
         "booking_accepted",
-        "booking_rejected"
+        "booking_rejected",
+        "invite_created",
+        "invite_accepted",
+        "invite_rejected"
       ]
     },
     "recipientDocumentId": {

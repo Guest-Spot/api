@@ -24,6 +24,62 @@ interface RefreshTokenInput {
   refreshToken: string;
 }
 
+interface LogoutInput extends RefreshTokenInput {
+  platform?: string;
+}
+
+const resolveUserId = (userId: unknown): number | null => {
+  if (typeof userId === 'number' && Number.isFinite(userId)) {
+    return userId;
+  }
+
+  if (typeof userId === 'string') {
+    const trimmed = userId.trim();
+
+    if (!trimmed) {
+      return null;
+    }
+
+    const parsed = Number(trimmed);
+
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+};
+
+const clearDeviceTokensForPlatform = async (userId: unknown, platform?: string | null) => {
+  if (!platform || typeof platform !== 'string') {
+    return;
+  }
+
+  const trimmedPlatform = platform.trim();
+
+  if (!trimmedPlatform) {
+    return;
+  }
+
+  const normalizedUserId = resolveUserId(userId);
+
+  if (normalizedUserId === null) {
+    return;
+  }
+
+  try {
+    await strapi.db.query('api::device-token.device-token').deleteMany({
+      where: {
+        user: { id: normalizedUserId },
+        platform: trimmedPlatform,
+      },
+    });
+  } catch (error) {
+    strapi.log?.error?.(
+      `[Auth] Failed to clear device tokens for user ${normalizedUserId} on platform ${trimmedPlatform}:`,
+      error
+    );
+  }
+};
+
 // Auth logic functions for reuse in GraphQL resolvers
 export const authLogic = {
   sanitizeUser,
@@ -152,7 +208,7 @@ export const authLogic = {
     }
   },
 
-  async logoutWithRefresh(refreshToken: string) {
+  async logoutWithRefresh(refreshToken: string, platform?: string) {
     if (!refreshToken) {
       throw new Error('Missing refresh token');
     }
@@ -160,6 +216,8 @@ export const authLogic = {
     try {
       const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET || 'default-secret';
       const decoded: any = jwt.verify(refreshToken, refreshTokenSecret as string);
+
+      await clearDeviceTokensForPlatform(decoded?.id, platform);
 
       // Clear refresh token from user
       const query = strapi.db.query('plugin::users-permissions.user');
@@ -448,10 +506,9 @@ const customAuthController = (..._args: any[]) => ({
   },
 
   async logout(ctx) {
-    const { refreshToken }: RefreshTokenInput = ctx.request.body;
-
+    const { refreshToken, platform }: LogoutInput = ctx.request.body;
     try {
-      const result = await authLogic.logoutWithRefresh(refreshToken);
+      const result = await authLogic.logoutWithRefresh(refreshToken, platform);
       ctx.send({
         message: 'Logged out successfully',
         success: result,

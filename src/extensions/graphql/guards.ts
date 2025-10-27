@@ -50,24 +50,6 @@ export const grapqlGuards = () => ({
     'Mutation.createInvite': { 
       policies: []
     },
-    'Mutation.updateInvite': { 
-      policies: [{
-        name: 'global::is-owner',
-        config: {
-          ownerField: ['sender', 'recipient'],
-          serviceName: 'api::invite.invite'
-        }
-      }]
-    },
-    'Mutation.deleteInvite': { 
-      policies: [{
-        name: 'global::is-owner',
-        config: {
-          ownerField: ['sender', 'recipient'],
-          serviceName: 'api::invite.invite'
-        }
-      }]
-    },
     // TRIP Policies
     'Mutation.createTrip': { 
       policies: []
