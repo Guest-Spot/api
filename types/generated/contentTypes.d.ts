@@ -526,7 +526,9 @@ export interface ApiInviteInvite extends Struct.CollectionTypeSchema {
       'plugin::users-permissions.user'
     >;
     title: Schema.Attribute.String;
-    type: Schema.Attribute.Enumeration<['artist_to_shop']> &
+    type: Schema.Attribute.Enumeration<
+      ['invite_created', 'invite_accepted', 'invite_rejected']
+    > &
       Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -599,8 +601,6 @@ export interface ApiNotifyNotify extends Struct.CollectionTypeSchema {
     recipientDocumentId: Schema.Attribute.String & Schema.Attribute.Required;
     type: Schema.Attribute.Enumeration<
       [
-        'remove_artist_from_shop',
-        'add_artist_to_shop',
         'booking_created',
         'booking_accepted',
         'booking_rejected',
