@@ -30,7 +30,9 @@
       "type": "enumeration",
       "required": true,
       "enum": [
-        "artist_to_shop"
+        "invite_created",
+        "invite_accepted",
+        "invite_rejected"
       ]
     },
     "sender": {
