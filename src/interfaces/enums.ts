@@ -30,3 +30,11 @@ export enum UserType {
   ARTIST = 'artist',
   GUEST = 'guest',
 }
+
+export enum PaymentStatus {
+  UNPAID = 'unpaid',
+  AUTHORIZED = 'authorized',
+  PAID = 'paid',
+  CANCELLED = 'cancelled',
+  FAILED = 'failed',
+}

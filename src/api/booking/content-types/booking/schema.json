@@ -69,6 +69,36 @@
     },
     "rejectNote": {
       "type": "text"
+    },
+    "amount": {
+      "type": "decimal"
+    },
+    "currency": {
+      "type": "string",
+      "default": "usd"
+    },
+    "paymentStatus": {
+      "type": "enumeration",
+      "default": "unpaid",
+      "enum": [
+        "unpaid",
+        "authorized",
+        "paid",
+        "cancelled",
+        "failed"
+      ]
+    },
+    "stripePaymentIntentId": {
+      "type": "string"
+    },
+    "stripeCheckoutSessionId": {
+      "type": "string"
+    },
+    "platformFee": {
+      "type": "decimal"
+    },
+    "authorizedAt": {
+      "type": "datetime"
     }
   }
 }

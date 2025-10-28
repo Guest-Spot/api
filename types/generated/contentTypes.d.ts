@@ -384,13 +384,16 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    amount: Schema.Attribute.Decimal;
     artist: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    authorizedAt: Schema.Attribute.DateTime;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    currency: Schema.Attribute.String & Schema.Attribute.DefaultTo<'usd'>;
     day: Schema.Attribute.Date;
     description: Schema.Attribute.Text;
     email: Schema.Attribute.Email;
@@ -406,8 +409,13 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    paymentStatus: Schema.Attribute.Enumeration<
+      ['unpaid', 'authorized', 'paid', 'cancelled', 'failed']
+    > &
+      Schema.Attribute.DefaultTo<'unpaid'>;
     phone: Schema.Attribute.String;
     placement: Schema.Attribute.String;
+    platformFee: Schema.Attribute.Decimal;
     publishedAt: Schema.Attribute.DateTime;
     reaction: Schema.Attribute.Enumeration<
       ['pending', 'accepted', 'rejected']
@@ -420,6 +428,8 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
     rejectNote: Schema.Attribute.Text;
     size: Schema.Attribute.String;
     start: Schema.Attribute.Time;
+    stripeCheckoutSessionId: Schema.Attribute.String;
+    stripePaymentIntentId: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1260,6 +1270,8 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    payoutsEnabled: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
     phone: Schema.Attribute.String;
     pictures: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
@@ -1273,6 +1285,7 @@ export interface PluginUsersPermissionsUser
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    stripeAccountID: Schema.Attribute.String;
     type: Schema.Attribute.Enumeration<['shop', 'artist', 'guest']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'guest'>;

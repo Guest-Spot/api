@@ -94,5 +94,19 @@ export const grapqlGuards = () => ({
         }
       }]
     },
+    // PAYMENT Policies
+    'Mutation.createBookingPayment': {
+      policies: []
+    },
+    // STRIPE CONNECT Policies
+    'Mutation.createStripeOnboardingUrl': {
+      policies: []
+    },
+    'Mutation.refreshStripeOnboardingUrl': {
+      policies: []
+    },
+    'Mutation.checkStripeAccountStatus': {
+      policies: []
+    },
   },
 });

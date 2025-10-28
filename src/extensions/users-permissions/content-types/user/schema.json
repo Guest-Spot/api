@@ -164,6 +164,13 @@
       "relation": "oneToMany",
       "target": "api::device-token.device-token",
       "mappedBy": "user"
+    },
+    "stripeAccountID": {
+      "type": "string"
+    },
+    "payoutsEnabled": {
+      "type": "boolean",
+      "default": false
     }
   }
 }
