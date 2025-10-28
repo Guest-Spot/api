@@ -94,6 +94,30 @@ export const grapqlGuards = () => ({
         }
       }]
     },
+    // BOOKING Policies
+    'Query.bookings': {
+      policies: [{
+        name: 'global::filter-booking-data'
+      }]
+    },
+    'Query.booking': {
+      policies: [{
+        name: 'global::is-booking-participant'
+      }]
+    },
+    'Mutation.createBooking': { 
+      policies: []
+    },
+    'Mutation.updateBooking': { 
+      policies: [{
+        name: 'global::is-booking-participant'
+      }]
+    },
+    'Mutation.deleteBooking': { 
+      policies: [{
+        name: 'global::is-booking-participant'
+      }]
+    },
     // PAYMENT Policies
     'Mutation.createBookingPayment': {
       policies: []
