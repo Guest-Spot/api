@@ -16,12 +16,15 @@ export default {
     const sig = ctx.request.headers['stripe-signature'];
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+    strapi.log.debug('Webhook request received');
+
     if (!webhookSecret) {
       strapi.log.error('STRIPE_WEBHOOK_SECRET is not configured');
       return ctx.badRequest('Webhook secret not configured');
     }
 
     if (!sig) {
+      strapi.log.error('Missing stripe-signature header');
       return ctx.badRequest('Missing stripe-signature header');
     }
 
@@ -32,11 +35,16 @@ export default {
       const rawBody = ctx.request.body[Symbol.for('unparsedBody')];
       
       if (!rawBody) {
+        strapi.log.error('Missing raw body - make sure includeUnparsed is enabled in middlewares config');
         return ctx.badRequest('Missing raw body');
       }
 
+      strapi.log.debug('Raw body received, verifying signature...');
+
       // Verify webhook signature
       event = verifyWebhookSignature(rawBody, sig, webhookSecret);
+      
+      strapi.log.debug('Signature verified successfully');
     } catch (error) {
       strapi.log.error('Webhook signature verification failed:', error);
       return ctx.badRequest('Invalid signature');
