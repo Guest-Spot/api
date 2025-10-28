@@ -467,6 +467,177 @@ query {
 }
 ```
 
+## Stripe Connect Mutations (Artist Onboarding)
+
+### getStripeDashboardUrl (Recommended ⭐)
+
+**NEW:** Simplified artist onboarding - automatically creates Stripe Connect account and provides access to Stripe Dashboard for adding bank details.
+
+**Signature:**
+```graphql
+mutation getStripeDashboardUrl: StripeDashboardUrl!
+```
+
+**Authentication:** Required (JWT token)  
+**Authorization:** Only users with `type: "artist"`
+
+**Returns:** `StripeDashboardUrl` object containing:
+- `url` (String!) - Temporary URL to Stripe Express Dashboard
+- `accountId` (String!) - Stripe Connect account ID
+
+**How it works:**
+1. Call this mutation
+2. Backend auto-creates Stripe Connect account if it doesn't exist
+3. Backend checks account status and returns appropriate link:
+   - **New account** → Account Link for simplified onboarding
+   - **Completed onboarding** → Login Link for dashboard access
+4. Artist completes setup or updates details
+5. Done! Artist can now receive payments
+
+**Example:**
+```graphql
+mutation {
+  getStripeDashboardUrl {
+    url
+    accountId
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "data": {
+    "getStripeDashboardUrl": {
+      "url": "https://connect.stripe.com/express/acct_abc123/...",
+      "accountId": "acct_abc123"
+    }
+  }
+}
+```
+
+**Frontend Integration:**
+```typescript
+const { data } = await client.mutate({
+  mutation: gql`
+    mutation {
+      getStripeDashboardUrl {
+        url
+        accountId
+      }
+    }
+  `
+});
+
+// Open in browser
+window.open(data.getStripeDashboardUrl.url, '_blank');
+// or on mobile: Linking.openURL(data.getStripeDashboardUrl.url);
+```
+
+---
+
+### createStripeOnboardingUrl (Traditional)
+
+Creates a Stripe Connect onboarding URL for full account setup. Use this if you need complete account verification.
+
+**Signature:**
+```graphql
+mutation createStripeOnboardingUrl: StripeOnboardingUrl!
+```
+
+**Authentication:** Required (JWT token)  
+**Authorization:** Only users with `type: "artist"`
+
+**Returns:** `StripeOnboardingUrl` object containing:
+- `url` (String!) - URL to Stripe onboarding form
+- `accountId` (String!) - Stripe Connect account ID
+- `expiresAt` (Int!) - Unix timestamp when URL expires
+
+**Example:**
+```graphql
+mutation {
+  createStripeOnboardingUrl {
+    url
+    accountId
+    expiresAt
+  }
+}
+```
+
+---
+
+### refreshStripeOnboardingUrl
+
+Refreshes an expired onboarding URL.
+
+**Signature:**
+```graphql
+mutation refreshStripeOnboardingUrl: StripeOnboardingUrl!
+```
+
+**Authentication:** Required (JWT token)  
+**Authorization:** Only artists with existing Stripe account
+
+**Example:**
+```graphql
+mutation {
+  refreshStripeOnboardingUrl {
+    url
+    expiresAt
+  }
+}
+```
+
+---
+
+### checkStripeAccountStatus
+
+Checks the current status of artist's Stripe Connect account and updates `payoutsEnabled` field.
+
+**Signature:**
+```graphql
+mutation checkStripeAccountStatus: StripeAccountStatus!
+```
+
+**Authentication:** Required (JWT token)
+
+**Returns:** `StripeAccountStatus` object containing:
+- `accountId` (String) - Stripe account ID (null if no account)
+- `onboarded` (Boolean!) - Whether account is fully set up
+- `payoutsEnabled` (Boolean!) - Whether payouts are enabled
+- `chargesEnabled` (Boolean!) - Whether charges are enabled
+- `detailsSubmitted` (Boolean!) - Whether account details are submitted
+
+**Example:**
+```graphql
+mutation {
+  checkStripeAccountStatus {
+    accountId
+    onboarded
+    payoutsEnabled
+    chargesEnabled
+    detailsSubmitted
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "data": {
+    "checkStripeAccountStatus": {
+      "accountId": "acct_abc123",
+      "onboarded": true,
+      "payoutsEnabled": true,
+      "chargesEnabled": true,
+      "detailsSubmitted": true
+    }
+  }
+}
+```
+
+---
+
 ## Security Notes
 
 - All mutations require authentication via JWT token
@@ -474,12 +645,15 @@ query {
 - Ownership is verified server-side
 - Payment amounts are validated on the server
 - Stripe signature verification on webhooks
+- Artist onboarding mutations restricted to users with `type: "artist"`
+- Dashboard URLs are temporary and expire after use
 
 ## Related Documentation
 
 - [Stripe Integration Documentation](./STRIPE_INTEGRATION.md)
 - [Stripe Quick Start Guide](./STRIPE_QUICKSTART.md)
 - [Stripe Integration (Russian)](./STRIPE_INTEGRATION_RU.md)
+- [Artist Setup Guide (Russian)](./STRIPE_ARTIST_SETUP_RU.md) - Simplified onboarding instructions ⭐ NEW
 
 ---
 

@@ -7,6 +7,7 @@ import {
   createAccountLink,
   getConnectAccount,
   isAccountOnboarded,
+  createLoginLink,
 } from '../../utils/stripe';
 
 export const stripeConnectExtension = ({ strapi }) => ({
@@ -25,6 +26,11 @@ export const stripeConnectExtension = ({ strapi }) => ({
       detailsSubmitted: Boolean!
     }
 
+    type StripeDashboardUrl {
+      url: String!
+      accountId: String!
+    }
+
     extend type UsersPermissionsMe {
       stripeAccountID: String
       payoutsEnabled: Boolean
@@ -34,6 +40,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
       createStripeOnboardingUrl: StripeOnboardingUrl!
       refreshStripeOnboardingUrl: StripeOnboardingUrl!
       checkStripeAccountStatus: StripeAccountStatus!
+      getStripeDashboardUrl: StripeDashboardUrl!
     }
   `,
   resolvers: {
@@ -203,12 +210,115 @@ export const stripeConnectExtension = ({ strapi }) => ({
           throw new Error('Failed to check account status');
         }
       },
+
+      /**
+       * Get Stripe Express Dashboard URL (simplified for adding bank details)
+       * Creates Stripe account automatically if it doesn't exist
+       * This is the recommended simplified approach for artists
+       */
+      async getStripeDashboardUrl(parent, args, context) {
+        const userId = context.state?.user?.id;
+
+        if (!userId) {
+          throw new Error('You must be logged in');
+        }
+
+        const user = await strapi.documents('plugin::users-permissions.user').findOne({
+          documentId: context.state.user.documentId,
+        });
+
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        // Check if user is an artist
+        if (user.type !== 'artist') {
+          throw new Error('Only artists can access Stripe Dashboard');
+        }
+
+        let accountId = user.stripeAccountID;
+
+        try {
+          // Auto-create Stripe account if doesn't exist
+          if (!accountId) {
+            // Prepare prefill data from user profile to reduce onboarding friction
+            const createAccountParams: any = {
+              email: user.email,
+              type: 'express',
+              country: 'US', // Make this configurable based on user location
+            };
+
+            // Prefill name if available
+            if (user.username) {
+              const nameParts = user.username.split(' ');
+              if (nameParts.length >= 2) {
+                createAccountParams.firstName = nameParts[0];
+                createAccountParams.lastName = nameParts.slice(1).join(' ');
+              }
+            }
+
+            // Prefill phone if available
+            if (user.phone) {
+              createAccountParams.phone = user.phone;
+            }
+
+            const account = await createConnectAccount(createAccountParams);
+
+            accountId = account.id;
+
+            // Save account ID to user
+            await strapi.documents('plugin::users-permissions.user').update({
+              documentId: user.documentId,
+              data: {
+                stripeAccountID: accountId,
+                payoutsEnabled: false,
+              },
+            });
+
+            strapi.log.info(`Auto-created Stripe account ${accountId} for user ${user.id}`);
+          }
+
+          // Check if account has completed onboarding
+          const account = await getConnectAccount(accountId);
+          const onboarded = isAccountOnboarded(account);
+
+          const frontendUrl = process.env.FRONTEND_URL || process.env.PUBLIC_URL || 'http://localhost:3000';
+
+          let dashboardUrl;
+
+          if (onboarded) {
+            // For onboarded accounts, use Login Link to access Dashboard
+            const loginLink = await createLoginLink(accountId);
+            dashboardUrl = loginLink.url;
+            strapi.log.info(`Created login link for onboarded account ${accountId}`);
+          } else {
+            // For new accounts, use Account Link for simplified onboarding
+            const accountLink = await createAccountLink({
+              accountId,
+              refreshUrl: `${frontendUrl}/artist/stripe-setup?refresh=true`,
+              returnUrl: `${frontendUrl}/artist/stripe-setup/success`,
+              type: 'account_onboarding',
+            });
+            dashboardUrl = accountLink.url;
+            strapi.log.info(`Created onboarding link for new account ${accountId}`);
+          }
+
+          return {
+            url: dashboardUrl,
+            accountId,
+          };
+        } catch (error) {
+          strapi.log.error('Error creating dashboard URL:', error);
+          throw new Error('Failed to create dashboard URL');
+        }
+      },
     },
   },
   resolversConfig: {
     'Mutation.createStripeOnboardingUrl': { auth: true },
     'Mutation.refreshStripeOnboardingUrl': { auth: true },
     'Mutation.checkStripeAccountStatus': { auth: true },
+    'Mutation.getStripeDashboardUrl': { auth: true },
   },
 });
 

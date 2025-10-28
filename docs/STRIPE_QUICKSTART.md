@@ -1,5 +1,29 @@
 # Stripe Integration Quick Start Guide
 
+## What's New: Simplified Artist Onboarding! 🎉
+
+We've added a much simpler way for artists to connect their Stripe accounts:
+
+**Traditional Approach:**
+- Artist must complete full Stripe onboarding form
+- Requires SSN, DOB, address, and bank details
+- More steps, more friction
+
+**New Simplified Approach (Recommended):**
+- 🚀 Stripe account created automatically when artist calls `getStripeDashboardUrl`
+- ✨ Uses Stripe Express onboarding (simpler than Standard, fewer fields)
+- 📝 Prefills name and phone from user profile
+- 🔄 Smart routing: onboarding for new accounts, dashboard for existing
+- ⚡ ~3-5 minutes vs ~10 minutes for Standard onboarding
+
+**Note:** Stripe still requires KYC data (name, DOB, address, SSN last 4) per US financial regulations. This is a legal requirement, not a Stripe limitation.
+
+📖 **Why does Stripe need all this data?** See [STRIPE_EXPRESS_ONBOARDING_EXPLAINED.md](./STRIPE_EXPRESS_ONBOARDING_EXPLAINED.md)
+
+See [Option A in Testing](#1-setup-test-artist-with-stripe-connect) for implementation details.
+
+---
+
 ## Prerequisites
 
 1. ✅ Stripe account (create at [stripe.com](https://stripe.com))
@@ -118,7 +142,86 @@ yarn develop
 
 ### 1. Setup Test Artist with Stripe Connect
 
-**Option A: Automated Onboarding (Recommended)**
+**Option A: Simplified Dashboard Access (Recommended for Artists) 🎨**
+
+This is the easiest way for artists - account is created automatically, and they only need to add bank details:
+
+1. Create a new user with `type: "artist"`
+
+2. Use GraphQL Playground (`http://localhost:1337/graphql`) with artist's JWT token:
+
+```graphql
+mutation {
+  getStripeDashboardUrl {
+    url
+    accountId
+  }
+}
+```
+
+**What happens:**
+- ✨ Stripe Connect account is created automatically if it doesn't exist
+- 🔗 Returns a secure link to Stripe (onboarding form or dashboard)
+- 💳 **First time:** Artist completes simplified Express onboarding
+- 🎯 **Returning users:** Direct access to Stripe Dashboard
+- ⚡ Much simpler than standard onboarding!
+
+3. Open the returned `url` in browser
+
+4. In Stripe Express Dashboard, navigate to "Payment details" and add:
+   - **Routing number:** `110000000` (for US test bank)
+   - **Account number:** `000123456789`
+
+5. Verify status:
+
+```graphql
+mutation {
+  checkStripeAccountStatus {
+    onboarded
+    payoutsEnabled
+  }
+}
+```
+
+**Note:** The dashboard URL is temporary and expires after use. Call `getStripeDashboardUrl` again to get a fresh link.
+
+#### Frontend Integration Example
+
+```typescript
+// React/React Native example
+const setupArtistPayments = async () => {
+  try {
+    const response = await client.mutate({
+      mutation: gql`
+        mutation {
+          getStripeDashboardUrl {
+            url
+            accountId
+          }
+        }
+      `
+    });
+
+    const { url, accountId } = response.data.getStripeDashboardUrl;
+    
+    // Open Stripe Dashboard in browser/webview
+    // On web:
+    window.open(url, '_blank');
+    
+    // On mobile (React Native):
+    // Linking.openURL(url);
+    
+    // Save accountId if needed
+    console.log('Stripe account:', accountId);
+  } catch (error) {
+    console.error('Failed to get dashboard URL:', error);
+  }
+};
+```
+
+---
+
+**Option B: Full Onboarding Flow (Traditional Approach)**
 
 Create an artist and complete Stripe onboarding via GraphQL:
 
@@ -157,7 +260,7 @@ mutation {
 }
 ```
 
-**Option B: Manual Setup (For Quick Testing)**
+**Option C: Manual Setup (For Quick Testing)**
 
 If you need to skip onboarding for testing:
 

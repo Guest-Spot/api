@@ -174,17 +174,37 @@ export const getPaymentIntent = async (paymentIntentId: string): Promise<Stripe.
 };
 
 /**
- * Create a Stripe Connect Account for an artist
+ * Create a Stripe Connect Account for an artist with optional prefilled data
  */
 export const createConnectAccount = async (params: {
   email: string;
   type?: 'express' | 'standard';
   country?: string;
+  // Optional prefill data to reduce onboarding friction
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  dob?: { day?: number; month?: number; year?: number };
+  address?: {
+    line1?: string;
+    city?: string;
+    state?: string;
+    postal_code?: string;
+  };
 }): Promise<Stripe.Account> => {
-  const { email, type = 'express', country = 'US' } = params;
+  const { 
+    email, 
+    type = 'express', 
+    country = 'US',
+    firstName,
+    lastName,
+    phone,
+    dob,
+    address,
+  } = params;
 
   try {
-    const account = await stripe.accounts.create({
+    const accountData: Stripe.AccountCreateParams = {
       type,
       country,
       email,
@@ -193,9 +213,29 @@ export const createConnectAccount = async (params: {
         transfers: { requested: true },
       },
       business_type: 'individual',
-    });
+    };
 
-    strapi.log.info(`Created Stripe Connect account ${account.id} for ${email}`);
+    // Prefill individual data if provided (reduces onboarding friction)
+    if (firstName || lastName || phone || dob || address) {
+      accountData.individual = {};
+      
+      if (firstName) accountData.individual.first_name = firstName;
+      if (lastName) accountData.individual.last_name = lastName;
+      if (phone) accountData.individual.phone = phone;
+      // Only set dob if all required fields are present
+      if (dob && dob.day && dob.month && dob.year) {
+        accountData.individual.dob = {
+          day: dob.day,
+          month: dob.month,
+          year: dob.year,
+        };
+      }
+      if (address) accountData.individual.address = address;
+    }
+
+    const account = await stripe.accounts.create(accountData);
+
+    strapi.log.info(`Created Stripe Connect account ${account.id} for ${email}${firstName ? ` (${firstName} ${lastName})` : ''}`);
     return account;
   } catch (error) {
     strapi.log.error('Error creating Stripe Connect account:', error);
@@ -253,6 +293,64 @@ export const isAccountOnboarded = (account: Stripe.Account): boolean => {
     account.payouts_enabled === true &&
     account.charges_enabled === true
   );
+};
+
+/**
+ * Create a Login Link for Express Dashboard
+ * This allows artists to access a simplified Stripe dashboard to add bank account details
+ */
+export const createLoginLink = async (accountId: string): Promise<Stripe.LoginLink> => {
+  try {
+    const loginLink = await stripe.accounts.createLoginLink(accountId);
+    strapi.log.info(`Created login link for account ${accountId}`);
+    return loginLink;
+  } catch (error) {
+    strapi.log.error('Error creating login link:', error);
+    throw error;
+  }
+};
+
+/**
+ * Add external bank account to Connect account
+ */
+export const addExternalAccount = async (params: {
+  accountId: string;
+  country: string;
+  currency: string;
+  accountNumber?: string;
+  routingNumber?: string;
+  accountHolderName?: string;
+  accountHolderType?: 'individual' | 'company';
+}): Promise<Stripe.BankAccount> => {
+  const {
+    accountId,
+    country,
+    currency,
+    accountNumber,
+    routingNumber,
+    accountHolderName,
+    accountHolderType = 'individual',
+  } = params;
+
+  try {
+    const externalAccount = await stripe.accounts.createExternalAccount(accountId, {
+      external_account: {
+        object: 'bank_account',
+        country,
+        currency,
+        account_number: accountNumber,
+        routing_number: routingNumber,
+        account_holder_name: accountHolderName,
+        account_holder_type: accountHolderType,
+      },
+    });
+
+    strapi.log.info(`Added external account to ${accountId}`);
+    return externalAccount as Stripe.BankAccount;
+  } catch (error) {
+    strapi.log.error('Error adding external account:', error);
+    throw error;
+  }
 };
 
 export default stripe;
