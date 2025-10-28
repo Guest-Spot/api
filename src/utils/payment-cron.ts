@@ -3,6 +3,7 @@
  */
 
 import { cancelPaymentIntent } from './stripe';
+import { sendFirebaseNotificationToUser } from './push-notification';
 
 /**
  * Cancel payment authorizations that are older than 7 days
@@ -58,12 +59,12 @@ export const cancelExpiredAuthorizations = async (strapi) => {
 
         // Send notification to owner
         try {
-          await strapi.plugin('users-permissions').service('user').sendNotification({
-            userId: booking.owner.id,
-            type: 'booking_expired',
-            message: 'Your booking request expired after 7 days without artist response. Payment authorization has been cancelled.',
+          await sendFirebaseNotificationToUser(booking.owner.id, {
+            title: 'Booking Expired',
+            body: 'Your booking request expired after 7 days without artist response. Payment authorization has been cancelled.',
             data: {
-              bookingId: booking.id,
+              bookingId: String(booking.id),
+              type: 'booking_expired',
             },
           });
         } catch (notifError) {

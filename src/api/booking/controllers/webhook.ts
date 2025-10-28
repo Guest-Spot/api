@@ -4,6 +4,7 @@
 
 import { verifyWebhookSignature, isAccountOnboarded } from '../../../utils/stripe';
 import { sendPaymentSuccessEmail } from '../../../utils/email/payment-success';
+import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
 import Stripe from 'stripe';
 import { BookingWithRelations } from '../types/booking-populated';
 
@@ -161,14 +162,14 @@ async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent
     },
   });
 
-  // Send notification to artist about new paid booking request
+  // Send push notification to artist about new paid booking request
   try {
-    await strapi.plugin('users-permissions').service('user').sendNotification({
-      userId: booking.artist.id,
-      type: 'booking_created',
-      message: `New booking request from ${booking.owner.username} (Payment authorized)`,
+    await sendFirebaseNotificationToUser(booking.artist.id, {
+      title: 'New Booking Request',
+      body: `New booking request from ${booking.owner.username} (Payment authorized)`,
       data: {
-        bookingId: booking.id,
+        bookingId: String(booking.id),
+        type: 'booking_created',
       },
     });
   } catch (error) {
@@ -233,21 +234,21 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
 
     // Send push notifications if available
     try {
-      await strapi.plugin('users-permissions').service('user').sendNotification({
-        userId: booking.owner.id,
-        type: 'payment_succeeded',
-        message: `Payment processed successfully for your booking`,
+      await sendFirebaseNotificationToUser(booking.owner.id, {
+        title: 'Payment Successful',
+        body: `Payment processed successfully for your booking`,
         data: {
-          bookingId: booking.id,
+          bookingId: String(booking.id),
+          type: 'payment_succeeded',
         },
       });
 
-      await strapi.plugin('users-permissions').service('user').sendNotification({
-        userId: booking.artist.id,
-        type: 'payment_succeeded',
-        message: `Payment received for booking from ${booking.owner.username}`,
+      await sendFirebaseNotificationToUser(booking.artist.id, {
+        title: 'Payment Received',
+        body: `Payment received for booking from ${booking.owner.username}`,
         data: {
-          bookingId: booking.id,
+          bookingId: String(booking.id),
+          type: 'payment_succeeded',
         },
       });
     } catch (pushError) {
@@ -291,12 +292,12 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
 
   // Notify owner about failed payment
   try {
-    await strapi.plugin('users-permissions').service('user').sendNotification({
-      userId: booking.owner.id,
-      type: 'payment_failed',
-      message: `Payment failed for your booking. Please try again.`,
+    await sendFirebaseNotificationToUser(booking.owner.id, {
+      title: 'Payment Failed',
+      body: `Payment failed for your booking. Please try again.`,
       data: {
-        bookingId: booking.id,
+        bookingId: String(booking.id),
+        type: 'payment_failed',
       },
     });
   } catch (error) {
@@ -337,12 +338,12 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) 
 
   // Notify owner about cancelled payment
   try {
-    await strapi.plugin('users-permissions').service('user').sendNotification({
-      userId: booking.owner.id,
-      type: 'payment_cancelled',
-      message: `Payment cancelled for your booking. Funds have been released.`,
+    await sendFirebaseNotificationToUser(booking.owner.id, {
+      title: 'Payment Cancelled',
+      body: `Payment cancelled for your booking. Funds have been released.`,
       data: {
-        bookingId: booking.id,
+        bookingId: String(booking.id),
+        type: 'payment_cancelled',
       },
     });
   } catch (error) {
@@ -392,12 +393,12 @@ async function handleAccountUpdated(account: Stripe.Account) {
       // Send notification to artist
       if (onboarded) {
         try {
-          await strapi.plugin('users-permissions').service('user').sendNotification({
-            userId: user.id,
-            type: 'stripe_account_activated',
-            message: 'Your Stripe account is now active! You can start receiving payments.',
+          await sendFirebaseNotificationToUser(user.id, {
+            title: 'Stripe Account Activated',
+            body: 'Your Stripe account is now active! You can start receiving payments.',
             data: {
               accountId,
+              type: 'stripe_account_activated',
             },
           });
         } catch (notifError) {
