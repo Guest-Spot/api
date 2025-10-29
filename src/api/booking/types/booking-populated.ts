@@ -11,6 +11,7 @@ export interface UserProfile {
   email: string;
   stripeAccountID?: string;
   payoutsEnabled?: boolean;
+  depositAmount?: number | null;
 }
 
 // Booking with populated artist and owner relations
@@ -20,9 +21,7 @@ export interface BookingWithRelations {
   name?: string;
   phone?: string;
   email?: string;
-  amount?: number;
   currency?: string;
-  platformFee?: number;
   location?: string;
   description?: string;
   placement?: string;
@@ -42,4 +41,3 @@ export interface BookingWithRelations {
   artist?: UserProfile;
   owner?: UserProfile;
 }
-

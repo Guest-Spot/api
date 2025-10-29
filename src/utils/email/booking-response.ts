@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { formatDateOnly } from '../date';
 
 const BOOKING_RESPONSE_TEMPLATE_NAME = 'booking-response.html';
 
@@ -65,20 +66,8 @@ const renderTemplate = (
   return html;
 };
 
-const formatDate = (dateString?: string | null): string => {
-  if (!dateString) {
-    return 'Not specified';
-  }
-
-  try {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      dateStyle: 'medium',
-    }).format(date);
-  } catch {
-    return dateString;
-  }
-};
+const formatDate = (dateString?: string | null): string =>
+  formatDateOnly(dateString);
 
 const formatTime = (timeString?: string | null): string => {
   if (!timeString) {

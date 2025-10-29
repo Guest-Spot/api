@@ -384,7 +384,6 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    amount: Schema.Attribute.Decimal;
     artist: Schema.Attribute.Relation<
       'oneToOne',
       'plugin::users-permissions.user'
@@ -415,7 +414,6 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
       Schema.Attribute.DefaultTo<'unpaid'>;
     phone: Schema.Attribute.String;
     placement: Schema.Attribute.String;
-    platformFee: Schema.Attribute.Decimal;
     publishedAt: Schema.Attribute.DateTime;
     reaction: Schema.Attribute.Enumeration<
       ['pending', 'accepted', 'rejected']
@@ -1238,6 +1236,14 @@ export interface PluginUsersPermissionsUser
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    depositAmount: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<10000>;
     description: Schema.Attribute.Text;
     device_tokens: Schema.Attribute.Relation<
       'oneToMany',

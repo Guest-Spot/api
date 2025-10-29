@@ -10,6 +10,7 @@ import { sendFirebaseNotificationToUser } from '../../../../utils/push-notificat
 import isAdmin from '../../../../utils/isAdmin';
 import { formatTimeToAmPm } from '../../../../utils/formatTime';
 import { createNotification } from '../../../../utils/notification';
+import { parseDateOnly } from '../../../../utils/date';
 
 type BookingIdentifier = { id?: number; documentId?: string };
 
@@ -107,10 +108,10 @@ async function sendBookingCreatedPushNotification(
     return;
   }
 
-  const bookingDate = booking.day ? new Date(booking.day) : null;
+  const bookingDate = parseDateOnly(booking.day);
   const formattedDate =
     bookingDate && !Number.isNaN(bookingDate.getTime())
-      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(bookingDate)
+      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(bookingDate)
       : null;
   const notificationBodyParts = [`Request from ${guestName}`];
 
@@ -156,10 +157,10 @@ async function sendBookingReactionPushNotification(
   }
 
   const isAccepted = type === NotifyType.BOOKING_ACCEPTED;
-  const bookingDate = booking.day ? new Date(booking.day) : null;
+  const bookingDate = parseDateOnly(booking.day);
   const formattedDate =
     bookingDate && !Number.isNaN(bookingDate.getTime())
-      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(bookingDate)
+      ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(bookingDate)
       : null;
 
   const bodyParts = [`${artistName} ${isAccepted ? 'accepted' : 'declined'} your booking request`];

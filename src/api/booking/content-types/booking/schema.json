@@ -70,9 +70,6 @@
     "rejectNote": {
       "type": "text"
     },
-    "amount": {
-      "type": "decimal"
-    },
     "currency": {
       "type": "string",
       "default": "usd"
@@ -93,9 +90,6 @@
     },
     "stripeCheckoutSessionId": {
       "type": "string"
-    },
-    "platformFee": {
-      "type": "decimal"
     },
     "authorizedAt": {
       "type": "datetime"

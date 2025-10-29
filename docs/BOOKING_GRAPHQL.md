@@ -25,9 +25,7 @@ mutation UpdateBooking($documentId: ID!, $data: BookingInput!) {
     documentId
     reaction
     paymentStatus
-    amount
     currency
-    platformFee
   }
 }
 ```
@@ -137,7 +135,6 @@ mutation AcceptBooking($documentId: ID!) {
     documentId
     reaction
     paymentStatus  # Will be "paid"
-    amount
     currency
   }
 }
@@ -168,7 +165,6 @@ query GetMyBookings {
     documentId
     reaction
     paymentStatus
-    amount
     currency
     day
     start
@@ -181,6 +177,7 @@ query GetMyBookings {
       documentId
       username
       email
+      depositAmount
     }
   }
 }
@@ -194,9 +191,7 @@ query GetBooking($documentId: ID!) {
     documentId
     reaction
     paymentStatus
-    amount
     currency
-    platformFee
     day
     start
     location
@@ -214,6 +209,7 @@ query GetBooking($documentId: ID!) {
       email
       stripeAccountID
       payoutsEnabled
+      depositAmount
     }
   }
 }
@@ -225,4 +221,3 @@ query GetBooking($documentId: ID!) {
 - Reaction changes from any status other than the new status trigger payment processing
 - Both REST API (`PUT /api/bookings/:id`) and GraphQL mutations use the same payment logic
 - Webhooks handle the initial payment authorization after checkout completion
-

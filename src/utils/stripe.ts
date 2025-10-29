@@ -13,17 +13,6 @@ export const calculatePlatformFee = (amount: number, percent: number): number =>
 };
 
 /**
- * Get booking amount from environment variable
- */
-export const getBookingAmount = (): number => {
-  const amount = parseInt(process.env.BOOKING_AMOUNT || '10000', 10);
-  if (isNaN(amount) || amount <= 0) {
-    throw new Error('Invalid BOOKING_AMOUNT in environment variables');
-  }
-  return amount;
-};
-
-/**
  * Get platform fee percentage from environment variable
  */
 export const getPlatformFeePercent = (): number => {
@@ -354,4 +343,3 @@ export const addExternalAccount = async (params: {
 };
 
 export default stripe;
-

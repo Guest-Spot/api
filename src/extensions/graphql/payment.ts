@@ -4,7 +4,6 @@
 
 import {
   createCheckoutSession,
-  getBookingAmount,
   getPlatformFeePercent,
   calculatePlatformFee,
   getDefaultCurrency,
@@ -67,8 +66,14 @@ export const paymentExtension = ({ strapi }) => ({
           throw new Error('Artist has not enabled payouts yet');
         }
 
-        // Get payment parameters from environment
-        const amount = getBookingAmount();
+        // Use artist-configured deposit amount for payment
+        const amountValue = Number(booking.artist?.depositAmount);
+
+        if (!Number.isFinite(amountValue) || amountValue <= 0) {
+          throw new Error('Artist deposit amount is not configured');
+        }
+
+        const amount = Math.round(amountValue);
         const currency = getDefaultCurrency();
         const platformFeePercent = getPlatformFeePercent();
         const platformFee = calculatePlatformFee(amount, platformFeePercent);
@@ -94,9 +99,7 @@ export const paymentExtension = ({ strapi }) => ({
             documentId: bookingId,
             data: {
               stripeCheckoutSessionId: session.id,
-              amount,
               currency,
-              platformFee,
             },
           });
 
@@ -120,4 +123,3 @@ export const paymentExtension = ({ strapi }) => ({
     },
   },
 });
-

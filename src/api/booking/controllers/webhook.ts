@@ -7,6 +7,7 @@ import { sendPaymentSuccessEmail } from '../../../utils/email/payment-success';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
 import Stripe from 'stripe';
 import { BookingWithRelations } from '../types/booking-populated';
+import { PaymentStatus } from '../../../interfaces/enums';
 
 export default {
   /**
@@ -97,6 +98,23 @@ export default {
 };
 
 /**
+ * Keep published bookings in published state after programmatic updates.
+ */
+function keepBookingPublished(
+  booking: BookingWithRelations | null,
+  data: Record<string, unknown>
+) {
+  if (booking?.publishedAt) {
+    return {
+      ...data,
+      publishedAt: new Date().toISOString(),
+    };
+  }
+
+  return data;
+}
+
+/**
  * Handle checkout.session.completed event
  * Updates booking with payment intent ID
  */
@@ -123,9 +141,9 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
   // Update booking with payment intent ID
   await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: {
+    data: keepBookingPublished(booking, {
       stripePaymentIntentId: paymentIntentId,
-    },
+    }),
   });
 }
 
@@ -155,11 +173,11 @@ async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent
 
   // Update payment status to authorized
   await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: {
-      paymentStatus: 'authorized',
+    data: keepBookingPublished(booking, {
+      paymentStatus: PaymentStatus.AUTHORIZED,
       stripePaymentIntentId: paymentIntent.id,
       authorizedAt: new Date().toISOString(),
-    },
+    }),
   });
 
   // Send push notification to artist about new paid booking request
@@ -203,20 +221,24 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
 
   // Update payment status to paid
   await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: {
-      paymentStatus: 'paid',
-    },
+    data: keepBookingPublished(booking, {
+      paymentStatus: PaymentStatus.PAID,
+    }),
   });
 
   // Send email and push notifications to both parties
   try {
     // Send email to owner (guest)
+    const amountValue = Number(booking.artist?.depositAmount);
+    const normalizedAmount =
+      Number.isFinite(amountValue) && amountValue > 0 ? Math.round(amountValue) : undefined;
+
     await sendPaymentSuccessEmail({
       userName: booking.owner.username,
       userEmail: booking.owner.email,
       artistName: booking.artist.username,
       bookingId: booking.id,
-      amount: booking.amount,
+      amount: normalizedAmount,
       currency: booking.currency,
       isArtist: false,
     });
@@ -227,7 +249,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       userEmail: booking.artist.email,
       artistName: booking.artist.username,
       bookingId: booking.id,
-      amount: booking.amount,
+      amount: normalizedAmount,
       currency: booking.currency,
       isArtist: true,
     });
@@ -285,9 +307,9 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
 
   // Update payment status to failed
   await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: {
-      paymentStatus: 'failed',
-    },
+    data: keepBookingPublished(booking, {
+      paymentStatus: PaymentStatus.FAILED,
+    }),
   });
 
   // Notify owner about failed payment
@@ -331,9 +353,9 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) 
 
   // Update payment status to cancelled
   await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: {
-      paymentStatus: 'cancelled',
-    },
+    data: keepBookingPublished(booking, {
+      paymentStatus: PaymentStatus.CANCELLED,
+    }),
   });
 
   // Notify owner about cancelled payment
@@ -410,4 +432,3 @@ async function handleAccountUpdated(account: Stripe.Account) {
     strapi.log.error(`Error processing account.updated for ${accountId}:`, error);
   }
 }
-

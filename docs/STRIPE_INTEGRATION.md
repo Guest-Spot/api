@@ -63,9 +63,7 @@ If the artist doesn't respond within 7 days:
   "booking": {
     "id": 123,
     "stripeCheckoutSessionId": "cs_test_...",
-    "amount": 10000,
     "currency": "usd",
-    "platformFee": 1000,
     "paymentStatus": "unpaid"
   }
 }
@@ -97,16 +95,17 @@ If the artist doesn't respond within 7 days:
 ```typescript
 {
   // Existing fields...
-  
-  // Payment fields
-  amount: number;                    // Payment amount in cents
-  currency: string;                  // Currency code (default: "usd")
-  paymentStatus: enum;               // "unpaid" | "authorized" | "paid" | "cancelled" | "failed"
-  stripePaymentIntentId: string;     // Stripe Payment Intent ID
-  stripeCheckoutSessionId: string;   // Stripe Checkout Session ID
-  platformFee: number;               // Platform commission in cents
-  authorizedAt: datetime;            // Timestamp when payment was authorized
+
+// Payment fields
+ currency: string;                  // Currency code (default: "usd")
+ paymentStatus: enum;               // "unpaid" | "authorized" | "paid" | "cancelled" | "failed"
+ stripePaymentIntentId: string;     // Stripe Payment Intent ID
+ stripeCheckoutSessionId: string;   // Stripe Checkout Session ID
+ authorizedAt: datetime;            // Timestamp when payment was authorized
 }
+
+// Artist profile includes:
+// depositAmount: number;            // Deposit configured in cents
 ```
 
 ## Environment Variables
@@ -119,9 +118,11 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Payment Configuration
-BOOKING_AMOUNT=10000                    # In cents ($100.00)
 STRIPE_PLATFORM_FEE_PERCENT=10         # 10%
 DEFAULT_CURRENCY=usd
+
+# Deposit Amount
+# Each artist configures their deposit in the users table (depositAmount field in cents)
 
 # Redirect URLs
 STRIPE_SUCCESS_URL=https://yourapp.com/booking-success?session_id={CHECKOUT_SESSION_ID}
@@ -301,4 +302,3 @@ Monitor your integration:
 
 **Last Updated:** October 28, 2025
 **Integration Version:** 1.0.0
-

@@ -4,6 +4,7 @@
 
 import { cancelPaymentIntent } from './stripe';
 import { sendFirebaseNotificationToUser } from './push-notification';
+import { PaymentStatus } from '../interfaces/enums';
 
 /**
  * Cancel payment authorizations that are older than 7 days
@@ -20,7 +21,7 @@ export const cancelExpiredAuthorizations = async (strapi) => {
     // Find all bookings with authorized payments older than 7 days
     const expiredBookings = await strapi.db.query('api::booking.booking').findMany({
       where: {
-        paymentStatus: 'authorized',
+        paymentStatus: PaymentStatus.AUTHORIZED,
         authorizedAt: {
           $lt: sevenDaysAgo.toISOString(),
         },
@@ -49,7 +50,7 @@ export const cancelExpiredAuthorizations = async (strapi) => {
         // Update booking status
         await strapi.entityService.update('api::booking.booking', booking.id, {
           data: {
-            paymentStatus: 'cancelled',
+            paymentStatus: PaymentStatus.CANCELLED,
             reaction: 'rejected',
             rejectNote: 'Automatically rejected due to expired payment authorization (7 days)',
           },

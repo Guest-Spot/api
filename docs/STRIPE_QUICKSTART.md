@@ -99,14 +99,14 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 Add to your `.env`:
 
 ```bash
-# Booking amount in cents (10000 = $100.00)
-BOOKING_AMOUNT=10000
-
 # Platform commission percentage
 STRIPE_PLATFORM_FEE_PERCENT=10
 
 # Currency
 DEFAULT_CURRENCY=usd
+
+# Deposit amount
+# Each artist configures their deposit in the users table (depositAmount field in cents)
 
 # Redirect URLs (adjust for your app)
 STRIPE_SUCCESS_URL=https://yourapp.com/booking-success?session_id={CHECKOUT_SESSION_ID}
@@ -539,4 +539,3 @@ Set up monitoring:
 ---
 
 ✅ Integration complete! You're ready to accept payments and onboard artists.
-

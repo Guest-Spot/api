@@ -48,15 +48,17 @@ type Booking {
   # ... existing fields ...
   
   # Payment fields
-  amount: Float
   currency: String
   paymentStatus: ENUM_BOOKING_PAYMENTSTATUS
   stripePaymentIntentId: String
   stripeCheckoutSessionId: String
-  platformFee: Float
   authorizedAt: DateTime
+  
+  artist: UsersPermissionsUser
 }
 ```
+
+> Deposit amount is available on `booking.artist.depositAmount`.
 
 **Payment Status Enum:**
 ```graphql
@@ -82,13 +84,13 @@ mutation CreateBookingPayment {
     booking {
       id
       documentId
-      amount
       currency
       paymentStatus
       stripeCheckoutSessionId
       artist {
         username
         email
+        depositAmount
       }
     }
   }
@@ -105,13 +107,13 @@ mutation CreateBookingPayment {
       "booking": {
         "id": 123,
         "documentId": "abc123",
-        "amount": 10000,
         "currency": "usd",
         "paymentStatus": "unpaid",
         "stripeCheckoutSessionId": "cs_test_a1b2c3d4e5f6...",
         "artist": {
           "username": "johndoe",
-          "email": "john@example.com"
+          "email": "john@example.com",
+          "depositAmount": 10000
         }
       }
     }
@@ -135,17 +137,16 @@ query GetBooking {
     reaction
     
     # Payment information
-    amount
     currency
     paymentStatus
     authorizedAt
-    platformFee
     
     artist {
       username
       email
       stripeAccountID
       payoutsEnabled
+      depositAmount
     }
     
     owner {
@@ -169,16 +170,15 @@ query GetBooking {
       "day": "2024-12-01",
       "start": "14:00",
       "reaction": "pending",
-      "amount": 10000,
       "currency": "usd",
       "paymentStatus": "authorized",
       "authorizedAt": "2024-10-28T10:30:00.000Z",
-      "platformFee": 1000,
       "artist": {
         "username": "tattooartist",
         "email": "artist@example.com",
         "stripeAccountID": "acct_1234567890",
-        "payoutsEnabled": true
+        "payoutsEnabled": true,
+        "depositAmount": 10000
       },
       "owner": {
         "username": "johnsmith",
@@ -246,7 +246,6 @@ const CREATE_BOOKING_PAYMENT = gql`
         id
         documentId
         paymentStatus
-        amount
         currency
       }
     }
@@ -658,4 +657,3 @@ mutation {
 ---
 
 **Last Updated:** October 28, 2025
-

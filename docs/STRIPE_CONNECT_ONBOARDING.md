@@ -370,7 +370,9 @@ Display clear status in artist profile:
 Don't allow artists to accept paid bookings until onboarded:
 
 ```typescript
-if (booking.amount > 0 && !artist.payoutsEnabled) {
+const depositAmount = artist.depositAmount ?? 0;
+
+if (depositAmount > 0 && !artist.payoutsEnabled) {
   return error('Complete Stripe onboarding to accept paid bookings');
 }
 ```
@@ -485,4 +487,3 @@ If artist has issues with onboarding:
 - [Stripe Official Docs](https://stripe.com/docs/connect)
 
 **Last Updated:** October 28, 2025
-

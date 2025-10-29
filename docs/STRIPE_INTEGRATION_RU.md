@@ -57,13 +57,13 @@
 **Файл:** `src/api/booking/content-types/booking/schema.json`
 
 Добавлены поля для платежей:
-- `amount` - сумма платежа в центах
 - `currency` - валюта (по умолчанию USD)
 - `paymentStatus` - статус оплаты (unpaid, authorized, paid, cancelled, failed)
 - `stripePaymentIntentId` - ID платежного намерения Stripe
 - `stripeCheckoutSessionId` - ID сессии оплаты
-- `platformFee` - комиссия платформы в центах
 - `authorizedAt` - время авторизации платежа
+
+Сумма депозита хранится в профиле артиста (`depositAmount` в таблице пользователей).
 
 ### 2. Stripe сервис
 
@@ -160,9 +160,11 @@ STRIPE_SECRET_KEY=sk_test_...                    # Секретный ключ S
 STRIPE_WEBHOOK_SECRET=whsec_...                  # Секрет для webhook
 
 # Настройки платежей
-BOOKING_AMOUNT=10000                              # Сумма в центах ($100.00)
 STRIPE_PLATFORM_FEE_PERCENT=10                   # Комиссия платформы (10%)
 DEFAULT_CURRENCY=usd                              # Валюта
+
+# Сумма депозита
+# Каждый артист задает депозит в таблице пользователей (поле depositAmount в центах)
 
 # URL для перенаправлений
 STRIPE_SUCCESS_URL=https://yourapp.com/booking-success?session_id={CHECKOUT_SESSION_ID}
@@ -510,4 +512,3 @@ mutation {
 **Статус:** ✅ Полностью реализовано и готово к использованию  
 **Дата:** 28 октября 2025  
 **Версия:** 1.0.0
-

@@ -14,7 +14,6 @@ STRIPE_SECRET_KEY=sk_test_...                    # Your Stripe secret key (test 
 STRIPE_WEBHOOK_SECRET=whsec_...                  # Webhook signing secret from Stripe Dashboard
 
 # Payment Configuration
-BOOKING_AMOUNT=10000                              # Default booking amount in cents (10000 = $100.00)
 STRIPE_PLATFORM_FEE_PERCENT=10                   # Platform commission percentage (10 = 10%)
 DEFAULT_CURRENCY=usd                              # Default payment currency (usd, eur, etc.)
 
@@ -24,6 +23,9 @@ STRIPE_CANCEL_URL=https://yourapp.com/booking-cancelled
 
 # Frontend URL (for Stripe Connect onboarding redirects)
 FRONTEND_URL=https://yourapp.com                 # Base URL of your frontend application
+
+# Deposit Amount
+# Each artist configures their deposit in the users table (depositAmount field in cents)
 
 # Required for Stripe Connect
 # Artists need to create their Stripe Connect accounts via GraphQL API

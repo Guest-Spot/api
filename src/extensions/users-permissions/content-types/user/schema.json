@@ -171,6 +171,11 @@
     "payoutsEnabled": {
       "type": "boolean",
       "default": false
+    },
+    "depositAmount": {
+      "type": "integer",
+      "default": 10000,
+      "min": 0
     }
   }
 }

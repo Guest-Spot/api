@@ -5,7 +5,6 @@
 import { factories } from '@strapi/strapi';
 import {
   createCheckoutSession,
-  getBookingAmount,
   getPlatformFeePercent,
   calculatePlatformFee,
   getDefaultCurrency,
@@ -13,6 +12,7 @@ import {
   cancelPaymentIntent,
 } from '../../../utils/stripe';
 import { BookingWithRelations } from '../types/booking-populated';
+import { PaymentStatus } from '../../../interfaces/enums';
 
 export default factories.createCoreController('api::booking.booking', ({ strapi }) => ({
   /**
@@ -43,7 +43,7 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
       }
 
       // Check if payment already exists
-      if (booking.paymentStatus !== 'unpaid') {
+      if (booking.paymentStatus !== PaymentStatus.UNPAID) {
         return ctx.badRequest(`Payment already ${booking.paymentStatus}`);
       }
 
@@ -56,8 +56,14 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
         return ctx.badRequest('Artist has not enabled payouts yet');
       }
 
-      // Get payment parameters from environment
-      const amount = getBookingAmount();
+      // Use artist-configured deposit amount for payment
+      const amountValue = Number(booking.artist?.depositAmount);
+
+      if (!Number.isFinite(amountValue) || amountValue <= 0) {
+        return ctx.badRequest('Artist deposit amount is not configured');
+      }
+
+      const amount = Math.round(amountValue);
       const currency = getDefaultCurrency();
       const platformFeePercent = getPlatformFeePercent();
       const platformFee = calculatePlatformFee(amount, platformFeePercent);
@@ -79,9 +85,7 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
       const updatedBooking = await strapi.entityService.update('api::booking.booking', id, {
         data: {
           stripeCheckoutSessionId: session.id,
-          amount,
           currency,
-          platformFee,
         },
       });
 
@@ -117,7 +121,7 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
     const response = await super.update(ctx);
 
     // If reaction changed and payment is authorized, handle capture/cancel
-    if (reaction && currentBooking.reaction !== reaction && currentBooking.paymentStatus === 'authorized') {
+    if (reaction && currentBooking.reaction !== reaction && currentBooking.paymentStatus === PaymentStatus.AUTHORIZED) {
       try {
         if (reaction === 'accepted' && currentBooking.stripePaymentIntentId) {
           // Artist accepted - capture the payment
@@ -126,7 +130,7 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
           // Update payment status to paid
           await strapi.entityService.update('api::booking.booking', id, {
             data: {
-              paymentStatus: 'paid',
+              paymentStatus: PaymentStatus.PAID,
             },
           });
 
@@ -138,7 +142,7 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
           // Update payment status to cancelled
           await strapi.entityService.update('api::booking.booking', id, {
             data: {
-              paymentStatus: 'cancelled',
+              paymentStatus: PaymentStatus.CANCELLED,
             },
           });
 

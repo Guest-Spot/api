@@ -6,6 +6,7 @@ import {
   capturePaymentIntent,
   cancelPaymentIntent,
 } from '../../utils/stripe';
+import { PaymentStatus } from '../../interfaces/enums';
 
 export const bookingExtension = ({ strapi }) => ({
   resolvers: {
@@ -38,7 +39,7 @@ export const bookingExtension = ({ strapi }) => ({
         if (
           reaction &&
           currentBooking.reaction !== reaction &&
-          currentBooking.paymentStatus === 'authorized'
+          currentBooking.paymentStatus === PaymentStatus.AUTHORIZED
         ) {
           try {
             if (reaction === 'accepted' && currentBooking.stripePaymentIntentId) {
@@ -49,7 +50,7 @@ export const bookingExtension = ({ strapi }) => ({
               const finalBooking = await strapi.documents('api::booking.booking').update({
                 documentId,
                 data: {
-                  paymentStatus: 'paid',
+                  paymentStatus: PaymentStatus.PAID,
                 },
               });
 
@@ -64,7 +65,7 @@ export const bookingExtension = ({ strapi }) => ({
               const finalBooking = await strapi.documents('api::booking.booking').update({
                 documentId,
                 data: {
-                  paymentStatus: 'cancelled',
+                  paymentStatus: PaymentStatus.CANCELLED,
                 },
               });
 
