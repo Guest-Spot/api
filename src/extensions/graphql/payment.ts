@@ -18,19 +18,19 @@ export const paymentExtension = ({ strapi }) => ({
     }
 
     extend type Mutation {
-      createBookingPayment(bookingId: ID!, customerEmail: String): PaymentSession!
+      createBookingPayment(documentId: ID!, customerEmail: String): PaymentSession!
     }
   `,
   resolvers: {
     Mutation: {
       /**
        * Create Stripe Checkout Session for a booking
-       * @param bookingId - ID of the booking to create payment for
+       * @param documentId - Document ID of the booking to create payment for
        * @param customerEmail - Optional email to prefill in Stripe Checkout
        * @returns PaymentSession with sessionId, sessionUrl and updated booking
        */
       async createBookingPayment(parent, args, context) {
-        const { bookingId, customerEmail } = args;
+        const { documentId, customerEmail } = args;
         const userId = context.state?.user?.id;
 
         // Check authentication
@@ -40,7 +40,7 @@ export const paymentExtension = ({ strapi }) => ({
 
         // Fetch booking with relations
         const booking = await strapi.documents('api::booking.booking').findOne({
-          documentId: bookingId,
+          documentId,
           populate: ['artist', 'owner'],
         });
 
@@ -89,6 +89,7 @@ export const paymentExtension = ({ strapi }) => ({
             artistStripeAccountId: booking.artist.stripeAccountID,
             customerEmail,
             metadata: {
+              bookingDocumentId: documentId,
               ownerId: booking.owner.id.toString(),
               artistId: booking.artist.id.toString(),
               ownerDocumentId: booking.owner.documentId,
@@ -98,14 +99,14 @@ export const paymentExtension = ({ strapi }) => ({
 
           // Update booking with session ID and payment details
           const updatedBooking = await strapi.documents('api::booking.booking').update({
-            documentId: bookingId,
+            documentId,
             data: {
               stripeCheckoutSessionId: session.id,
               currency,
             },
           });
 
-          strapi.log.info(`Payment session created for booking ${bookingId}: ${session.id}`);
+          strapi.log.info(`Payment session created for booking ${documentId}: ${session.id}`);
 
           return {
             sessionId: session.id,

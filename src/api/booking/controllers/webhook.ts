@@ -98,20 +98,29 @@ export default {
 };
 
 /**
- * Keep published bookings in published state after programmatic updates.
+ * In Strapi v5, to keep a document Published after update,
+ * you must explicitly call publish after the update if it was published before.
  */
-function keepBookingPublished(
-  booking: BookingWithRelations | null,
+async function updateBookingPreservePublication(
+  bookingDocumentId: string,
+  booking: BookingWithRelations,
   data: Record<string, unknown>
 ) {
-  if (booking?.publishedAt) {
-    return {
-      ...data,
-      publishedAt: new Date().toISOString(),
-    };
-  }
+  await strapi.documents('api::booking.booking').update({
+    documentId: bookingDocumentId,
+    data,
+    status: 'published'
+  });
 
-  return data;
+  if (booking?.publishedAt) {
+    try {
+      await strapi.documents('api::booking.booking').publish({
+        documentId: bookingDocumentId,
+      });
+    } catch (publishError) {
+      strapi.log.error('Error publishing booking after update:', publishError);
+    }
+  }
 }
 
 /**
@@ -119,32 +128,35 @@ function keepBookingPublished(
  * Updates booking with payment intent ID
  */
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-  const bookingId = session.metadata?.bookingId;
+  const bookingDocumentId = session.metadata?.bookingDocumentId;
   const paymentIntentId = session.payment_intent as string;
 
-  if (!bookingId) {
-    strapi.log.error('No bookingId in session metadata');
+  if (!bookingDocumentId) {
+    strapi.log.error('No bookingDocumentId in session metadata');
     return;
   }
 
-  strapi.log.info(`Checkout session completed for booking ${bookingId}, payment intent: ${paymentIntentId}`);
+  strapi.log.info(`Checkout session completed for bookingDocumentId ${bookingDocumentId}, payment intent: ${paymentIntentId}`);
 
   // Find booking
-  const booking = await strapi.entityService.findOne('api::booking.booking', bookingId, {
+  const booking = await strapi.documents('api::booking.booking').findOne({
+    documentId: bookingDocumentId,
     populate: ['artist', 'owner'],
   }) as BookingWithRelations | null;
 
   if (!booking) {
-    strapi.log.error(`Booking ${bookingId} not found`);
+    strapi.log.error(`Booking ${bookingDocumentId} not found`);
     return;
   }
 
-  // Update booking with payment intent ID
-  await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: keepBookingPublished(booking, {
+  // Update booking with payment intent ID and keep it published
+  await updateBookingPreservePublication(
+    bookingDocumentId,
+    booking,
+    {
       stripePaymentIntentId: paymentIntentId,
-    }),
-  });
+    }
+  );
 }
 
 /**
@@ -152,33 +164,36 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
  * Payment is authorized (funds on hold)
  */
 async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent) {
-  const bookingId = paymentIntent.metadata?.bookingId;
+  const bookingDocumentId = paymentIntent.metadata?.bookingDocumentId;
 
-  if (!bookingId) {
-    strapi.log.error('No bookingId in payment intent metadata');
+  if (!bookingDocumentId) {
+    strapi.log.error('No bookingDocumentId in payment intent metadata');
     return;
   }
 
-  strapi.log.info(`Payment authorized for booking ${bookingId}`);
+  strapi.log.info(`Payment authorized for bookingDocumentId ${bookingDocumentId}`);
 
   // Find booking
-  const booking = await strapi.entityService.findOne('api::booking.booking', bookingId, {
+  const booking = await strapi.documents('api::booking.booking').findOne({
+    documentId: bookingDocumentId,
     populate: ['artist', 'owner'],
   }) as BookingWithRelations | null;
 
   if (!booking) {
-    strapi.log.error(`Booking ${bookingId} not found`);
+    strapi.log.error(`Booking ${bookingDocumentId} not found`);
     return;
   }
 
-  // Update payment status to authorized
-  await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: keepBookingPublished(booking, {
+  // Update payment status to authorized and keep it published
+  await updateBookingPreservePublication(
+    bookingDocumentId,
+    booking,
+    {
       paymentStatus: PaymentStatus.AUTHORIZED,
       stripePaymentIntentId: paymentIntent.id,
       authorizedAt: new Date().toISOString(),
-    }),
-  });
+    }
+  );
 
   // Send push notification to artist about new paid booking request
   try {
@@ -200,31 +215,34 @@ async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent
  * Payment captured successfully (artist accepted)
  */
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-  const bookingId = paymentIntent.metadata?.bookingId;
+  const bookingDocumentId = paymentIntent.metadata?.bookingDocumentId;
 
-  if (!bookingId) {
-    strapi.log.error('No bookingId in payment intent metadata');
+  if (!bookingDocumentId) {
+    strapi.log.error('No bookingDocumentId in payment intent metadata');
     return;
   }
 
-  strapi.log.info(`Payment succeeded for booking ${bookingId}`);
+  strapi.log.info(`Payment succeeded for bookingDocumentId ${bookingDocumentId}`);
 
   // Find booking
-  const booking = await strapi.entityService.findOne('api::booking.booking', bookingId, {
+  const booking = await strapi.documents('api::booking.booking').findOne({
+    documentId: bookingDocumentId,
     populate: ['artist', 'owner'],
   }) as BookingWithRelations | null;
 
   if (!booking) {
-    strapi.log.error(`Booking ${bookingId} not found`);
+    strapi.log.error(`Booking ${bookingDocumentId} not found`);
     return;
   }
 
-  // Update payment status to paid
-  await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: keepBookingPublished(booking, {
+  // Update payment status to paid and keep it published
+  await updateBookingPreservePublication(
+    bookingDocumentId,
+    booking,
+    {
       paymentStatus: PaymentStatus.PAID,
-    }),
-  });
+    }
+  );
 
   // Send email and push notifications to both parties
   try {
@@ -286,31 +304,34 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
  * Payment failed
  */
 async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
-  const bookingId = paymentIntent.metadata?.bookingId;
+  const bookingDocumentId = paymentIntent.metadata?.bookingDocumentId;
 
-  if (!bookingId) {
-    strapi.log.error('No bookingId in payment intent metadata');
+  if (!bookingDocumentId) {
+    strapi.log.error('No bookingDocumentId in payment intent metadata');
     return;
   }
 
-  strapi.log.error(`Payment failed for booking ${bookingId}`);
+  strapi.log.error(`Payment failed for bookingDocumentId ${bookingDocumentId}`);
 
   // Find booking
-  const booking = await strapi.entityService.findOne('api::booking.booking', bookingId, {
+  const booking = await strapi.documents('api::booking.booking').findOne({
+    documentId: bookingDocumentId,
     populate: ['artist', 'owner'],
   }) as BookingWithRelations | null;
 
   if (!booking) {
-    strapi.log.error(`Booking ${bookingId} not found`);
+    strapi.log.error(`Booking ${bookingDocumentId} not found`);
     return;
   }
 
-  // Update payment status to failed
-  await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: keepBookingPublished(booking, {
+  // Update booking with payment intent ID and keep it published
+  await updateBookingPreservePublication(
+    bookingDocumentId,
+    booking,
+    {
       paymentStatus: PaymentStatus.FAILED,
-    }),
-  });
+    }
+  );
 
   // Notify owner about failed payment
   try {
@@ -332,31 +353,34 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
  * Payment cancelled (artist rejected or timeout)
  */
 async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) {
-  const bookingId = paymentIntent.metadata?.bookingId;
+  const bookingDocumentId = paymentIntent.metadata?.bookingDocumentId;
 
-  if (!bookingId) {
-    strapi.log.error('No bookingId in payment intent metadata');
+  if (!bookingDocumentId) {
+    strapi.log.error('No bookingDocumentId in payment intent metadata');
     return;
   }
 
-  strapi.log.info(`Payment cancelled for booking ${bookingId}`);
+  strapi.log.info(`Payment cancelled for bookingDocumentId ${bookingDocumentId}`);
 
   // Find booking
-  const booking = await strapi.entityService.findOne('api::booking.booking', bookingId, {
+  const booking = await strapi.documents('api::booking.booking').findOne({
+    documentId: bookingDocumentId,
     populate: ['artist', 'owner'],
   }) as BookingWithRelations | null;
 
   if (!booking) {
-    strapi.log.error(`Booking ${bookingId} not found`);
+    strapi.log.error(`Booking ${bookingDocumentId} not found`);
     return;
   }
 
-  // Update payment status to cancelled
-  await strapi.entityService.update('api::booking.booking', bookingId, {
-    data: keepBookingPublished(booking, {
+  // Update payment status to cancelled and keep it published
+  await updateBookingPreservePublication(
+    bookingDocumentId,
+    booking,
+    {
       paymentStatus: PaymentStatus.CANCELLED,
-    }),
-  });
+    }
+  );
 
   // Notify owner about cancelled payment
   try {
@@ -402,7 +426,8 @@ async function handleAccountUpdated(account: Stripe.Account) {
 
     // Update user's payoutsEnabled status if changed
     if (user.payoutsEnabled !== onboarded) {
-      await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+      await strapi.documents('plugin::users-permissions.user').update({
+        documentId: user.documentId,
         data: {
           payoutsEnabled: onboarded,
         },

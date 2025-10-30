@@ -12,7 +12,7 @@ import {
   cancelPaymentIntent,
 } from '../../../utils/stripe';
 import { BookingWithRelations } from '../types/booking-populated';
-import { PaymentStatus } from '../../../interfaces/enums';
+import { PaymentStatus, BookingReaction } from '../../../interfaces/enums';
 
 export default factories.createCoreController('api::booking.booking', ({ strapi }) => ({
   /**
@@ -21,15 +21,16 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
    */
   async createPayment(ctx) {
     try {
-      const { id } = ctx.params;
+      const { bookingDocumentId } = ctx.params;
       const userId = ctx.state.user?.id;
 
       if (!userId) {
         return ctx.unauthorized('You must be logged in');
       }
 
-      // Fetch booking with relations
-      const booking = await strapi.entityService.findOne('api::booking.booking', id, {
+      // Fetch booking with relations by documentId (Strapi v5)
+      const booking = await strapi.documents('api::booking.booking').findOne({
+        documentId: bookingDocumentId,
         populate: ['artist', 'owner'],
       }) as BookingWithRelations | null;
 
@@ -78,11 +79,13 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
         metadata: {
           ownerId: booking.owner.id.toString(),
           artistId: booking.artist.id.toString(),
+          bookingDocumentId: bookingDocumentId.toString(),
         },
       });
 
-      // Update booking with session ID and payment details
-      const updatedBooking = await strapi.entityService.update('api::booking.booking', id, {
+      // Update booking with session ID and payment details using documentId
+      const updatedBooking = await strapi.documents('api::booking.booking').update({
+        documentId: bookingDocumentId,
         data: {
           stripeCheckoutSessionId: session.id,
           currency,
@@ -105,11 +108,12 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
    * Captures or cancels the pre-authorized payment
    */
   async update(ctx) {
-    const { id } = ctx.params;
+    const { documentId } = ctx.params;
     const { reaction } = ctx.request.body.data || {};
 
     // Fetch current booking state
-    const currentBooking = await strapi.entityService.findOne('api::booking.booking', id, {
+    const currentBooking = await strapi.documents('api::booking.booking').findOne({
+      documentId,
       populate: ['artist', 'owner'],
     }) as BookingWithRelations | null;
 
@@ -123,30 +127,32 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
     // If reaction changed and payment is authorized, handle capture/cancel
     if (reaction && currentBooking.reaction !== reaction && currentBooking.paymentStatus === PaymentStatus.AUTHORIZED) {
       try {
-        if (reaction === 'accepted' && currentBooking.stripePaymentIntentId) {
+        if (reaction === BookingReaction.ACCEPTED && currentBooking.stripePaymentIntentId) {
           // Artist accepted - capture the payment
           await capturePaymentIntent(currentBooking.stripePaymentIntentId);
           
           // Update payment status to paid
-          await strapi.entityService.update('api::booking.booking', id, {
+          await strapi.documents('api::booking.booking').update({
+            documentId,
             data: {
               paymentStatus: PaymentStatus.PAID,
             },
           });
 
-          strapi.log.info(`Payment captured for booking ${id}`);
-        } else if (reaction === 'rejected' && currentBooking.stripePaymentIntentId) {
+          strapi.log.info(`Payment captured for booking ${documentId}`);
+        } else if (reaction === BookingReaction.REJECTED && currentBooking.stripePaymentIntentId) {
           // Artist rejected - cancel the payment
           await cancelPaymentIntent(currentBooking.stripePaymentIntentId);
           
           // Update payment status to cancelled
-          await strapi.entityService.update('api::booking.booking', id, {
+          await strapi.documents('api::booking.booking').update({
+            documentId,
             data: {
               paymentStatus: PaymentStatus.CANCELLED,
             },
           });
 
-          strapi.log.info(`Payment cancelled for booking ${id}`);
+          strapi.log.info(`Payment cancelled for booking ${documentId}`);
         }
       } catch (error) {
         strapi.log.error('Error handling payment on reaction change:', error);

@@ -22,7 +22,7 @@ const customRouter = (innerRouter, extraRoutes = []) => {
 const myExtraRoutes = [
   {
     method: 'POST',
-    path: '/bookings/:id/create-payment',
+    path: '/bookings/:bookingDocumentId/create-payment',
     handler: 'booking.createPayment',
     config: {
       policies: [],
