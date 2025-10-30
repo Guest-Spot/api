@@ -233,7 +233,7 @@ export default {
   async afterCreate(event) {
     const result = event.result;
     const isDraft = !result.publishedAt;
-
+    
     if (isDraft || isAdmin()) {
       return;
     }
