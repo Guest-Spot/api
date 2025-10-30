@@ -23,6 +23,10 @@ export enum NotifyType {
   INVITE_CREATED = 'invite_created',
   INVITE_ACCEPTED = 'invite_accepted',
   INVITE_REJECTED = 'invite_rejected',
+  PAYMENT_SUCCEEDED = 'payment_succeeded',
+  PAYMENT_FAILED = 'payment_failed',
+  PAYMENT_CANCELLED = 'payment_cancelled',
+  STRIPE_ACCOUNT_ACTIVATED = 'stripe_account_activated',
 }
 
 export enum UserType {

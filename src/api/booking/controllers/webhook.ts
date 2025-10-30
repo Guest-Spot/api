@@ -7,7 +7,7 @@ import { sendPaymentSuccessEmail } from '../../../utils/email/payment-success';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
 import Stripe from 'stripe';
 import { BookingWithRelations } from '../types/booking-populated';
-import { PaymentStatus } from '../../../interfaces/enums';
+import { NotifyType, PaymentStatus } from '../../../interfaces/enums';
 
 export default {
   /**
@@ -181,20 +181,6 @@ async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent
       authorizedAt: new Date().toISOString(),
     }
   );
-
-  // Send push notification to artist about new paid booking request
-  try {
-    await sendFirebaseNotificationToUser(booking.artist.id, {
-      title: 'New Booking Request',
-      body: `New booking request from ${booking.owner.username} (Payment authorized)`,
-      data: {
-        bookingId: String(booking.id),
-        type: 'booking_created',
-      },
-    });
-  } catch (error) {
-    strapi.log.error('Error sending notification:', error);
-  }
 }
 
 /**
@@ -260,21 +246,12 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
 
     // Send push notifications if available
     try {
-      await sendFirebaseNotificationToUser(booking.owner.id, {
-        title: 'Payment Successful',
-        body: `Payment processed successfully for your booking`,
-        data: {
-          bookingId: String(booking.id),
-          type: 'payment_succeeded',
-        },
-      });
-
       await sendFirebaseNotificationToUser(booking.artist.id, {
         title: 'Payment Received',
         body: `Payment received for booking from ${booking.owner.username}`,
         data: {
-          bookingId: String(booking.id),
-          type: 'payment_succeeded',
+          bookingId: booking.documentId,
+          type: NotifyType.PAYMENT_SUCCEEDED,
         },
       });
     } catch (pushError) {
@@ -324,8 +301,8 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
       title: 'Payment Failed',
       body: `Payment failed for your booking. Please try again.`,
       data: {
-        bookingId: String(booking.id),
-        type: 'payment_failed',
+        bookingId: booking.documentId,
+        type: NotifyType.PAYMENT_FAILED,
       },
     });
   } catch (error) {
@@ -372,8 +349,8 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) 
       title: 'Payment Cancelled',
       body: `Payment cancelled for your booking. Funds have been released.`,
       data: {
-        bookingId: String(booking.id),
-        type: 'payment_cancelled',
+        bookingId: booking.documentId,
+        type: NotifyType.PAYMENT_CANCELLED,
       },
     });
   } catch (error) {
@@ -429,7 +406,7 @@ async function handleAccountUpdated(account: Stripe.Account) {
             body: 'Your Stripe account is now active! You can start receiving payments.',
             data: {
               accountId,
-              type: 'stripe_account_activated',
+              type: NotifyType.STRIPE_ACCOUNT_ACTIVATED,
             },
           });
         } catch (notifError) {
