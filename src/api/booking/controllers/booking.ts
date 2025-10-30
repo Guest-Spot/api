@@ -8,8 +8,6 @@ import {
   getPlatformFeePercent,
   calculatePlatformFee,
   getDefaultCurrency,
-  capturePaymentIntent,
-  cancelPaymentIntent,
 } from '../../../utils/stripe';
 import { BookingWithRelations } from '../types/booking-populated';
 import { PaymentStatus, BookingReaction } from '../../../interfaces/enums';
@@ -124,41 +122,14 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
     // Call default update first
     const response = await super.update(ctx);
 
-    // If reaction changed and payment is authorized, handle capture/cancel
-    if (reaction && currentBooking.reaction !== reaction && currentBooking.paymentStatus === PaymentStatus.AUTHORIZED) {
-      try {
-        if (reaction === BookingReaction.ACCEPTED && currentBooking.stripePaymentIntentId) {
-          // Artist accepted - capture the payment
-          await capturePaymentIntent(currentBooking.stripePaymentIntentId);
-          
-          // Update payment status to paid
-          await strapi.documents('api::booking.booking').update({
-            documentId,
-            data: {
-              paymentStatus: PaymentStatus.PAID,
-            },
-          });
-
-          strapi.log.info(`Payment captured for booking ${documentId}`);
-        } else if (reaction === BookingReaction.REJECTED && currentBooking.stripePaymentIntentId) {
-          // Artist rejected - cancel the payment
-          await cancelPaymentIntent(currentBooking.stripePaymentIntentId);
-          
-          // Update payment status to cancelled
-          await strapi.documents('api::booking.booking').update({
-            documentId,
-            data: {
-              paymentStatus: PaymentStatus.CANCELLED,
-            },
-          });
-
-          strapi.log.info(`Payment cancelled for booking ${documentId}`);
-        }
-      } catch (error) {
-        strapi.log.error('Error handling payment on reaction change:', error);
-        // Don't fail the update, but log the error
-      }
-    }
+    // Delegate reaction-based payment handling to service
+    await strapi.service('api::booking.booking').handleReactionPayment({
+      documentId,
+      previousReaction: currentBooking.reaction,
+      newReaction: reaction,
+      paymentStatus: currentBooking.paymentStatus,
+      stripePaymentIntentId: currentBooking.stripePaymentIntentId,
+    });
 
     return response;
   },

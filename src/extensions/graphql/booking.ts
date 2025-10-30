@@ -2,10 +2,6 @@
  * GraphQL extension for booking operations with custom payment handling
  */
 
-import {
-  capturePaymentIntent,
-  cancelPaymentIntent,
-} from '../../utils/stripe';
 import { PaymentStatus } from '../../interfaces/enums';
 
 export const bookingExtension = ({ strapi }) => ({
@@ -35,50 +31,14 @@ export const bookingExtension = ({ strapi }) => ({
           data,
         });
 
-        // If reaction changed and payment is authorized, handle capture/cancel
-        if (
-          reaction &&
-          currentBooking.reaction !== reaction &&
-          currentBooking.paymentStatus === PaymentStatus.AUTHORIZED
-        ) {
-          try {
-            if (reaction === 'accepted' && currentBooking.stripePaymentIntentId) {
-              // Artist accepted - capture the payment
-              await capturePaymentIntent(currentBooking.stripePaymentIntentId);
-
-              // Update payment status to paid
-              const finalBooking = await strapi.documents('api::booking.booking').update({
-                documentId,
-                data: {
-                  paymentStatus: PaymentStatus.PAID,
-                },
-              });
-
-              strapi.log.info(`Payment captured for booking ${documentId}`);
-
-              return finalBooking;
-            } else if (reaction === 'rejected' && currentBooking.stripePaymentIntentId) {
-              // Artist rejected - cancel the payment
-              await cancelPaymentIntent(currentBooking.stripePaymentIntentId);
-
-              // Update payment status to cancelled
-              const finalBooking = await strapi.documents('api::booking.booking').update({
-                documentId,
-                data: {
-                  paymentStatus: PaymentStatus.CANCELLED,
-                },
-              });
-
-              strapi.log.info(`Payment cancelled for booking ${documentId}`);
-
-              return finalBooking;
-            }
-          } catch (error) {
-            strapi.log.error('Error handling payment on reaction change:', error);
-            // Don't fail the update, but log the error
-            throw new Error(`Failed to process payment: ${error.message}`);
-          }
-        }
+        // Delegate reaction-based payment handling to service
+        await strapi.service('api::booking.booking').handleReactionPayment({
+          documentId,
+          previousReaction: currentBooking.reaction,
+          newReaction: reaction,
+          paymentStatus: currentBooking.paymentStatus,
+          stripePaymentIntentId: currentBooking.stripePaymentIntentId,
+        });
 
         return updatedBooking;
       },
