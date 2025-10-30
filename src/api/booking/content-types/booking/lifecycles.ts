@@ -258,7 +258,11 @@ export default {
       return;
     }
 
-    if (booking.reaction === BookingReaction.PENDING && booking.paymentStatus === PaymentStatus.AUTHORIZED) {
+    if (booking.paymentStatus === PaymentStatus.UNPAID && booking.artist?.payoutsEnabled === true) {
+      return;
+    }
+
+    if (booking.reaction === BookingReaction.PENDING) {
       // Create in-app notification
       await createNotification({
         ownerDocumentId: guestDocumentId,
