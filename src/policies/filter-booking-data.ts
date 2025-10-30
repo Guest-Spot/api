@@ -9,26 +9,59 @@ export default async (policyContext) => {
 
   if (!state?.user?.documentId) return false;
 
+  const user = await strapi.query('plugin::users-permissions.user').findOne({
+    where: { documentId: state.user.documentId },
+    select: ['type', 'payoutsEnabled', 'documentId']
+  });
+
+  if (!user) return false;
+
   // Add filter to show only bookings where user is owner or artist
-  args.filters = {
+  const baseFilters = {
     ...args.filters,
-    $or: [
+    or: [
       {
         owner: {
           documentId: {
-            $eq: state.user.documentId
+            eq: state.user.documentId
           }
         }
       },
       {
         artist: {
           documentId: {
-            $eq: state.user.documentId
+            eq: state.user.documentId
           }
         }
       }
     ],
   };
+
+  if (user.type === 'artist' && user.payoutsEnabled === true) {
+    // Exclude bookings with reaction = pending AND paymentStatus = unpaid
+    args.filters = {
+      ...baseFilters,
+      and: [
+        {
+          or: [
+            {
+              reaction: {
+                ne: 'pending'
+              }
+            },
+            {
+              paymentStatus: {
+                ne: 'unpaid'
+              }
+            }
+          ]
+        }
+      ]
+    };
+  } else {
+    // For other users or artists with payoutsEnabled = false, use base filters only
+    args.filters = baseFilters;
+  }
   
   return true;
 };
