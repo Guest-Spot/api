@@ -103,7 +103,6 @@ export default {
  */
 async function updateBookingPreservePublication(
   bookingDocumentId: string,
-  booking: BookingWithRelations,
   data: Record<string, unknown>
 ) {
   await strapi.documents('api::booking.booking').update({
@@ -111,16 +110,6 @@ async function updateBookingPreservePublication(
     data,
     status: 'published'
   });
-
-  if (booking?.publishedAt) {
-    try {
-      await strapi.documents('api::booking.booking').publish({
-        documentId: bookingDocumentId,
-      });
-    } catch (publishError) {
-      strapi.log.error('Error publishing booking after update:', publishError);
-    }
-  }
 }
 
 /**
@@ -152,7 +141,6 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   // Update booking with payment intent ID and keep it published
   await updateBookingPreservePublication(
     bookingDocumentId,
-    booking,
     {
       stripePaymentIntentId: paymentIntentId,
     }
@@ -187,7 +175,6 @@ async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent
   // Update payment status to authorized and keep it published
   await updateBookingPreservePublication(
     bookingDocumentId,
-    booking,
     {
       paymentStatus: PaymentStatus.AUTHORIZED,
       stripePaymentIntentId: paymentIntent.id,
@@ -238,7 +225,6 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
   // Update payment status to paid and keep it published
   await updateBookingPreservePublication(
     bookingDocumentId,
-    booking,
     {
       paymentStatus: PaymentStatus.PAID,
     }
@@ -327,7 +313,6 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
   // Update booking with payment intent ID and keep it published
   await updateBookingPreservePublication(
     bookingDocumentId,
-    booking,
     {
       paymentStatus: PaymentStatus.FAILED,
     }
@@ -376,7 +361,6 @@ async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) 
   // Update payment status to cancelled and keep it published
   await updateBookingPreservePublication(
     bookingDocumentId,
-    booking,
     {
       paymentStatus: PaymentStatus.CANCELLED,
     }
