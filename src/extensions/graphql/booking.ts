@@ -40,6 +40,20 @@ export const bookingExtension = ({ strapi }) => ({
           stripePaymentIntentId: currentBooking.stripePaymentIntentId,
         });
 
+        // Send reaction notifications if needed
+        try {
+          const refreshed = await strapi.documents('api::booking.booking').findOne({
+            documentId,
+            populate: ['artist', 'owner'],
+          });
+          await strapi.service('api::booking.booking').notifyReactionChange({
+            booking: refreshed,
+            previousReaction: currentBooking.reaction,
+          });
+        } catch (error) {
+          strapi.log.error('Error sending reaction notifications (GraphQL):', error);
+        }
+
         return updatedBooking;
       },
     },

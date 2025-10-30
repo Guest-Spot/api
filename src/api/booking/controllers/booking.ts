@@ -131,6 +131,21 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
       stripePaymentIntentId: currentBooking.stripePaymentIntentId,
     });
 
+    // Fetch updated booking and send reaction notifications if needed
+    try {
+      const updated = await strapi.documents('api::booking.booking').findOne({
+        documentId,
+        populate: ['artist', 'owner'],
+      });
+
+      await strapi.service('api::booking.booking').notifyReactionChange({
+        booking: updated,
+        previousReaction: currentBooking.reaction,
+      });
+    } catch (error) {
+      strapi.log.error('Error sending reaction notifications:', error);
+    }
+
     return response;
   },
 }));

@@ -299,49 +299,6 @@ export default {
       } catch (error) {
         strapi.log.error('Error sending booking notification email:', error);
       }
-    } else {
-      const type =
-        booking.reaction === BookingReaction.ACCEPTED ? NotifyType.BOOKING_ACCEPTED : NotifyType.BOOKING_REJECTED;
-      const artistId = getUserDocumentId(booking.artist);
-      const guestId = getUserDocumentId(booking.owner);
-      const guestUserId = typeof booking.owner?.id === 'number' ? booking.owner.id : null;
-      const artistPushName = getArtistDisplayName(booking.artist);
-      const artistEmailName = getArtistDisplayName(booking.artist, { includeEmailFallback: true });
-
-      // Create in-app notification
-      await createNotification({
-        ownerDocumentId: artistId,
-        recipientDocumentId: guestId,
-        type,
-        body: booking,
-      });
-
-      // Send push notification to guest
-      await sendBookingReactionPushNotification(booking, {
-        guestUserId,
-        guestDocumentId: guestId,
-        artistDocumentId: artistId,
-        type,
-        artistName: artistPushName,
-      });
-
-      // Send email notification to guest
-      try {
-        const formattedStartTime = formatTimeToAmPm(booking.start);
-
-        await sendBookingResponseEmail({
-          guestName: booking.name || booking.owner?.username || 'Guest',
-          guestEmail: booking.email || booking.owner?.email,
-          artistName: artistEmailName,
-          reaction: booking.reaction,
-          day: booking.day,
-          start: formattedStartTime ?? booking.start ?? null,
-          location: booking.location,
-          rejectNote: booking.reaction === BookingReaction.REJECTED ? booking.rejectNote : null,
-        });
-      } catch (error) {
-        strapi.log.error('Error sending booking response email:', error);
-      }
     }
   },
 };
