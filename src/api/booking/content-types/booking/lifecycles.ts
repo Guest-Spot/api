@@ -11,6 +11,7 @@ import isAdmin from '../../../../utils/isAdmin';
 import { formatTimeToAmPm } from '../../../../utils/formatTime';
 import { createNotification } from '../../../../utils/notification';
 import { parseDateOnly } from '../../../../utils/date';
+import { PaymentStatus } from '../../../../interfaces/enums';
 
 type BookingIdentifier = { id?: number; documentId?: string };
 
@@ -257,7 +258,7 @@ export default {
       return;
     }
 
-    if (booking.reaction === BookingReaction.PENDING) {
+    if (booking.reaction === BookingReaction.PENDING && booking.paymentStatus === PaymentStatus.AUTHORIZED) {
       // Create in-app notification
       await createNotification({
         ownerDocumentId: guestDocumentId,
