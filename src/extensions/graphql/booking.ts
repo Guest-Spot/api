@@ -8,6 +8,31 @@ export const bookingExtension = ({ strapi }) => ({
   resolvers: {
     Mutation: {
       /**
+       * Custom create resolver for bookings with notifications
+       */
+      createBooking: async (parent, args, context) => {
+        const { data } = args;
+
+        // Create booking first
+        const created = await strapi.documents('api::booking.booking').create({
+          data,
+        });
+
+        // Fetch with relations to notify
+        try {
+          const booking = await strapi.documents('api::booking.booking').findOne({
+            documentId: created.documentId,
+            populate: ['artist', 'owner'],
+          });
+
+          await strapi.service('api::booking.booking').notifyBookingCreated(booking);
+        } catch (error) {
+          strapi.log.error('Error sending booking created notifications (GraphQL):', error);
+        }
+
+        return created;
+      },
+      /**
        * Custom update resolver for bookings
        * Handles payment capture/cancellation when reaction changes
        */
@@ -59,6 +84,9 @@ export const bookingExtension = ({ strapi }) => ({
     },
   },
   resolversConfig: {
+    'Mutation.createBooking': {
+      auth: true,
+    },
     'Mutation.updateBooking': {
       auth: true, // Require authentication
     },

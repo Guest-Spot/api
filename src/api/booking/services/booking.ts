@@ -8,6 +8,8 @@ import { PaymentStatus, BookingReaction, NotifyType } from '../../../interfaces/
 import { createNotification } from '../../../utils/notification';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
 import { sendBookingResponseEmail } from '../../../utils/email/booking-response';
+import { sendBookingNotificationEmail } from '../../../utils/email/booking-notification';
+import isAdmin from '../../../utils/isAdmin';
 import { formatTimeToAmPm } from '../../../utils/formatTime';
 import { parseDateOnly } from '../../../utils/date';
 
@@ -137,6 +139,81 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
       });
     } catch (error) {
       strapi.log.error('Error sending reaction email:', error);
+    }
+  },
+
+  /**
+   * Notify artist on booking creation (when published and meaningful)
+   */
+  async notifyBookingCreated(booking: any): Promise<void> {
+    if (!booking || !booking.publishedAt) return;
+    if (isAdmin()) return;
+
+    // If artist can receive payouts and payment is UNPAID, suppress initial notification (legacy behavior)
+    if (booking.paymentStatus === PaymentStatus.UNPAID && booking.artist?.payoutsEnabled === true) {
+      return;
+    }
+
+    const artist = booking.artist ?? {};
+    const owner = booking.owner ?? {};
+    const artistDocumentId = artist.documentId ?? (typeof artist.id === 'number' ? String(artist.id) : null);
+    const guestDocumentId = owner.documentId ?? (typeof owner.id === 'number' ? String(owner.id) : null);
+    const artistUserId = typeof artist.id === 'number' ? artist.id : null;
+    const guestName = booking.name || owner?.username || 'Guest';
+
+    if (!artistDocumentId || !guestDocumentId || !artistUserId) return;
+
+    // In-app notification to artist
+    await createNotification({
+      ownerDocumentId: guestDocumentId,
+      recipientDocumentId: artistDocumentId,
+      type: NotifyType.BOOKING_CREATED,
+      body: booking,
+    });
+
+    // Push notification to artist
+    try {
+      const bookingDate = parseDateOnly(booking.day);
+      const formattedDate =
+        bookingDate && !Number.isNaN(bookingDate.getTime())
+          ? new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(bookingDate)
+          : null;
+      const notificationBodyParts = [`Request from ${guestName}`];
+      if (formattedDate) notificationBodyParts.push(`on ${formattedDate}`);
+      const formattedStartTime = formatTimeToAmPm(booking.start);
+      if (formattedStartTime) notificationBodyParts.push(`at ${formattedStartTime}`);
+
+      await sendFirebaseNotificationToUser(artistUserId, {
+        title: 'New booking request',
+        body: notificationBodyParts.join(' '),
+        data: {
+          notifyType: NotifyType.BOOKING_CREATED,
+          bookingDocumentId: booking.documentId ?? undefined,
+        },
+      });
+    } catch (error) {
+      strapi.log.error('Error sending booking created push notification:', error);
+    }
+
+    // Email notification to artist
+    try {
+      const formattedStartTime = formatTimeToAmPm(booking.start);
+      await sendBookingNotificationEmail({
+        artistName: artist.name || artist.contactName || artist.username || artist.email || 'Artist',
+        artistEmail: artist?.email,
+        guestName,
+        guestEmail: booking.email,
+        guestPhone: booking.phone,
+        location: booking.location,
+        placement: booking.placement,
+        size: booking.size,
+        description: booking.description,
+        day: booking.day,
+        start: formattedStartTime ?? booking.start ?? null,
+        documentId: booking.documentId,
+      });
+    } catch (error) {
+      strapi.log.error('Error sending booking created email:', error);
     }
   },
 }));
