@@ -230,7 +230,10 @@ fetch('https://api.yourapp.com/api/bookings/123/create-payment', {
 
 ```graphql
 mutation {
-  createBookingPayment(bookingId: "abc123") {
+  createBookingPayment(
+    bookingId: "abc123"
+    customerEmail: "customer@example.com"
+  ) {
     sessionId
     sessionUrl
     booking {
@@ -241,6 +244,8 @@ mutation {
   }
 }
 ```
+
+> **Новое:** Параметр `customerEmail` опциональный и позволяет предзаполнить email в Stripe Checkout
 
 **Преимущества GraphQL:**
 - ✅ Получаете только нужные данные
@@ -262,18 +267,23 @@ import { gql, useMutation } from '@apollo/client';
 import { Linking } from 'react-native';
 
 const CREATE_PAYMENT = gql`
-  mutation CreatePayment($bookingId: ID!) {
-    createBookingPayment(bookingId: $bookingId) {
+  mutation CreatePayment($bookingId: ID!, $customerEmail: String) {
+    createBookingPayment(bookingId: $bookingId, customerEmail: $customerEmail) {
       sessionUrl
     }
   }
 `;
 
-function PaymentButton({ bookingId }) {
+function PaymentButton({ bookingId, customerEmail }) {
   const [createPayment, { loading }] = useMutation(CREATE_PAYMENT);
 
   const handlePay = async () => {
-    const result = await createPayment({ variables: { bookingId } });
+    const result = await createPayment({ 
+      variables: { 
+        bookingId,
+        customerEmail // Опционально: предзаполнить email
+      } 
+    });
     await Linking.openURL(result.data.createBookingPayment.sessionUrl);
   };
 

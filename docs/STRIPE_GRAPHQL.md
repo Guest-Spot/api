@@ -12,7 +12,7 @@ Creates a Stripe Checkout Session for a booking. This mutation should be called 
 
 **Signature:**
 ```graphql
-mutation createBookingPayment($bookingId: ID!): PaymentSession!
+mutation createBookingPayment($bookingId: ID!, $customerEmail: String): PaymentSession!
 ```
 
 **Authentication:** Required (JWT token)
@@ -21,6 +21,7 @@ mutation createBookingPayment($bookingId: ID!): PaymentSession!
 
 **Arguments:**
 - `bookingId` (ID!) - The ID or documentId of the booking to create payment for
+- `customerEmail` (String) - Optional email address to prefill in Stripe Checkout form
 
 **Returns:** `PaymentSession` object containing:
 - `sessionId` (String!) - Stripe Checkout Session ID
@@ -78,7 +79,7 @@ enum ENUM_BOOKING_PAYMENTSTATUS {
 **Query:**
 ```graphql
 mutation CreateBookingPayment {
-  createBookingPayment(bookingId: "abc123") {
+  createBookingPayment(bookingId: "abc123", customerEmail: "customer@example.com") {
     sessionId
     sessionUrl
     booking {
@@ -92,6 +93,23 @@ mutation CreateBookingPayment {
         email
         depositAmount
       }
+    }
+  }
+}
+```
+
+**Without email prefill:**
+```graphql
+mutation CreateBookingPayment {
+  createBookingPayment(bookingId: "abc123") {
+    sessionId
+    sessionUrl
+    booking {
+      id
+      documentId
+      currency
+      paymentStatus
+      stripeCheckoutSessionId
     }
   }
 }
@@ -238,8 +256,8 @@ mutation UpdateBooking {
 import { gql, useMutation } from '@apollo/client';
 
 const CREATE_BOOKING_PAYMENT = gql`
-  mutation CreateBookingPayment($bookingId: ID!) {
-    createBookingPayment(bookingId: $bookingId) {
+  mutation CreateBookingPayment($bookingId: ID!, $customerEmail: String) {
+    createBookingPayment(bookingId: $bookingId, customerEmail: $customerEmail) {
       sessionId
       sessionUrl
       booking {
@@ -252,7 +270,7 @@ const CREATE_BOOKING_PAYMENT = gql`
   }
 `;
 
-function BookingPayment({ bookingId }) {
+function BookingPayment({ bookingId, customerEmail }) {
   const [createPayment, { loading, error, data }] = useMutation(
     CREATE_BOOKING_PAYMENT
   );
@@ -260,7 +278,10 @@ function BookingPayment({ bookingId }) {
   const handlePayment = async () => {
     try {
       const result = await createPayment({
-        variables: { bookingId },
+        variables: { 
+          bookingId,
+          customerEmail, // Optional: prefill email in Stripe Checkout
+        },
       });
 
       // Redirect to Stripe Checkout
@@ -285,20 +306,23 @@ import { gql, useMutation } from '@apollo/client';
 import { Linking } from 'react-native';
 
 const CREATE_BOOKING_PAYMENT = gql`
-  mutation CreateBookingPayment($bookingId: ID!) {
-    createBookingPayment(bookingId: $bookingId) {
+  mutation CreateBookingPayment($bookingId: ID!, $customerEmail: String) {
+    createBookingPayment(bookingId: $bookingId, customerEmail: $customerEmail) {
       sessionUrl
     }
   }
 `;
 
-function BookingPaymentButton({ bookingId }) {
+function BookingPaymentButton({ bookingId, customerEmail }) {
   const [createPayment, { loading }] = useMutation(CREATE_BOOKING_PAYMENT);
 
   const handlePayment = async () => {
     try {
       const result = await createPayment({
-        variables: { bookingId },
+        variables: { 
+          bookingId,
+          customerEmail, // Optional: prefill email in Stripe Checkout
+        },
       });
 
       // Open Stripe Checkout in browser or WebView
@@ -398,7 +422,10 @@ Access GraphQL Playground at: `http://localhost:1337/graphql`
 
 ```graphql
 mutation {
-  createBookingPayment(bookingId: "YOUR_BOOKING_ID") {
+  createBookingPayment(
+    bookingId: "YOUR_BOOKING_ID"
+    customerEmail: "customer@example.com"
+  ) {
     sessionId
     sessionUrl
     booking {
@@ -432,7 +459,10 @@ mutation {
 2. **Create Payment Session**:
 ```graphql
 mutation {
-  createBookingPayment(bookingId: "booking_document_id") {
+  createBookingPayment(
+    bookingId: "booking_document_id"
+    customerEmail: "customer@example.com"
+  ) {
     sessionUrl
   }
 }
@@ -656,4 +686,4 @@ mutation {
 
 ---
 
-**Last Updated:** October 28, 2025
+**Last Updated:** October 30, 2025

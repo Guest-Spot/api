@@ -40,9 +40,10 @@ export const createCheckoutSession = async (params: {
   currency: string;
   platformFee: number;
   artistStripeAccountId: string;
+  customerEmail?: string;
   metadata?: Record<string, string>;
 }): Promise<Stripe.Checkout.Session> => {
-  const { bookingId, amount, currency, platformFee, artistStripeAccountId, metadata = {} } = params;
+  const { bookingId, amount, currency, platformFee, artistStripeAccountId, customerEmail, metadata = {} } = params;
 
   // Calculate transfer amount (total - platform fee)
   const transferAmount = amount - platformFee;
@@ -53,6 +54,7 @@ export const createCheckoutSession = async (params: {
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
+    ...(customerEmail && { customer_email: customerEmail }),
     payment_intent_data: {
       // Manual capture for pre-authorization
       capture_method: 'manual',

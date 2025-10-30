@@ -18,7 +18,7 @@ export const paymentExtension = ({ strapi }) => ({
     }
 
     extend type Mutation {
-      createBookingPayment(bookingId: ID!): PaymentSession!
+      createBookingPayment(bookingId: ID!, customerEmail: String): PaymentSession!
     }
   `,
   resolvers: {
@@ -26,10 +26,11 @@ export const paymentExtension = ({ strapi }) => ({
       /**
        * Create Stripe Checkout Session for a booking
        * @param bookingId - ID of the booking to create payment for
+       * @param customerEmail - Optional email to prefill in Stripe Checkout
        * @returns PaymentSession with sessionId, sessionUrl and updated booking
        */
       async createBookingPayment(parent, args, context) {
-        const { bookingId } = args;
+        const { bookingId, customerEmail } = args;
         const userId = context.state?.user?.id;
 
         // Check authentication
@@ -86,6 +87,7 @@ export const paymentExtension = ({ strapi }) => ({
             currency,
             platformFee,
             artistStripeAccountId: booking.artist.stripeAccountID,
+            customerEmail,
             metadata: {
               ownerId: booking.owner.id.toString(),
               artistId: booking.artist.id.toString(),
