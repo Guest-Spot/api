@@ -2,6 +2,8 @@
  * GraphQL extension for booking operations with custom payment handling
  */
 
+import { PaymentStatus } from '../../interfaces/enums';
+
 export const bookingExtension = ({ strapi }) => ({
   resolvers: {
     Mutation: {
@@ -21,10 +23,12 @@ export const bookingExtension = ({ strapi }) => ({
           return created;
         }
 
-        try {
-          await strapi.service('api::booking.booking').notifyBookingCreated(created);
-        } catch (error) {
-          strapi.log.error('Error sending booking created notifications (GraphQL):', error);
+        if (!created.artist?.payoutsEnabled) {
+          try {
+            await strapi.service('api::booking.booking').notifyBookingCreated(created);
+          } catch (error) {
+            strapi.log.error('Error sending booking created notifications (GraphQL):', error);
+          }
         }
 
         return created;

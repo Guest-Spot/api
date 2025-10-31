@@ -19,12 +19,13 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
   async create(ctx) {
     const response = await super.create(ctx);
 
-    try {
-      await strapi.service('api::booking.booking').notifyBookingCreated(response);
-    } catch (error) {
-      strapi.log.error('Error sending booking created notifications:', error);
+    if (!response.artist?.payoutsEnabled) {
+      try {
+        await strapi.service('api::booking.booking').notifyBookingCreated(response);
+      } catch (error) {
+        strapi.log.error('Error sending booking created notifications:', error);
+      }
     }
-
     return response;
   },
   /**
