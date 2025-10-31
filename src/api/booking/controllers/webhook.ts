@@ -181,6 +181,12 @@ async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent
       authorizedAt: new Date().toISOString(),
     }
   );
+
+  try {
+    await strapi.service('api::booking.booking').notifyBookingCreated(booking);
+  } catch (error) {
+    strapi.log.error('Error sending booking created notifications:', error);
+  }
 }
 
 /**

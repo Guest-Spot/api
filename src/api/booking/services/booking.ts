@@ -146,13 +146,7 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
    * Notify artist on booking creation (when published and meaningful)
    */
   async notifyBookingCreated(booking: any): Promise<void> {
-    if (!booking || !booking.publishedAt) return;
-    if (isAdmin()) return;
-
-    // If artist can receive payouts and payment is UNPAID, suppress initial notification (legacy behavior)
-    if (booking.paymentStatus === PaymentStatus.UNPAID && booking.artist?.payoutsEnabled === true) {
-      return;
-    }
+    if (!booking || isAdmin()) return;
 
     const artist = booking.artist ?? {};
     const owner = booking.owner ?? {};

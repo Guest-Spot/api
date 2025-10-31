@@ -10,34 +10,17 @@ import {
   getDefaultCurrency,
 } from '../../../utils/stripe';
 import { BookingWithRelations } from '../types/booking-populated';
-import { PaymentStatus, BookingReaction } from '../../../interfaces/enums';
+import { PaymentStatus } from '../../../interfaces/enums';
 
 export default factories.createCoreController('api::booking.booking', ({ strapi }) => ({
   /**
-   * Custom create to send notifications/emails after successful creation
+   * Custom create to send notifications based on payout settings
    */
   async create(ctx) {
     const response = await super.create(ctx);
+
     try {
-      // Fetch created booking with relations using documentId if available, else id
-      const created = (response as any)?.data || (response as any)?.result || response;
-      const documentId = created?.documentId;
-      let booking: any | null = null;
-
-      if (documentId) {
-        booking = await strapi.documents('api::booking.booking').findOne({
-          documentId,
-          populate: ['artist', 'owner'],
-        });
-      } else if (created?.id) {
-        booking = await strapi.entityService.findOne('api::booking.booking', created.id, {
-          populate: ['artist', 'owner'],
-        });
-      }
-
-      if (booking) {
-        await strapi.service('api::booking.booking').notifyBookingCreated(booking);
-      }
+      await strapi.service('api::booking.booking').notifyBookingCreated(response);
     } catch (error) {
       strapi.log.error('Error sending booking created notifications:', error);
     }
@@ -164,10 +147,10 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
 
     // Fetch updated booking and send reaction notifications if needed
     try {
-      const updated = await strapi.documents('api::booking.booking').findOne({
+      const updated = (await strapi.documents('api::booking.booking').findOne({
         documentId,
         populate: ['artist', 'owner'],
-      });
+      })) as BookingWithRelations | null;
 
       await strapi.service('api::booking.booking').notifyReactionChange({
         booking: updated,

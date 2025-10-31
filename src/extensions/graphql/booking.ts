@@ -2,30 +2,27 @@
  * GraphQL extension for booking operations with custom payment handling
  */
 
-import { PaymentStatus } from '../../interfaces/enums';
-
 export const bookingExtension = ({ strapi }) => ({
   resolvers: {
     Mutation: {
       /**
-       * Custom create resolver for bookings with notifications
+       * Custom create resolver for bookings with conditional notifications
        */
       createBooking: async (parent, args, context) => {
         const { data } = args;
 
-        // Create booking first
         const created = await strapi.documents('api::booking.booking').create({
           data,
+          populate: ['artist', 'owner'],
+          status: 'published',
         });
 
-        // Fetch with relations to notify
-        try {
-          const booking = await strapi.documents('api::booking.booking').findOne({
-            documentId: created.documentId,
-            populate: ['artist', 'owner'],
-          });
+        if (!created?.documentId) {
+          return created;
+        }
 
-          await strapi.service('api::booking.booking').notifyBookingCreated(booking);
+        try {
+          await strapi.service('api::booking.booking').notifyBookingCreated(created);
         } catch (error) {
           strapi.log.error('Error sending booking created notifications (GraphQL):', error);
         }
@@ -44,6 +41,7 @@ export const bookingExtension = ({ strapi }) => ({
         const currentBooking = await strapi.documents('api::booking.booking').findOne({
           documentId,
           populate: ['artist', 'owner'],
+          status: 'published',
         });
 
         if (!currentBooking) {
@@ -65,12 +63,13 @@ export const bookingExtension = ({ strapi }) => ({
           stripePaymentIntentId: currentBooking.stripePaymentIntentId,
         });
 
-        // Send reaction notifications if needed
+        // Send notifications if needed
         try {
           const refreshed = await strapi.documents('api::booking.booking').findOne({
             documentId,
             populate: ['artist', 'owner'],
           });
+
           await strapi.service('api::booking.booking').notifyReactionChange({
             booking: refreshed,
             previousReaction: currentBooking.reaction,
