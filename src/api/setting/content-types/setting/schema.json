@@ -7,12 +7,27 @@
     "displayName": "Settings"
   },
   "options": {
-    "draftAndPublish": true
+    "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
     "platformFeePercent": {
       "type": "integer"
+    },
+    "stripeSecretKey": {
+      "type": "string"
+    },
+    "stripeWebhookSecret": {
+      "type": "string"
+    },
+    "stripeSuccessUrl": {
+      "type": "string"
+    },
+    "stripeCancelUrl": {
+      "type": "string"
+    },
+    "frontendUrl": {
+      "type": "string"
     }
   }
 }

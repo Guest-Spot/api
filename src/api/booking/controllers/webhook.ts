@@ -2,7 +2,7 @@
  * Stripe webhook controller
  */
 
-import { verifyWebhookSignature, isAccountOnboarded } from '../../../utils/stripe';
+import { verifyWebhookSignature, isAccountOnboarded, getStripeWebhookSecret } from '../../../utils/stripe';
 import { sendPaymentSuccessEmail } from '../../../utils/email/payment-success';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
 import Stripe from 'stripe';
@@ -16,12 +16,12 @@ export default {
    */
   async handleStripeWebhook(ctx) {
     const sig = ctx.request.headers['stripe-signature'];
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    const webhookSecret = await getStripeWebhookSecret();
 
     strapi.log.debug('Webhook request received');
 
     if (!webhookSecret) {
-      strapi.log.error('STRIPE_WEBHOOK_SECRET is not configured');
+      strapi.log.error('STRIPE_WEBHOOK_SECRET is not configured in Settings or environment variable');
       return ctx.badRequest('Webhook secret not configured');
     }
 
@@ -44,7 +44,7 @@ export default {
       strapi.log.debug('Raw body received, verifying signature...');
 
       // Verify webhook signature
-      event = verifyWebhookSignature(rawBody, sig, webhookSecret);
+      event = await verifyWebhookSignature(rawBody, sig, webhookSecret);
       
       strapi.log.debug('Signature verified successfully');
     } catch (error) {

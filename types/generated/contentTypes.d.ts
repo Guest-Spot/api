@@ -703,12 +703,13 @@ export interface ApiSettingSetting extends Struct.SingleTypeSchema {
     singularName: 'setting';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    frontendUrl: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -717,6 +718,10 @@ export interface ApiSettingSetting extends Struct.SingleTypeSchema {
       Schema.Attribute.Private;
     platformFeePercent: Schema.Attribute.Integer;
     publishedAt: Schema.Attribute.DateTime;
+    stripeCancelUrl: Schema.Attribute.String;
+    stripeSecretKey: Schema.Attribute.String;
+    stripeSuccessUrl: Schema.Attribute.String;
+    stripeWebhookSecret: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

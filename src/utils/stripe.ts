@@ -2,10 +2,72 @@ import Stripe from 'stripe';
 
 export const STRIPE_FEE_PERCENT = 2.9;
 
-// Initialize Stripe client
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-09-30.clover',
-});
+// Cached Stripe client instance
+let stripeClient: Stripe | null = null;
+
+/**
+ * Get Stripe secret key from Settings (singleType)
+ */
+export const getStripeSecretKey = async (): Promise<string> => {
+  try {
+    // Fetch setting from database
+    const setting = await strapi.query('api::setting.setting').findOne({});
+
+    const secretKey = setting?.stripeSecretKey;
+    
+    if (!secretKey || typeof secretKey !== 'string' || secretKey.trim() === '') {
+      strapi.log.warn('Stripe secret key not configured in Settings, falling back to environment variable');
+      return process.env.STRIPE_SECRET_KEY || '';
+    }
+
+    return secretKey;
+  } catch (error) {
+    strapi.log.error('Error fetching Stripe secret key from Settings:', error);
+    return process.env.STRIPE_SECRET_KEY || '';
+  }
+};
+
+/**
+ * Get Stripe webhook secret from Settings (singleType)
+ */
+export const getStripeWebhookSecret = async (): Promise<string> => {
+  try {
+    // Fetch setting from database
+    const setting = await strapi.query('api::setting.setting').findOne({});
+
+    const webhookSecret = setting?.stripeWebhookSecret;
+    
+    if (!webhookSecret || typeof webhookSecret !== 'string' || webhookSecret.trim() === '') {
+      strapi.log.warn('Stripe webhook secret not configured in Settings, falling back to environment variable');
+      return process.env.STRIPE_WEBHOOK_SECRET || '';
+    }
+
+    return webhookSecret;
+  } catch (error) {
+    strapi.log.error('Error fetching Stripe webhook secret from Settings:', error);
+    return process.env.STRIPE_WEBHOOK_SECRET || '';
+  }
+};
+
+/**
+ * Get or create Stripe client instance
+ * Initializes client lazily with secret key from Settings
+ */
+export const getStripeClient = async (): Promise<Stripe> => {
+  if (!stripeClient) {
+    const secretKey = await getStripeSecretKey();
+    
+    if (!secretKey || secretKey.trim() === '') {
+      throw new Error('Stripe secret key is not configured. Please set it in Settings or STRIPE_SECRET_KEY environment variable.');
+    }
+    
+    stripeClient = new Stripe(secretKey, {
+      apiVersion: '2025-09-30.clover',
+    });
+  }
+  
+  return stripeClient;
+};
 
 /**
  * Calculate platform fee based on amount and percentage
@@ -61,6 +123,10 @@ export const createCheckoutSession = async (params: {
 }): Promise<Stripe.Checkout.Session> => {
   const { bookingId, amount, currency, platformFee, artistStripeAccountId, customerEmail, metadata = {} } = params;
 
+  const stripe = await getStripeClient();
+  const settings = await strapi.query('api::setting.setting').findOne({});
+  const successUrl = settings?.stripeSuccessUrl;
+  const cancelUrl = settings?.stripeCancelUrl;
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     ...(customerEmail && { customer_email: customerEmail }),
@@ -91,8 +157,8 @@ export const createCheckoutSession = async (params: {
         quantity: 1,
       },
     ],
-    success_url: process.env.STRIPE_SUCCESS_URL || `${process.env.PUBLIC_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: process.env.STRIPE_CANCEL_URL || `${process.env.PUBLIC_URL}/booking-cancelled`,
+    success_url: successUrl || process.env.STRIPE_SUCCESS_URL,
+    cancel_url: cancelUrl || process.env.STRIPE_CANCEL_URL,
     metadata: {
       bookingId: bookingId.toString(),
       ...metadata,
@@ -107,6 +173,7 @@ export const createCheckoutSession = async (params: {
  */
 export const capturePaymentIntent = async (paymentIntentId: string): Promise<Stripe.PaymentIntent> => {
   try {
+    const stripe = await getStripeClient();
     const paymentIntent = await stripe.paymentIntents.capture(paymentIntentId);
     return paymentIntent;
   } catch (error) {
@@ -120,6 +187,7 @@ export const capturePaymentIntent = async (paymentIntentId: string): Promise<Str
  */
 export const cancelPaymentIntent = async (paymentIntentId: string): Promise<Stripe.PaymentIntent> => {
   try {
+    const stripe = await getStripeClient();
     const paymentIntent = await stripe.paymentIntents.cancel(paymentIntentId);
     return paymentIntent;
   } catch (error) {
@@ -131,12 +199,13 @@ export const cancelPaymentIntent = async (paymentIntentId: string): Promise<Stri
 /**
  * Verify webhook signature from Stripe
  */
-export const verifyWebhookSignature = (
+export const verifyWebhookSignature = async (
   payload: string | Buffer,
   signature: string,
   secret: string
-): Stripe.Event => {
+): Promise<Stripe.Event> => {
   try {
+    const stripe = await getStripeClient();
     const event = stripe.webhooks.constructEvent(payload, signature, secret);
     return event;
   } catch (error) {
@@ -150,6 +219,7 @@ export const verifyWebhookSignature = (
  */
 export const getCheckoutSession = async (sessionId: string): Promise<Stripe.Checkout.Session> => {
   try {
+    const stripe = await getStripeClient();
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
       expand: ['payment_intent'],
     });
@@ -165,6 +235,7 @@ export const getCheckoutSession = async (sessionId: string): Promise<Stripe.Chec
  */
 export const getPaymentIntent = async (paymentIntentId: string): Promise<Stripe.PaymentIntent> => {
   try {
+    const stripe = await getStripeClient();
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
     return paymentIntent;
   } catch (error) {
@@ -233,6 +304,7 @@ export const createConnectAccount = async (params: {
       if (address) accountData.individual.address = address;
     }
 
+    const stripe = await getStripeClient();
     const account = await stripe.accounts.create(accountData);
 
     strapi.log.info(`Created Stripe Connect account ${account.id} for ${email}${firstName ? ` (${firstName} ${lastName})` : ''}`);
@@ -256,6 +328,7 @@ export const createAccountLink = async (params: {
   const { accountId, refreshUrl, returnUrl, type = 'account_onboarding' } = params;
 
   try {
+    const stripe = await getStripeClient();
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
       refresh_url: refreshUrl,
@@ -276,6 +349,7 @@ export const createAccountLink = async (params: {
  */
 export const getConnectAccount = async (accountId: string): Promise<Stripe.Account> => {
   try {
+    const stripe = await getStripeClient();
     const account = await stripe.accounts.retrieve(accountId);
     return account;
   } catch (error) {
@@ -301,6 +375,7 @@ export const isAccountOnboarded = (account: Stripe.Account): boolean => {
  */
 export const createLoginLink = async (accountId: string): Promise<Stripe.LoginLink> => {
   try {
+    const stripe = await getStripeClient();
     const loginLink = await stripe.accounts.createLoginLink(accountId);
     strapi.log.info(`Created login link for account ${accountId}`);
     return loginLink;
@@ -333,6 +408,7 @@ export const addExternalAccount = async (params: {
   } = params;
 
   try {
+    const stripe = await getStripeClient();
     const externalAccount = await stripe.accounts.createExternalAccount(accountId, {
       external_account: {
         object: 'bank_account',
@@ -353,4 +429,5 @@ export const addExternalAccount = async (params: {
   }
 };
 
-export default stripe;
+// Export default for backward compatibility (returns cached client or creates new one)
+export default getStripeClient;
