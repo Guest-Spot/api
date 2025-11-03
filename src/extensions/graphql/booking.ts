@@ -3,9 +3,24 @@
  */
 
 import { PaymentStatus } from '../../interfaces/enums';
+import { getPlatformFeePercent } from '../../utils/stripe';
 
 export const bookingExtension = ({ strapi }) => ({
+  typeDefs: /* GraphQL */ `
+    extend type Booking {
+      platformFeePercent: Float
+    }
+  `,
   resolvers: {
+    Booking: {
+      /**
+       * Resolver for platformFeePercent field
+       * Returns platform fee percentage from environment variable
+       */
+      platformFeePercent: () => {
+        return getPlatformFeePercent();
+      },
+    },
     Mutation: {
       /**
        * Custom create resolver for bookings with conditional notifications

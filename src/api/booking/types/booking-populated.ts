@@ -40,4 +40,5 @@ export interface BookingWithRelations {
   locale?: string;
   artist?: UserProfile;
   owner?: UserProfile;
+  platformFeePercent?: number;
 }

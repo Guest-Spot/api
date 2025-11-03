@@ -14,6 +14,56 @@ import { PaymentStatus } from '../../../interfaces/enums';
 
 export default factories.createCoreController('api::booking.booking', ({ strapi }) => ({
   /**
+   * Override find to add platformFeePercent field (hidden from admin panel)
+   */
+  async find(ctx) {
+    const response = await super.find(ctx);
+    
+    // Check if request is from admin panel
+    const isAdmin = ctx.state?.auth?.strategy?.name === 'admin';
+
+    // Add platformFeePercent only for non-admin requests
+    if (!isAdmin && response?.data) {
+      const platformFeePercent = getPlatformFeePercent();
+      
+      if (Array.isArray(response.data)) {
+        response.data = response.data.map((item: any) => ({
+          ...item,
+          platformFeePercent,
+        }));
+      } else if (response.data) {
+        response.data = {
+          ...response.data,
+          platformFeePercent,
+        };
+      }
+    }
+
+    return response;
+  },
+
+  /**
+   * Override findOne to add platformFeePercent field (hidden from admin panel)
+   */
+  async findOne(ctx) {
+    const response = await super.findOne(ctx);
+
+    // Check if request is from admin panel
+    const isAdmin = ctx.state?.auth?.strategy?.name === 'admin';
+
+    // Add platformFeePercent only for non-admin requests
+    if (!isAdmin && response?.data) {
+      const platformFeePercent = getPlatformFeePercent();
+      response.data = {
+        ...response.data,
+        platformFeePercent,
+      };
+    }
+
+    return response;
+  },
+
+  /**
    * Custom create to send notifications based on payout settings
    */
   async create(ctx) {
@@ -26,6 +76,19 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
         strapi.log.error('Error sending booking created notifications:', error);
       }
     }
+
+    // Check if request is from admin panel
+    const isAdmin = ctx.state?.auth?.strategy?.name === 'admin';
+
+    // Add platformFeePercent only for non-admin requests
+    if (!isAdmin && response?.data) {
+      const platformFeePercent = getPlatformFeePercent();
+      response.data = {
+        ...response.data,
+        platformFeePercent,
+      };
+    }
+
     return response;
   },
   /**
@@ -136,6 +199,18 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
 
     // Call default update first
     const response = await super.update(ctx);
+
+    // Check if request is from admin panel
+    const isAdmin = ctx.state?.auth?.strategy?.name === 'admin';
+
+    // Add platformFeePercent only for non-admin requests
+    if (!isAdmin && response?.data) {
+      const platformFeePercent = getPlatformFeePercent();
+      response.data = {
+        ...response.data,
+        platformFeePercent,
+      };
+    }
 
     // Delegate reaction-based payment handling to service
     await strapi.service('api::booking.booking').handleReactionPayment({
