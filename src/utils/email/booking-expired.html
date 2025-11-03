@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Booking Expired - GuestSpot</title>
+  </head>
+  <body style="margin:0;padding:0;color:#ffffff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+    <!--
+      Expected template variables:
+        {{ userName }}                 -> Guest name (owner)
+        {{ artistName }}               -> Artist name
+        {{ bookingId }}                -> Booking ID
+        {{ amount }}                   -> Formatted amount (e.g. "$100.00")
+        {{ day }}                      -> Booking day
+        {{ start }}                    -> Booking start time
+        {{ currentYear }}              -> Current year
+    -->
+
+    <div style="display:none;font-size:1px;color:#050505;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+      Your booking request expired after 7 days without artist response. Payment authorization has been cancelled.
+    </div>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td align="center" style="padding:24px 16px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:640px;border-radius:18px;overflow:hidden;background-color:#111111;">
+            <tr>
+              <td style="padding:32px 28px;background:linear-gradient(135deg,#ff3d00,#ff6b35);color:#ffffff;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="font-size:24px;font-weight:700;letter-spacing:0.5px;">GuestSpot</td>
+                  </tr>
+                  <tr>
+                    <td style="padding-top:18px;font-size:28px;font-weight:600;">
+                      ⏰ Booking Expired
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding-top:10px;font-size:15px;color:rgba(255,255,255,0.9);line-height:1.6;">
+                      Hi {{ userName }}, your booking request expired after 7 days without artist response. Payment authorization has been cancelled and your funds have been released.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:28px 24px 32px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0;background-color:#171717;border-radius:16px;border:1px solid rgba(255,255,255,0.08);">
+                  <tr>
+                    <td style="padding:24px 24px 20px 24px;text-align:center;">
+                      <span style="display:block;font-size:13px;text-transform:uppercase;letter-spacing:1.3px;color:#b3b3b3;">Authorized Amount</span>
+                      <span style="display:block;font-size:42px;font-weight:700;color:#28a745;padding-top:8px;">{{ amount }}</span>
+                      <span style="display:block;font-size:14px;color:#28a745;padding-top:8px;">✓ Funds Released</span>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;border-collapse:separate;border-spacing:0;background-color:#171717;border-radius:16px;border:1px solid rgba(255,255,255,0.08);">
+                  <tr>
+                    <td style="padding:20px 24px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                            <span style="font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#b3b3b3;">Booking ID</span>
+                            <span style="display:block;font-size:16px;color:#ffffff;padding-top:4px;">{{ bookingId }}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding:14px 0 8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                            <span style="font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#b3b3b3;">Artist</span>
+                            <span style="display:block;font-size:16px;color:#ffffff;padding-top:4px;">{{ artistName }}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding:14px 0 8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                            <span style="font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#b3b3b3;">Booking Date</span>
+                            <span style="display:block;font-size:16px;color:#ffffff;padding-top:4px;">{{ day }}</span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="padding:14px 0 8px 0;">
+                            <span style="font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#b3b3b3;">Start Time</span>
+                            <span style="display:block;font-size:16px;color:#ffffff;padding-top:4px;">{{ start }}</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;border-collapse:collapse;">
+                  <tr>
+                    <td style="background-color:#1f1f1f;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;font-size:14px;line-height:1.7;color:#d9d9d9;">
+                      <strong style="display:block;font-size:16px;color:#ffffff;margin-bottom:10px;">📋 What Happened?</strong>
+                      <ul style="padding-left:20px;margin:0;">
+                        <li style="margin-bottom:8px;">Your booking request was automatically cancelled after 7 days without artist response.</li>
+                        <li style="margin-bottom:8px;">Payment authorization has been cancelled - your funds were never charged and are now fully released.</li>
+                        <li style="margin-bottom:0;">You can create a new booking request with this or any other artist at any time.</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;border-collapse:collapse;">
+                  <tr>
+                    <td style="background-color:#151515;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px;font-size:14px;line-height:1.7;color:#d9d9d9;">
+                      <strong style="display:block;font-size:16px;color:#ffffff;margin-bottom:10px;">💡 Next Steps</strong>
+                      <ul style="padding-left:20px;margin:0;">
+                        <li style="margin-bottom:8px;">If you still want to book with this artist, create a new booking request in the GuestSpot app.</li>
+                        <li style="margin-bottom:8px;">Explore other talented artists on GuestSpot who might be available.</li>
+                        <li style="margin-bottom:0;">Your payment method is safe - no charges were made for this booking.</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;border-collapse:collapse;">
+                  <tr>
+                    <td style="text-align:center;">
+                      <a href="https://getguestspot.app" style="display:inline-block;padding:14px 36px;border-radius:999px;background:linear-gradient(135deg,#ff3d00,#ff6b35);color:#ffffff;font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1px;text-decoration:none;">
+                        Browse Artists
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;border-collapse:collapse;">
+                  <tr>
+                    <td style="font-size:13px;color:#b3b3b3;line-height:1.6;text-align:center;">
+                      Questions or concerns? Reach out to us at
+                      <a href="mailto:support@getguestspot.com" style="color:#ff6b35;text-decoration:none;">support@getguestspot.com</a>.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:20px 24px;background-color:#0b0b0b;text-align:center;font-size:12px;line-height:1.6;color:#666666;">
+                &copy; {{ currentYear }} GuestSpot. All rights reserved.<br />
+                You are receiving this message because your booking request expired after 7 days without artist response.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+

@@ -4,6 +4,7 @@
 
 import { cancelPaymentIntent } from './stripe';
 import { sendFirebaseNotificationToUser } from './push-notification';
+import { sendBookingExpiredEmail } from './email/booking-expired';
 import { PaymentStatus } from '../interfaces/enums';
 
 /**
@@ -58,8 +59,9 @@ export const cancelExpiredAuthorizations = async (strapi) => {
 
         strapi.log.info(`Cancelled expired authorization for booking ${booking.id}`);
 
-        // Send notification to owner
+        // Send notification and email to owner
         try {
+          // Send push notification
           await sendFirebaseNotificationToUser(booking.owner.id, {
             title: 'Booking Expired',
             body: 'Your booking request expired after 7 days without artist response. Payment authorization has been cancelled.',
@@ -67,6 +69,22 @@ export const cancelExpiredAuthorizations = async (strapi) => {
               bookingId: String(booking.id),
               type: 'booking_expired',
             },
+          });
+
+          // Send email notification
+          const amountValue = Number(booking.artist?.depositAmount);
+          const normalizedAmount =
+            Number.isFinite(amountValue) && amountValue > 0 ? Math.round(amountValue) : undefined;
+
+          await sendBookingExpiredEmail({
+            userName: booking.owner.username,
+            userEmail: booking.owner.email,
+            artistName: booking.artist.username,
+            bookingId: booking.id,
+            amount: normalizedAmount,
+            currency: booking.currency,
+            day: booking.day,
+            start: booking.start,
           });
         } catch (notifError) {
           strapi.log.error(`Error sending notification for booking ${booking.id}:`, notifError);
