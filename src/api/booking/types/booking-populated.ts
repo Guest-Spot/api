@@ -7,6 +7,7 @@ import { Schema, Struct } from '@strapi/strapi';
 // User type from plugin::users-permissions.user
 export interface UserProfile {
   id: number;
+  documentId?: string;
   username: string;
   email: string;
   stripeAccountID?: string;

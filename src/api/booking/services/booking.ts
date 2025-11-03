@@ -3,7 +3,7 @@
  */
 
 import { factories } from '@strapi/strapi';
-import { capturePaymentIntent, cancelPaymentIntent } from '../../../utils/stripe';
+import { capturePaymentIntent, cancelPaymentIntent, createCheckoutSession, calculatePlatformFee, getDefaultCurrency, getPlatformFeePercent } from '../../../utils/stripe';
 import { PaymentStatus, BookingReaction, NotifyType } from '../../../interfaces/enums';
 import { createNotification } from '../../../utils/notification';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
@@ -12,8 +12,102 @@ import { sendBookingNotificationEmail } from '../../../utils/email/booking-notif
 import isAdmin from '../../../utils/isAdmin';
 import { formatTimeToAmPm } from '../../../utils/formatTime';
 import { parseDateOnly } from '../../../utils/date';
+import { BookingWithRelations } from '../types/booking-populated';
 
 export default factories.createCoreService('api::booking.booking', ({ strapi }) => ({
+  /**
+   * Create payment session for a booking
+   * Centralized logic for creating Stripe Checkout Session
+   */
+  async createPaymentSession(params: {
+    documentId: string;
+    userId: number;
+    userDocumentId?: string;
+    customerEmail?: string;
+  }): Promise<{ sessionId: string; sessionUrl: string; booking: any }> {
+    const { documentId, userId, userDocumentId, customerEmail } = params;
+
+    // Fetch booking with relations
+    const booking = await strapi.documents('api::booking.booking').findOne({
+      documentId,
+      populate: ['artist', 'owner'],
+    }) as BookingWithRelations | null;
+
+    if (!booking) {
+      throw new Error('Booking not found');
+    }
+
+    // Check if user is the owner of the booking (support both id and documentId)
+    const isOwner = booking.owner?.id === userId || 
+                   (userDocumentId && booking.owner?.documentId === userDocumentId);
+    if (!isOwner) {
+      throw new Error('You can only create payment for your own bookings');
+    }
+
+    // Check if payment already exists
+    if (booking.paymentStatus !== PaymentStatus.UNPAID) {
+      throw new Error(`Payment already ${booking.paymentStatus}`);
+    }
+
+    // Check if artist has Stripe Connect account
+    if (!booking.artist?.stripeAccountID) {
+      throw new Error('Artist does not have a Stripe account configured');
+    }
+
+    if (!booking.artist?.payoutsEnabled) {
+      throw new Error('Artist has not enabled payouts yet');
+    }
+
+    // Use artist-configured deposit amount for payment
+    const amountValue = Number(booking.artist?.depositAmount);
+
+    if (!Number.isFinite(amountValue) || amountValue <= 0) {
+      throw new Error('Artist deposit amount is not configured');
+    }
+
+    const currency = getDefaultCurrency();
+    const platformFeePercent = await getPlatformFeePercent();
+    
+    // Calculate total amount including platform fee
+    const depositAmount = Math.round(amountValue);
+    const platformFee = calculatePlatformFee(depositAmount, platformFeePercent);
+    const totalAmount = depositAmount + platformFee;
+
+    // Create Checkout Session with pre-authorization
+    const session = await createCheckoutSession({
+      bookingId: booking.id,
+      amount: totalAmount,
+      currency,
+      platformFee,
+      artistStripeAccountId: booking.artist.stripeAccountID,
+      customerEmail,
+      metadata: {
+        bookingDocumentId: documentId,
+        ownerId: booking.owner.id.toString(),
+        artistId: booking.artist.id.toString(),
+        ...(booking.owner?.documentId && { ownerDocumentId: booking.owner.documentId }),
+        ...(booking.artist?.documentId && { artistDocumentId: booking.artist.documentId }),
+      },
+    });
+
+    // Update booking with session ID and payment details
+    const updatedBooking = await strapi.documents('api::booking.booking').update({
+      documentId,
+      data: {
+        stripeCheckoutSessionId: session.id,
+        currency,
+      },
+    });
+
+    strapi.log.info(`Payment session created for booking ${documentId}: ${session.id}`);
+
+    return {
+      sessionId: session.id,
+      sessionUrl: session.url,
+      booking: updatedBooking,
+    };
+  },
+
   /**
    * Handle payment actions on reaction change (capture/cancel) for a booking
    */

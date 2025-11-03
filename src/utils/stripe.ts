@@ -13,14 +13,28 @@ export const calculatePlatformFee = (amount: number, percent: number): number =>
 };
 
 /**
- * Get platform fee percentage from environment variable
+ * Get platform fee percentage from Settings (singleType)
  */
-export const getPlatformFeePercent = (): number => {
-  const percent = parseFloat(process.env.STRIPE_PLATFORM_FEE_PERCENT || '10');
-  if (isNaN(percent) || percent < 0 || percent > 100) {
-    throw new Error('Invalid STRIPE_PLATFORM_FEE_PERCENT in environment variables');
+export const getPlatformFeePercent = async (): Promise<number> => {
+  try {
+    // Fetch setting from database
+    const setting = await strapi.query('api::setting.setting').findOne({});
+
+    const percent = setting?.platformFeePercent;
+    
+    if (percent === undefined || percent === null) {
+      strapi.log.warn('Platform fee percent not configured in Settings, using default: 0%');
+      return 0;
+    }
+
+    if (!Number.isFinite(percent) || percent < 0 || percent > 100) {
+      throw new Error(`Invalid platform fee percent in Settings: ${percent}`);
+    }
+
+    return percent;
+  } catch (error) {
+    return 0;
   }
-  return percent;
 };
 
 /**
@@ -45,20 +59,13 @@ export const createCheckoutSession = async (params: {
 }): Promise<Stripe.Checkout.Session> => {
   const { bookingId, amount, currency, platformFee, artistStripeAccountId, customerEmail, metadata = {} } = params;
 
-  // Calculate transfer amount (total - platform fee)
-  const transferAmount = amount - platformFee;
-
-  if (transferAmount <= 0) {
-    throw new Error('Transfer amount must be greater than 0');
-  }
-
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     ...(customerEmail && { customer_email: customerEmail }),
     payment_intent_data: {
       // Manual capture for pre-authorization
       capture_method: 'manual',
-      // Application fee goes to platform
+      // Application fee goes to platform (deducted from transfer amount)
       application_fee_amount: platformFee,
       // Transfer remaining amount to artist's Stripe Connect account
       transfer_data: {

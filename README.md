@@ -14,7 +14,6 @@ STRIPE_SECRET_KEY=sk_test_...                    # Your Stripe secret key (test 
 STRIPE_WEBHOOK_SECRET=whsec_...                  # Webhook signing secret from Stripe Dashboard
 
 # Payment Configuration
-STRIPE_PLATFORM_FEE_PERCENT=10                   # Platform commission percentage (10 = 10%)
 DEFAULT_CURRENCY=usd                              # Default payment currency (usd, eur, etc.)
 
 # Payment URLs (for mobile app deep links or web redirects)

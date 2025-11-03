@@ -99,11 +99,6 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 Add to your `.env`:
 
 ```bash
-# Platform commission percentage
-STRIPE_PLATFORM_FEE_PERCENT=10
-
-# Currency
-DEFAULT_CURRENCY=usd
 
 # Deposit amount
 # Each artist configures their deposit in the users table (depositAmount field in cents)

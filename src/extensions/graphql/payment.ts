@@ -2,13 +2,6 @@
  * GraphQL extension for Stripe payment operations
  */
 
-import {
-  createCheckoutSession,
-  getPlatformFeePercent,
-  calculatePlatformFee,
-  getDefaultCurrency,
-} from '../../utils/stripe';
-
 export const paymentExtension = ({ strapi }) => ({
   typeDefs: /* GraphQL */ `
     type PaymentSession {
@@ -38,84 +31,19 @@ export const paymentExtension = ({ strapi }) => ({
           throw new Error('You must be logged in to create a payment');
         }
 
-        // Fetch booking with relations
-        const booking = await strapi.documents('api::booking.booking').findOne({
-          documentId,
-          populate: ['artist', 'owner'],
-        });
-
-        if (!booking) {
-          throw new Error('Booking not found');
-        }
-
-        // Check if user is the owner of the booking
-        if (booking.owner?.documentId !== context.state.user.documentId) {
-          throw new Error('You can only create payment for your own bookings');
-        }
-
-        // Check if payment already exists
-        if (booking.paymentStatus !== 'unpaid') {
-          throw new Error(`Payment already ${booking.paymentStatus}`);
-        }
-
-        // Check if artist has Stripe Connect account
-        if (!booking.artist?.stripeAccountID) {
-          throw new Error('Artist does not have a Stripe account configured');
-        }
-
-        if (!booking.artist?.payoutsEnabled) {
-          throw new Error('Artist has not enabled payouts yet');
-        }
-
-        // Use artist-configured deposit amount for payment
-        const amountValue = Number(booking.artist?.depositAmount);
-
-        if (!Number.isFinite(amountValue) || amountValue <= 0) {
-          throw new Error('Artist deposit amount is not configured');
-        }
-
-        const amount = Math.round(amountValue);
-        const currency = getDefaultCurrency();
-        const platformFeePercent = getPlatformFeePercent();
-        const platformFee = calculatePlatformFee(amount, platformFeePercent);
-
         try {
-          // Create Checkout Session with pre-authorization
-          const session = await createCheckoutSession({
-            bookingId: booking.id,
-            amount,
-            currency,
-            platformFee,
-            artistStripeAccountId: booking.artist.stripeAccountID,
-            customerEmail,
-            metadata: {
-              bookingDocumentId: documentId,
-              ownerId: booking.owner.id.toString(),
-              artistId: booking.artist.id.toString(),
-              ownerDocumentId: booking.owner.documentId,
-              artistDocumentId: booking.artist.documentId,
-            },
-          });
-
-          // Update booking with session ID and payment details
-          const updatedBooking = await strapi.documents('api::booking.booking').update({
+          const result = await strapi.service('api::booking.booking').createPaymentSession({
             documentId,
-            data: {
-              stripeCheckoutSessionId: session.id,
-              currency,
-            },
+            userId,
+            userDocumentId: context.state.user.documentId,
+            customerEmail,
           });
 
-          strapi.log.info(`Payment session created for booking ${documentId}: ${session.id}`);
-
-          return {
-            sessionId: session.id,
-            sessionUrl: session.url,
-            booking: updatedBooking,
-          };
+          return result;
         } catch (error) {
           strapi.log.error('Error creating payment session:', error);
-          throw new Error('Failed to create payment session');
+          const errorMessage = error instanceof Error ? error.message : 'Failed to create payment session';
+          throw new Error(errorMessage);
         }
       },
     },

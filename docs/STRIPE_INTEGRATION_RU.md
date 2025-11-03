@@ -160,7 +160,6 @@ STRIPE_SECRET_KEY=sk_test_...                    # Секретный ключ S
 STRIPE_WEBHOOK_SECRET=whsec_...                  # Секрет для webhook
 
 # Настройки платежей
-STRIPE_PLATFORM_FEE_PERCENT=10                   # Комиссия платформы (10%)
 DEFAULT_CURRENCY=usd                              # Валюта
 
 # Сумма депозита

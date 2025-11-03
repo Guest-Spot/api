@@ -117,10 +117,6 @@ Required environment variables:
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 
-# Payment Configuration
-STRIPE_PLATFORM_FEE_PERCENT=10         # 10%
-DEFAULT_CURRENCY=usd
-
 # Deposit Amount
 # Each artist configures their deposit in the users table (depositAmount field in cents)
 
