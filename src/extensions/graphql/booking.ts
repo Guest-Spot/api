@@ -2,25 +2,9 @@
  * GraphQL extension for booking operations with custom payment handling
  */
 
-import { PaymentStatus } from '../../interfaces/enums';
-import { getPlatformFeePercent } from '../../utils/stripe';
-
 export const bookingExtension = ({ strapi }) => ({
-  typeDefs: /* GraphQL */ `
-    extend type Booking {
-      platformFeePercent: Float
-    }
-  `,
+  typeDefs: /* GraphQL */ ``,
   resolvers: {
-    Booking: {
-      /**
-       * Resolver for platformFeePercent field
-       * Returns platform fee percentage from environment variable
-       */
-      platformFeePercent: () => {
-        return getPlatformFeePercent();
-      },
-    },
     Mutation: {
       /**
        * Custom create resolver for bookings with conditional notifications
