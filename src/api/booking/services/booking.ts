@@ -3,7 +3,13 @@
  */
 
 import { factories } from '@strapi/strapi';
-import { capturePaymentIntent, cancelPaymentIntent, createCheckoutSession, calculatePlatformFee, getDefaultCurrency, getPlatformFeePercent } from '../../../utils/stripe';
+import {
+  capturePaymentIntent, cancelPaymentIntent, createCheckoutSession,
+  calculatePlatformFee,
+  getDefaultCurrency,
+  getPlatformFeePercent,
+  STRIPE_FEE_PERCENT,
+} from '../../../utils/stripe';
 import { PaymentStatus, BookingReaction, NotifyType } from '../../../interfaces/enums';
 import { createNotification } from '../../../utils/notification';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
@@ -70,7 +76,7 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
     
     // Calculate total amount including platform fee
     const depositAmount = Math.round(amountValue);
-    const platformFee = calculatePlatformFee(depositAmount, platformFeePercent);
+    const platformFee = calculatePlatformFee(depositAmount, platformFeePercent + STRIPE_FEE_PERCENT);
     const totalAmount = depositAmount + platformFee;
 
     // Create Checkout Session with pre-authorization

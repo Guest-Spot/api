@@ -4,6 +4,7 @@ import { grapqlGuards } from './extensions/graphql/guards';
 import { paymentExtension } from './extensions/graphql/payment';
 import { stripeConnectExtension } from './extensions/graphql/stripe-connect';
 import { bookingExtension } from './extensions/graphql/booking';
+import { settingExtension } from './extensions/graphql/setting';
 import { usersPermissionsExtension } from './extensions/users-permissions';
 
 import portfolioLifecycles from './api/portfolio/content-types/portfolio/lifecycles';
@@ -19,6 +20,7 @@ export default {
     strapi.plugin('graphql').service('extension').use(paymentExtension);
     strapi.plugin('graphql').service('extension').use(stripeConnectExtension);
     strapi.plugin('graphql').service('extension').use(bookingExtension);
+    strapi.plugin('graphql').service('extension').use(settingExtension);
     strapi.plugin('graphql').service('extension').use(usersPermissionsExtension);
   },
 

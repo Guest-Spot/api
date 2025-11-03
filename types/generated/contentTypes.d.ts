@@ -698,7 +698,7 @@ export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
 export interface ApiSettingSetting extends Struct.SingleTypeSchema {
   collectionName: 'settings';
   info: {
-    displayName: 'Setting';
+    displayName: 'Settings';
     pluralName: 'settings';
     singularName: 'setting';
   };
