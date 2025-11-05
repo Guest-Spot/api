@@ -1,0 +1,33 @@
+{
+  "kind": "singleType",
+  "collectionName": "settings",
+  "info": {
+    "singularName": "setting",
+    "pluralName": "settings",
+    "displayName": "Settings"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "platformFeePercent": {
+      "type": "integer"
+    },
+    "stripeSecretKey": {
+      "type": "string"
+    },
+    "stripeWebhookSecret": {
+      "type": "string"
+    },
+    "stripeSuccessUrl": {
+      "type": "string"
+    },
+    "stripeCancelUrl": {
+      "type": "string"
+    },
+    "frontendUrl": {
+      "type": "string"
+    }
+  }
+}

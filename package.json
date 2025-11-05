@@ -32,6 +32,7 @@
     "strapi-plugin-email-bulk-sender": "^0.1.0",
     "strapi-plugin-media-prefix": "^1.0.6",
     "strapi-provider-email-resend": "^1.0.4",
+    "stripe": "^19.1.0",
     "styled-components": "^6.0.0"
   },
   "devDependencies": {

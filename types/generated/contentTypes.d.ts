@@ -388,9 +388,11 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    authorizedAt: Schema.Attribute.DateTime;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    currency: Schema.Attribute.String & Schema.Attribute.DefaultTo<'usd'>;
     day: Schema.Attribute.Date;
     description: Schema.Attribute.Text;
     email: Schema.Attribute.Email;
@@ -406,6 +408,10 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    paymentStatus: Schema.Attribute.Enumeration<
+      ['unpaid', 'authorized', 'paid', 'cancelled', 'failed']
+    > &
+      Schema.Attribute.DefaultTo<'unpaid'>;
     phone: Schema.Attribute.String;
     placement: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
@@ -420,6 +426,8 @@ export interface ApiBookingBooking extends Struct.CollectionTypeSchema {
     rejectNote: Schema.Attribute.Text;
     size: Schema.Attribute.String;
     start: Schema.Attribute.Time;
+    stripeCheckoutSessionId: Schema.Attribute.String;
+    stripePaymentIntentId: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -681,6 +689,39 @@ export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     tags: Schema.Attribute.Component<'tag.portfolio', true>;
     title: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiSettingSetting extends Struct.SingleTypeSchema {
+  collectionName: 'settings';
+  info: {
+    displayName: 'Settings';
+    pluralName: 'settings';
+    singularName: 'setting';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    frontendUrl: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::setting.setting'
+    > &
+      Schema.Attribute.Private;
+    platformFeePercent: Schema.Attribute.Integer;
+    publishedAt: Schema.Attribute.DateTime;
+    stripeCancelUrl: Schema.Attribute.String;
+    stripeSecretKey: Schema.Attribute.String;
+    stripeSuccessUrl: Schema.Attribute.String;
+    stripeWebhookSecret: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1228,6 +1269,14 @@ export interface PluginUsersPermissionsUser
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    depositAmount: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<10000>;
     description: Schema.Attribute.Text;
     device_tokens: Schema.Attribute.Relation<
       'oneToMany',
@@ -1260,6 +1309,8 @@ export interface PluginUsersPermissionsUser
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
+    payoutsEnabled: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
     phone: Schema.Attribute.String;
     pictures: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
@@ -1273,6 +1324,7 @@ export interface PluginUsersPermissionsUser
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    stripeAccountID: Schema.Attribute.String;
     type: Schema.Attribute.Enumeration<['shop', 'artist', 'guest']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'guest'>;
@@ -1306,6 +1358,7 @@ declare module '@strapi/strapi' {
       'api::notify.notify': ApiNotifyNotify;
       'api::opening-hour.opening-hour': ApiOpeningHourOpeningHour;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
+      'api::setting.setting': ApiSettingSetting;
       'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

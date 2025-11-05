@@ -18,7 +18,12 @@ export default [
   'strapi::cors',
   'strapi::poweredBy',
   'strapi::query',
-  'strapi::body',
+  {
+    name: 'strapi::body',
+    config: {
+      includeUnparsed: true, // Enable access to raw body for webhook signature verification
+    },
+  },
   'strapi::session',
   'strapi::favicon',
   'strapi::public',

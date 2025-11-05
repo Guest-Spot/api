@@ -164,6 +164,29 @@
       "relation": "oneToMany",
       "target": "api::device-token.device-token",
       "mappedBy": "user"
+    },
+    "stripeAccountID": {
+      "type": "string"
+    },
+    "payoutsEnabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "depositAmount": {
+      "type": "integer",
+      "conditions": {
+        "visible": {
+          "==": [
+            {
+              "var": "payoutsEnabled"
+            },
+            true
+          ]
+        }
+      },
+      "required": false,
+      "default": 10000,
+      "min": 0
     }
   }
 }
