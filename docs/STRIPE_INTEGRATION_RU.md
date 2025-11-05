@@ -98,6 +98,7 @@
 - `payment_intent.succeeded` - успешное списание
 - `payment_intent.payment_failed` - ошибка платежа
 - `payment_intent.canceled` - отмена платежа
+- `account.updated` - обновление статуса payoutsEnabled артиста при обновлении Stripe Connect аккаунта
 
 **Защита:**
 - Верификация подписи Stripe (webhook signature)

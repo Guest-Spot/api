@@ -87,6 +87,7 @@ If the artist doesn't respond within 7 days:
 - `payment_intent.succeeded` - Mark as paid, send notifications
 - `payment_intent.payment_failed` - Mark as failed, notify guest
 - `payment_intent.canceled` - Mark as cancelled, notify guest
+- `account.updated` - Update artist's payoutsEnabled status when Stripe Connect account is updated
 
 ## Database Schema
 
