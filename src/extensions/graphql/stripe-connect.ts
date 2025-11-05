@@ -310,7 +310,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
           };
         } catch (error) {
           strapi.log.error('Error creating dashboard URL:', error);
-          throw new Error('Failed to create dashboard URL');
+          throw new Error(error);
         }
       },
     },
