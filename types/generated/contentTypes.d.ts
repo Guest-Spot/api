@@ -719,6 +719,7 @@ export interface ApiSettingSetting extends Struct.SingleTypeSchema {
     platformFeePercent: Schema.Attribute.Integer;
     publishedAt: Schema.Attribute.DateTime;
     stripeCancelUrl: Schema.Attribute.String;
+    stripeEnabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     stripeSecretKey: Schema.Attribute.String;
     stripeSuccessUrl: Schema.Attribute.String;
     stripeWebhookSecret: Schema.Attribute.String;
