@@ -102,6 +102,20 @@ export const getPlatformFeePercent = async (): Promise<number> => {
 };
 
 /**
+ * Check if Stripe is enabled in Settings (singleType)
+ */
+export const isStripeEnabled = async (): Promise<boolean> => {
+  try {
+    // Fetch setting from database
+    const setting = await strapi.query('api::setting.setting').findOne({});
+    return setting?.stripeEnabled === true;
+  } catch (error) {
+    strapi.log.error('Error checking Stripe enabled status:', error);
+    return false;
+  }
+};
+
+/**
  * Get default currency from environment variable
  */
 export const getDefaultCurrency = (): string => {

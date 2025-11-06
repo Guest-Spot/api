@@ -5,6 +5,7 @@
 import { factories } from '@strapi/strapi';
 import { BookingWithRelations } from '../types/booking-populated';
 import { PaymentStatus } from '../../../interfaces/enums';
+import { isStripeEnabled } from '../../../utils/stripe';
 
 export default factories.createCoreController('api::booking.booking', ({ strapi }) => ({
   /**
@@ -34,6 +35,12 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
 
       if (!userId) {
         return ctx.unauthorized('You must be logged in');
+      }
+
+      // Check if Stripe is enabled
+      const stripeEnabled = await isStripeEnabled();
+      if (!stripeEnabled) {
+        return ctx.badRequest('Stripe payments are disabled');
       }
 
       const result = await strapi.service('api::booking.booking').createPaymentSession({
