@@ -28,6 +28,10 @@
     },
     "frontendUrl": {
       "type": "string"
+    },
+    "stripeEnabled": {
+      "type": "boolean",
+      "default": false
     }
   }
 }
