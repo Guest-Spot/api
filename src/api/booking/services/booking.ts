@@ -9,6 +9,7 @@ import {
   getDefaultCurrency,
   getPlatformFeePercent,
   STRIPE_FEE_PERCENT,
+  isStripeEnabled,
 } from '../../../utils/stripe';
 import { PaymentStatus, BookingReaction, NotifyType } from '../../../interfaces/enums';
 import { createNotification } from '../../../utils/notification';
@@ -32,6 +33,12 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
     customerEmail?: string;
   }): Promise<{ sessionId: string; sessionUrl: string; booking: any }> {
     const { documentId, userId, userDocumentId, customerEmail } = params;
+
+    // Check if Stripe is enabled
+    const stripeEnabled = await isStripeEnabled();
+    if (!stripeEnabled) {
+      throw new Error('Stripe payments are disabled');
+    }
 
     // Fetch booking with relations
     const booking = await strapi.documents('api::booking.booking').findOne({
@@ -135,6 +142,13 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
     if (!newReaction || newReaction === previousReaction) return;
     if (paymentStatus !== PaymentStatus.AUTHORIZED) return;
     if (!stripePaymentIntentId) return;
+
+    // Check if Stripe is enabled
+    const stripeEnabled = await isStripeEnabled();
+    if (!stripeEnabled) {
+      strapi.log.warn(`Stripe is disabled, skipping payment handling for booking ${documentId}`);
+      return;
+    }
 
     try {
       if (newReaction === BookingReaction.ACCEPTED) {

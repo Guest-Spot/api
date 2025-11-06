@@ -2,7 +2,7 @@
  * Stripe webhook controller
  */
 
-import { verifyWebhookSignature, isAccountOnboarded, getStripeWebhookSecret } from '../../../utils/stripe';
+import { verifyWebhookSignature, isAccountOnboarded, getStripeWebhookSecret, isStripeEnabled } from '../../../utils/stripe';
 import { sendPaymentSuccessEmail } from '../../../utils/email/payment-success';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
 import Stripe from 'stripe';
@@ -15,6 +15,13 @@ export default {
    * POST /api/webhooks/stripe
    */
   async handleStripeWebhook(ctx) {
+    // Check if Stripe is enabled
+    const stripeEnabled = await isStripeEnabled();
+    if (!stripeEnabled) {
+      strapi.log.warn('Stripe is disabled, ignoring webhook event');
+      return ctx.badRequest('Stripe payments are disabled');
+    }
+
     const sig = ctx.request.headers['stripe-signature'];
     const webhookSecret = await getStripeWebhookSecret();
 

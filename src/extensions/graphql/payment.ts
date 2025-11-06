@@ -2,6 +2,8 @@
  * GraphQL extension for Stripe payment operations
  */
 
+import { isStripeEnabled } from '../../utils/stripe';
+
 export const paymentExtension = ({ strapi }) => ({
   typeDefs: /* GraphQL */ `
     type PaymentSession {
@@ -29,6 +31,12 @@ export const paymentExtension = ({ strapi }) => ({
         // Check authentication
         if (!userId) {
           throw new Error('You must be logged in to create a payment');
+        }
+
+        // Check if Stripe is enabled
+        const stripeEnabled = await isStripeEnabled();
+        if (!stripeEnabled) {
+          throw new Error('Stripe payments are disabled');
         }
 
         try {

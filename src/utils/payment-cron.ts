@@ -2,7 +2,7 @@
  * Cron job for handling expired payment authorizations
  */
 
-import { cancelPaymentIntent } from './stripe';
+import { cancelPaymentIntent, isStripeEnabled } from './stripe';
 import { sendFirebaseNotificationToUser } from './push-notification';
 import { sendBookingExpiredEmail } from './email/booking-expired';
 import { PaymentStatus } from '../interfaces/enums';
@@ -13,6 +13,13 @@ import { PaymentStatus } from '../interfaces/enums';
  */
 export const cancelExpiredAuthorizations = async (strapi) => {
   try {
+    // Check if Stripe is enabled
+    const stripeEnabled = await isStripeEnabled();
+    if (!stripeEnabled) {
+      strapi.log.info('Stripe is disabled, skipping expired authorizations cron job');
+      return;
+    }
+
     strapi.log.info('Running cron job: Cancel expired payment authorizations');
 
     // Calculate date 7 days ago
