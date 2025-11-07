@@ -29,6 +29,12 @@
     "frontendUrl": {
       "type": "string"
     },
+    "stripeRestartOnboardingUrl": {
+      "type": "string"
+    },
+    "stripeSuccessOnboardingUrl": {
+      "type": "string"
+    },
     "stripeEnabled": {
       "type": "boolean",
       "default": false

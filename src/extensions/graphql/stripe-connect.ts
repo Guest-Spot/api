@@ -95,12 +95,11 @@ export const stripeConnectExtension = ({ strapi }) => ({
             strapi.log.info(`Saved Stripe account ${accountId} to user ${user.id}`);
           }
           const settings = await strapi.query('api::setting.setting').findOne({});
-          const frontendUrl = settings?.frontendUrl || process.env.FRONTEND_URL;
           // Create onboarding link
           const accountLink = await createAccountLink({
             accountId,
-            refreshUrl: `${frontendUrl}/profile?refresh=true`,
-            returnUrl: `${frontendUrl}/profile?success=true`,
+            refreshUrl: settings?.stripeRestartOnboardingUrl,
+            returnUrl: settings?.stripeSuccessOnboardingUrl,
             type: 'account_onboarding',
           });
 
@@ -135,12 +134,11 @@ export const stripeConnectExtension = ({ strapi }) => ({
 
         try {
           const settings = await strapi.query('api::setting.setting').findOne({});
-          const frontendUrl = settings?.frontendUrl || process.env.FRONTEND_URL;
 
           const accountLink = await createAccountLink({
             accountId: user.stripeAccountID,
-            refreshUrl: `${frontendUrl}/profile?refresh=true`,
-            returnUrl: `${frontendUrl}/profile?success=true`,
+            refreshUrl: settings?.stripeRestartOnboardingUrl,
+            returnUrl: settings?.stripeSuccessOnboardingUrl,
             type: 'account_onboarding',
           });
 
@@ -283,7 +281,6 @@ export const stripeConnectExtension = ({ strapi }) => ({
           const onboarded = isAccountOnboarded(account);
 
           const settings = await strapi.query('api::setting.setting').findOne({});
-          const frontendUrl = settings?.frontendUrl || process.env.FRONTEND_URL;
 
           let dashboardUrl;
 
@@ -296,8 +293,8 @@ export const stripeConnectExtension = ({ strapi }) => ({
             // For new accounts, use Account Link for simplified onboarding
             const accountLink = await createAccountLink({
               accountId,
-              refreshUrl: `${frontendUrl}/profile?refresh=true`,
-              returnUrl: `${frontendUrl}/profile?success=true`,
+              refreshUrl: settings?.stripeRestartOnboardingUrl,
+              returnUrl: settings?.stripeSuccessOnboardingUrl,
               type: 'account_onboarding',
             });
             dashboardUrl = accountLink.url;
