@@ -44,6 +44,12 @@ export const usersPermissionsExtension = () => ({
     extend input UsersPermissionsRegisterInput {
       name: String
       phone: String
+      type: String
+      description: String
+      city: String
+      address: String
+      link: String
+      experience: String
     }
 
     extend type Mutation {
