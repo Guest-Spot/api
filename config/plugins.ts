@@ -50,7 +50,7 @@ export default ({ env }) => {
       enabled: true,
       config: {
         register: {
-          allowedFields: ['name', 'phone'],
+          allowedFields: ['name', 'phone', 'type', 'description', 'city', 'address', 'link', 'experience'],
         },
         jwt: {
           expiresIn: '15m',
