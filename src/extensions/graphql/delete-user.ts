@@ -297,4 +297,3 @@ export const deleteUserExtension = ({ strapi }) => ({
     },
   },
 });
-

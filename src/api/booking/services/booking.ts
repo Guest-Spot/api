@@ -20,6 +20,7 @@ import isAdmin from '../../../utils/isAdmin';
 import { formatTimeToAmPm } from '../../../utils/formatTime';
 import { parseDateOnly } from '../../../utils/date';
 import { BookingWithRelations } from '../types/booking-populated';
+import { canArtistReceivePayments } from '../../../utils/payments';
 
 export default factories.createCoreService('api::booking.booking', ({ strapi }) => ({
   /**
@@ -67,8 +68,11 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
       throw new Error('Artist does not have a Stripe account configured');
     }
 
-    if (!booking.artist?.payoutsEnabled) {
-      throw new Error('Artist has not enabled payouts yet');
+    if (!canArtistReceivePayments(booking.artist)) {
+      if (!booking.artist?.payoutsEnabled) {
+        throw new Error('Artist has not enabled payouts yet');
+      }
+      throw new Error('Artist is not verified to receive payments');
     }
 
     // Use artist-configured deposit amount for payment

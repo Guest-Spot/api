@@ -24,6 +24,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
       payoutsEnabled: Boolean!
       chargesEnabled: Boolean!
       detailsSubmitted: Boolean!
+      verified: Boolean!
     }
 
     type StripeDashboardUrl {
@@ -34,6 +35,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
     extend type UsersPermissionsMe {
       stripeAccountID: String
       payoutsEnabled: Boolean
+      verified: Boolean
     }
 
     extend type Mutation {
@@ -175,6 +177,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
             payoutsEnabled: false,
             chargesEnabled: false,
             detailsSubmitted: false,
+            verified: user?.verified === true,
           };
         }
 
@@ -202,6 +205,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
             payoutsEnabled: account.payouts_enabled || false,
             chargesEnabled: account.charges_enabled || false,
             detailsSubmitted: account.details_submitted || false,
+            verified: user.verified === true,
           };
         } catch (error) {
           strapi.log.error('Error checking account status:', error);
@@ -319,4 +323,3 @@ export const stripeConnectExtension = ({ strapi }) => ({
     'Mutation.getStripeDashboardUrl': { auth: true },
   },
 });
-

@@ -12,6 +12,7 @@ export interface UserProfile {
   email: string;
   stripeAccountID?: string;
   payoutsEnabled?: boolean;
+  verified?: boolean;
   depositAmount?: number | null;
 }
 

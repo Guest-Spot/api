@@ -621,7 +621,7 @@ mutation {
 
 ### checkStripeAccountStatus
 
-Checks the current status of artist's Stripe Connect account and updates `payoutsEnabled` field.
+Checks the current status of artist's Stripe Connect account and updates `payoutsEnabled` field. The `verified` field is controlled manually from the admin UI and is not modified by these mutations.
 
 **Signature:**
 ```graphql
@@ -636,6 +636,7 @@ mutation checkStripeAccountStatus: StripeAccountStatus!
 - `payoutsEnabled` (Boolean!) - Whether payouts are enabled
 - `chargesEnabled` (Boolean!) - Whether charges are enabled
 - `detailsSubmitted` (Boolean!) - Whether account details are submitted
+- `verified` (Boolean!) - Whether the artist is manually approved to receive payouts (must be true even after onboarding)
 
 **Example:**
 ```graphql
@@ -646,6 +647,7 @@ mutation {
     payoutsEnabled
     chargesEnabled
     detailsSubmitted
+    verified
   }
 }
 ```
@@ -654,13 +656,14 @@ mutation {
 ```json
 {
   "data": {
-    "checkStripeAccountStatus": {
-      "accountId": "acct_abc123",
-      "onboarded": true,
-      "payoutsEnabled": true,
-      "chargesEnabled": true,
-      "detailsSubmitted": true
-    }
+      "checkStripeAccountStatus": {
+        "accountId": "acct_abc123",
+        "onboarded": true,
+        "payoutsEnabled": true,
+        "chargesEnabled": true,
+        "detailsSubmitted": true,
+        "verified": true
+      }
   }
 }
 ```
