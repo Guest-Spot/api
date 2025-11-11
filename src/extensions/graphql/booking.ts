@@ -2,6 +2,8 @@
  * GraphQL extension for booking operations with custom payment handling
  */
 
+import { canArtistReceivePayments } from '../../utils/payments';
+
 export const bookingExtension = ({ strapi }) => ({
   typeDefs: /* GraphQL */ ``,
   resolvers: {
@@ -22,7 +24,7 @@ export const bookingExtension = ({ strapi }) => ({
           return created;
         }
 
-        if (!created.artist?.payoutsEnabled) {
+        if (!canArtistReceivePayments(created.artist)) {
           try {
             await strapi.service('api::booking.booking').notifyBookingCreated(created);
           } catch (error) {
@@ -94,4 +96,3 @@ export const bookingExtension = ({ strapi }) => ({
     },
   },
 });
-

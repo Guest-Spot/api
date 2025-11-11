@@ -54,6 +54,8 @@ Artists must complete Stripe Connect onboarding before receiving payments:
 5. **Stripe webhook notifies system** when onboarding complete
 6. **System updates** `payoutsEnabled: true` → artist can receive payments
 
+> The `verified` flag is manually enabled by admins before payouts are allowed, even if the artist has completed Stripe onboarding.
+
 See [Stripe Connect Onboarding Guide](./docs/STRIPE_CONNECT_ONBOARDING.md) for details.
 
 ### Payment Flow

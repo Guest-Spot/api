@@ -172,6 +172,10 @@
       "type": "boolean",
       "default": false
     },
+    "verified": {
+      "type": "boolean",
+      "default": false
+    },
     "depositAmount": {
       "type": "integer",
       "conditions": {

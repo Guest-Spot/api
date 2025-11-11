@@ -267,6 +267,7 @@ export const deleteUserExtension = ({ strapi }) => ({
             data: {
               stripeAccountID: null,
               payoutsEnabled: false,
+              verified: false,
             },
           });
           strapi.log.info(`Cleared Stripe data for user ${userId}`);
@@ -297,4 +298,3 @@ export const deleteUserExtension = ({ strapi }) => ({
     },
   },
 });
-

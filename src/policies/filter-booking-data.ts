@@ -4,6 +4,8 @@
  * This is a specialized version for entities with relation fields
  */
 
+import { canArtistReceivePayments } from '../utils/payments';
+
 export default async (policyContext) => {
   const { state, args } = policyContext;
 
@@ -11,7 +13,7 @@ export default async (policyContext) => {
 
   const user = await strapi.query('plugin::users-permissions.user').findOne({
     where: { documentId: state.user.documentId },
-    select: ['type', 'payoutsEnabled', 'documentId']
+    select: ['type', 'payoutsEnabled', 'verified', 'documentId']
   });
 
   if (!user) return false;
@@ -37,7 +39,7 @@ export default async (policyContext) => {
     ],
   };
 
-  if (user.type === 'artist' && user.payoutsEnabled === true) {
+  if (user.type === 'artist' && canArtistReceivePayments(user)) {
     // Exclude bookings with reaction = pending AND paymentStatus = unpaid
     args.filters = {
       ...baseFilters,
@@ -59,10 +61,9 @@ export default async (policyContext) => {
       ]
     };
   } else {
-    // For other users or artists with payoutsEnabled = false, use base filters only
+    // For users who cannot receive payments, use base filters only
     args.filters = baseFilters;
   }
   
   return true;
 };
-

@@ -4,7 +4,7 @@
 
 import { factories } from '@strapi/strapi';
 import { BookingWithRelations } from '../types/booking-populated';
-import { PaymentStatus } from '../../../interfaces/enums';
+import { canArtistReceivePayments } from '../../../utils/payments';
 import { isStripeEnabled } from '../../../utils/stripe';
 
 export default factories.createCoreController('api::booking.booking', ({ strapi }) => ({
@@ -14,7 +14,7 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
   async create(ctx) {
     const response = await super.create(ctx);
 
-    if (!response.artist?.payoutsEnabled) {
+    if (!canArtistReceivePayments(response.artist)) {
       try {
         await strapi.service('api::booking.booking').notifyBookingCreated(response);
       } catch (error) {
