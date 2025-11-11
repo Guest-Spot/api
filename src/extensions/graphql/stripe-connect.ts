@@ -91,7 +91,6 @@ export const stripeConnectExtension = ({ strapi }) => ({
               data: {
                 stripeAccountID: accountId,
                 payoutsEnabled: false,
-                verified: false,
               },
             });
 
@@ -275,7 +274,6 @@ export const stripeConnectExtension = ({ strapi }) => ({
               data: {
                 stripeAccountID: accountId,
                 payoutsEnabled: false,
-                verified: false,
               },
             });
 

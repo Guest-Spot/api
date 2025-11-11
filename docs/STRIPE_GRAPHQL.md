@@ -621,7 +621,7 @@ mutation {
 
 ### checkStripeAccountStatus
 
-Checks the current status of artist's Stripe Connect account and updates `payoutsEnabled` field.
+Checks the current status of artist's Stripe Connect account and updates `payoutsEnabled` field. The `verified` field is controlled manually from the admin UI and is not modified by these mutations.
 
 **Signature:**
 ```graphql
