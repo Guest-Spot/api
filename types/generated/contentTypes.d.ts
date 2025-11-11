@@ -681,7 +681,10 @@ export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
       'api::portfolio.portfolio'
     > &
       Schema.Attribute.Private;
-    ownerDocumentId: Schema.Attribute.UID & Schema.Attribute.Required;
+    owner: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
     pictures: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true
@@ -1318,6 +1321,10 @@ export interface PluginUsersPermissionsUser
     pictures: Schema.Attribute.Media<
       'images' | 'files' | 'videos' | 'audios',
       true
+    >;
+    portfolios: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::portfolio.portfolio'
     >;
     provider: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
