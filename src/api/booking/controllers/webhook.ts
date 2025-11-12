@@ -2,7 +2,7 @@
  * Stripe webhook controller
  */
 
-import { verifyWebhookSignature, isAccountOnboarded, getStripeWebhookSecret, isStripeEnabled } from '../../../utils/stripe';
+import { verifyWebhookSignature, isAccountOnboarded, isStripeEnabled } from '../../../utils/stripe';
 import { sendPaymentSuccessEmail } from '../../../utils/email/payment-success';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
 import Stripe from 'stripe';
@@ -23,7 +23,7 @@ export default {
     }
 
     const sig = ctx.request.headers['stripe-signature'];
-    const webhookSecret = await getStripeWebhookSecret();
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 
     strapi.log.debug('Webhook request received');
 
