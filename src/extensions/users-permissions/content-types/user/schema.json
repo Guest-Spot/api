@@ -191,6 +191,12 @@
       "required": false,
       "default": 10000,
       "min": 0
+    },
+    "portfolios": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::portfolio.portfolio",
+      "mappedBy": "owner"
     }
   }
 }

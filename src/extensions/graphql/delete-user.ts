@@ -149,11 +149,11 @@ export const deleteUserExtension = ({ strapi }) => ({
           strapi.log.error('Error deleting bookings:', error);
         }
 
-        // 3. Delete all portfolios with ownerDocumentId matching user's documentId
+        // 3. Delete all portfolios with owner documentId matching user's documentId
         try {
           const portfolios = await strapi.db.query('api::portfolio.portfolio').findMany({
             where: {
-              ownerDocumentId: userDocumentId,
+              owner: { documentId: userDocumentId },
             },
           });
 

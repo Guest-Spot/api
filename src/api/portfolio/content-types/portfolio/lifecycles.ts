@@ -11,9 +11,9 @@ export default {
     const { data } = event.params;
     const { user } = event.state || {};
 
-    if (user && user.documentId || isAdmin()) {
+    if (user && user?.documentId && !isAdmin()) {
       // Automatically set the owner to the current user
-      data.ownerDocumentId = user.documentId;
+      data.owner = user.documentId;
     }
   },
 
@@ -22,8 +22,8 @@ export default {
     const { data } = event.params;
     
     // Only prevent changing the owner if request is NOT from admin panel
-    if (!isAdmin() && data.ownerDocumentId) {
-      delete data.ownerDocumentId;
+    if (!isAdmin() && data.owner) {
+      delete data.owner;
     }
   }
 };
