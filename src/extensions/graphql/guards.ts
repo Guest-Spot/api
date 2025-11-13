@@ -77,13 +77,7 @@ export const grapqlGuards = () => ({
       policies: []
     },
     'Mutation.updatePortfolio': { 
-      policies: [{
-        name: 'global::is-owner',
-        config: {
-          ownerField: ['documentId'],
-          serviceName: 'api::portfolio.portfolio'
-        }
-      }]
+      policies: []
     },
     'Mutation.deletePortfolio': { 
       policies: [{
