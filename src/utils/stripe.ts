@@ -6,56 +6,12 @@ export const STRIPE_FEE_PERCENT = 2.9;
 let stripeClient: Stripe | null = null;
 
 /**
- * Get Stripe secret key from Settings (singleType)
- */
-export const getStripeSecretKey = async (): Promise<string> => {
-  try {
-    // Fetch setting from database
-    const setting = await strapi.query('api::setting.setting').findOne({});
-
-    const secretKey = setting?.stripeSecretKey;
-    
-    if (!secretKey || typeof secretKey !== 'string' || secretKey.trim() === '') {
-      strapi.log.warn('Stripe secret key not configured in Settings, falling back to environment variable');
-      return process.env.STRIPE_SECRET_KEY || '';
-    }
-
-    return secretKey;
-  } catch (error) {
-    strapi.log.error('Error fetching Stripe secret key from Settings:', error);
-    return process.env.STRIPE_SECRET_KEY || '';
-  }
-};
-
-/**
- * Get Stripe webhook secret from Settings (singleType)
- */
-export const getStripeWebhookSecret = async (): Promise<string> => {
-  try {
-    // Fetch setting from database
-    const setting = await strapi.query('api::setting.setting').findOne({});
-
-    const webhookSecret = setting?.stripeWebhookSecret;
-    
-    if (!webhookSecret || typeof webhookSecret !== 'string' || webhookSecret.trim() === '') {
-      strapi.log.warn('Stripe webhook secret not configured in Settings, falling back to environment variable');
-      return process.env.STRIPE_WEBHOOK_SECRET || '';
-    }
-
-    return webhookSecret;
-  } catch (error) {
-    strapi.log.error('Error fetching Stripe webhook secret from Settings:', error);
-    return process.env.STRIPE_WEBHOOK_SECRET || '';
-  }
-};
-
-/**
  * Get or create Stripe client instance
  * Initializes client lazily with secret key from Settings
  */
 export const getStripeClient = async (): Promise<Stripe> => {
   if (!stripeClient) {
-    const secretKey = await getStripeSecretKey();
+    const secretKey = process.env.STRIPE_SECRET_KEY || '';
     
     if (!secretKey || secretKey.trim() === '') {
       throw new Error('Stripe secret key is not configured. Please set it in Settings or STRIPE_SECRET_KEY environment variable.');

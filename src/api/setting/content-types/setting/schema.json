@@ -14,12 +14,6 @@
     "platformFeePercent": {
       "type": "integer"
     },
-    "stripeSecretKey": {
-      "type": "string"
-    },
-    "stripeWebhookSecret": {
-      "type": "string"
-    },
     "stripeSuccessUrl": {
       "type": "string"
     },

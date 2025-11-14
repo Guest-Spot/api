@@ -724,10 +724,8 @@ export interface ApiSettingSetting extends Struct.SingleTypeSchema {
     stripeCancelUrl: Schema.Attribute.String;
     stripeEnabled: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     stripeRestartOnboardingUrl: Schema.Attribute.String;
-    stripeSecretKey: Schema.Attribute.String;
     stripeSuccessOnboardingUrl: Schema.Attribute.String;
     stripeSuccessUrl: Schema.Attribute.String;
-    stripeWebhookSecret: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
