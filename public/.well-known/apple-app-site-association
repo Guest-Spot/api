@@ -4,7 +4,7 @@
     "details": [
       {
         "appID": "M35MM7S7LV.com.guestspot.app",
-        "paths": ["/confirm/*"]
+        "paths": ["*"]
       }
     ]
   }
