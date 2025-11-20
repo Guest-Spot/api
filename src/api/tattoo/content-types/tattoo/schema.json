@@ -1,0 +1,21 @@
+{
+  "kind": "singleType",
+  "collectionName": "tattoos",
+  "info": {
+    "singularName": "tattoo",
+    "pluralName": "tattoos",
+    "displayName": "Tattoo"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "styles": {
+      "type": "dynamiczone",
+      "components": [
+        "tattoo.styles"
+      ]
+    }
+  }
+}

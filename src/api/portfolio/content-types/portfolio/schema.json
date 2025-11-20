@@ -27,16 +27,17 @@
         "audios"
       ]
     },
-    "tags": {
-      "type": "component",
-      "component": "tag.portfolio",
-      "repeatable": true
-    },
     "owner": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "portfolios"
+    },
+    "styles": {
+      "type": "dynamiczone",
+      "components": [
+        "tattoo.styles"
+      ]
     }
   }
 }

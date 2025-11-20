@@ -34,10 +34,10 @@ export interface GeoLocation extends Struct.ComponentSchema {
   };
 }
 
-export interface TagPortfolio extends Struct.ComponentSchema {
-  collectionName: 'components_tag_portfolios';
+export interface TattooStyles extends Struct.ComponentSchema {
+  collectionName: 'components_tattoo_styles';
   info: {
-    displayName: 'portfolio';
+    displayName: 'style';
   };
   attributes: {
     name: Schema.Attribute.String;
@@ -64,7 +64,7 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'contact.social-links': ContactSocialLinks;
       'geo.location': GeoLocation;
-      'tag.portfolio': TagPortfolio;
+      'tattoo.styles': TattooStyles;
       'time.opening-hour': TimeOpeningHour;
     }
   }

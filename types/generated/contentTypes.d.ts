@@ -690,7 +690,7 @@ export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
       true
     >;
     publishedAt: Schema.Attribute.DateTime;
-    tags: Schema.Attribute.Component<'tag.portfolio', true>;
+    styles: Schema.Attribute.DynamicZone<['tattoo.styles']>;
     title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -726,6 +726,34 @@ export interface ApiSettingSetting extends Struct.SingleTypeSchema {
     stripeRestartOnboardingUrl: Schema.Attribute.String;
     stripeSuccessOnboardingUrl: Schema.Attribute.String;
     stripeSuccessUrl: Schema.Attribute.String;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiTattooTattoo extends Struct.SingleTypeSchema {
+  collectionName: 'tattoos';
+  info: {
+    displayName: 'Tattoo';
+    pluralName: 'tattoos';
+    singularName: 'tattoo';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::tattoo.tattoo'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    styles: Schema.Attribute.DynamicZone<['tattoo.styles']>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1368,6 +1396,7 @@ declare module '@strapi/strapi' {
       'api::opening-hour.opening-hour': ApiOpeningHourOpeningHour;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
       'api::setting.setting': ApiSettingSetting;
+      'api::tattoo.tattoo': ApiTattooTattoo;
       'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
