@@ -13,9 +13,7 @@
   "attributes": {
     "styles": {
       "type": "dynamiczone",
-      "components": [
-        "tattoo.styles"
-      ]
+      "components": []
     }
   }
 }

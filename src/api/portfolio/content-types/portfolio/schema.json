@@ -34,10 +34,10 @@
       "inversedBy": "portfolios"
     },
     "styles": {
-      "type": "dynamiczone",
-      "components": [
-        "tattoo.styles"
-      ]
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::style.style",
+      "inversedBy": "portfolios"
     }
   }
 }

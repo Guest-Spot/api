@@ -690,7 +690,7 @@ export interface ApiPortfolioPortfolio extends Struct.CollectionTypeSchema {
       true
     >;
     publishedAt: Schema.Attribute.DateTime;
-    styles: Schema.Attribute.DynamicZone<['tattoo.styles']>;
+    styles: Schema.Attribute.Relation<'manyToMany', 'api::style.style'>;
     title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -732,6 +732,35 @@ export interface ApiSettingSetting extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiStyleStyle extends Struct.CollectionTypeSchema {
+  collectionName: 'styles';
+  info: {
+    displayName: 'Styles';
+    pluralName: 'styles';
+    singularName: 'style';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::style.style'> &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String;
+    portfolios: Schema.Attribute.Relation<
+      'manyToMany',
+      'api::portfolio.portfolio'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiTattooTattoo extends Struct.SingleTypeSchema {
   collectionName: 'tattoos';
   info: {
@@ -753,7 +782,7 @@ export interface ApiTattooTattoo extends Struct.SingleTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    styles: Schema.Attribute.DynamicZone<['tattoo.styles']>;
+    styles: Schema.Attribute.DynamicZone<[]>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1396,6 +1425,7 @@ declare module '@strapi/strapi' {
       'api::opening-hour.opening-hour': ApiOpeningHourOpeningHour;
       'api::portfolio.portfolio': ApiPortfolioPortfolio;
       'api::setting.setting': ApiSettingSetting;
+      'api::style.style': ApiStyleStyle;
       'api::tattoo.tattoo': ApiTattooTattoo;
       'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;

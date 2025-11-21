@@ -34,16 +34,6 @@ export interface GeoLocation extends Struct.ComponentSchema {
   };
 }
 
-export interface TattooStyles extends Struct.ComponentSchema {
-  collectionName: 'components_tattoo_styles';
-  info: {
-    displayName: 'style';
-  };
-  attributes: {
-    name: Schema.Attribute.String;
-  };
-}
-
 export interface TimeOpeningHour extends Struct.ComponentSchema {
   collectionName: 'components_time_opening_hours';
   info: {
@@ -64,7 +54,6 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'contact.social-links': ContactSocialLinks;
       'geo.location': GeoLocation;
-      'tattoo.styles': TattooStyles;
       'time.opening-hour': TimeOpeningHour;
     }
   }
