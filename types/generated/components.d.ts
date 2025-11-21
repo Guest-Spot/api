@@ -34,16 +34,6 @@ export interface GeoLocation extends Struct.ComponentSchema {
   };
 }
 
-export interface TagPortfolio extends Struct.ComponentSchema {
-  collectionName: 'components_tag_portfolios';
-  info: {
-    displayName: 'portfolio';
-  };
-  attributes: {
-    name: Schema.Attribute.String;
-  };
-}
-
 export interface TimeOpeningHour extends Struct.ComponentSchema {
   collectionName: 'components_time_opening_hours';
   info: {
@@ -64,7 +54,6 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'contact.social-links': ContactSocialLinks;
       'geo.location': GeoLocation;
-      'tag.portfolio': TagPortfolio;
       'time.opening-hour': TimeOpeningHour;
     }
   }

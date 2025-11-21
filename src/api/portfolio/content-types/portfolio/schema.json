@@ -27,15 +27,16 @@
         "audios"
       ]
     },
-    "tags": {
-      "type": "component",
-      "component": "tag.portfolio",
-      "repeatable": true
-    },
     "owner": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
+      "inversedBy": "portfolios"
+    },
+    "styles": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::style.style",
       "inversedBy": "portfolios"
     }
   }
