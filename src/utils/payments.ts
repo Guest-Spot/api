@@ -5,9 +5,10 @@
 export interface ArtistPaymentsState {
   payoutsEnabled?: boolean;
   verified?: boolean;
+  chargeDeposit?: boolean;
 }
 
 export const canArtistReceivePayments = (artist?: ArtistPaymentsState | null): boolean => {
   if (!artist) return false;
-  return artist.payoutsEnabled === true && artist.verified === true;
+  return artist.payoutsEnabled === true && artist.verified === true && artist.chargeDeposit === true;
 };
