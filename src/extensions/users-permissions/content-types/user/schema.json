@@ -197,6 +197,10 @@
       "relation": "oneToMany",
       "target": "api::portfolio.portfolio",
       "mappedBy": "owner"
+    },
+    "chargeDeposit": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

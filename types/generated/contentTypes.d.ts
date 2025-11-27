@@ -1319,6 +1319,7 @@ export interface PluginUsersPermissionsUser
     appleSub: Schema.Attribute.String & Schema.Attribute.Private;
     avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    chargeDeposit: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     childs: Schema.Attribute.Relation<
       'oneToMany',
       'plugin::users-permissions.user'

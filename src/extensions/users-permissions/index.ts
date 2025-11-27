@@ -23,6 +23,7 @@ export const usersPermissionsExtension = () => ({
       childs: [UsersPermissionsMe]
       device_tokens: [DeviceToken]
       depositAmount: Float
+      chargeDeposit: Boolean
     }
 
     type AuthPayload {
