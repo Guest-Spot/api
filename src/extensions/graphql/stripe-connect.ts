@@ -92,6 +92,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
                 stripeAccountID: accountId,
                 payoutsEnabled: false,
               },
+              status: 'published',
             });
 
             strapi.log.info(`Saved Stripe account ${accountId} to user ${user.id}`);
@@ -192,6 +193,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
               data: {
                 payoutsEnabled: onboarded,
               },
+              status: 'published',
             });
 
             strapi.log.info(
@@ -275,6 +277,7 @@ export const stripeConnectExtension = ({ strapi }) => ({
                 stripeAccountID: accountId,
                 payoutsEnabled: false,
               },
+              status: 'published',
             });
 
             strapi.log.info(`Auto-created Stripe account ${accountId} for user ${user.id}`);

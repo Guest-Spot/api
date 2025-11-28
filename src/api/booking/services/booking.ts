@@ -114,6 +114,7 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
         stripeCheckoutSessionId: session.id,
         currency,
       },
+      status: 'published',
     });
 
     strapi.log.info(`Payment session created for booking ${documentId}: ${session.id}`);
@@ -160,6 +161,7 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
         await strapi.documents('api::booking.booking').update({
           documentId,
           data: { paymentStatus: PaymentStatus.PAID },
+          status: 'published',
         });
         strapi.log.info(`Payment captured for booking ${documentId}`);
       } else if (newReaction === BookingReaction.REJECTED) {
@@ -167,6 +169,7 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
         await strapi.documents('api::booking.booking').update({
           documentId,
           data: { paymentStatus: PaymentStatus.CANCELLED },
+          status: 'published',
         });
         strapi.log.info(`Payment cancelled for booking ${documentId}`);
       }

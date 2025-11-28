@@ -405,6 +405,7 @@ async function handleAccountUpdated(account: Stripe.Account) {
         data: {
           payoutsEnabled: onboarded,
         },
+        status: 'published',
       });
 
       strapi.log.info(

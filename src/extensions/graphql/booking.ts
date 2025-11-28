@@ -57,6 +57,7 @@ export const bookingExtension = ({ strapi }) => ({
         const updatedBooking = await strapi.documents('api::booking.booking').update({
           documentId,
           data,
+          status: 'published',
         });
 
         // Delegate reaction-based payment handling to service

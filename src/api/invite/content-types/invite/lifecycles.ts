@@ -131,7 +131,8 @@ export default {
               documentId: currentInvite.sender.documentId,
               data: {
                 childs: currentArtists
-              }
+              },
+              status: 'published',
             });
           }
         } else if (data.reaction === InviteReaction.PENDING || data.reaction === InviteReaction.REJECTED) {
@@ -144,7 +145,8 @@ export default {
               documentId: currentInvite.sender.documentId,
               data: {
                 childs: updatedArtists
-              }
+              },
+              status: 'published',
             });
           }
         }

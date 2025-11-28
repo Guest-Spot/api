@@ -268,6 +268,7 @@ export const deleteUserExtension = ({ strapi }) => ({
               stripeAccountID: null,
               payoutsEnabled: false,
             },
+            status: 'published',
           });
           strapi.log.info(`Cleared Stripe data for user ${userId}`);
         } catch (error) {
