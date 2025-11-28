@@ -177,7 +177,7 @@ const loadServiceAccount = (): ServiceAccount | null => {
     }
   }
 
-  strapi.log.warn('[FirebaseAdmin] Firebase service account credentials are not configured.');
+  strapi.log.warn('[FirebaseAdmin] Firebase service account credentials are not configured. SERVICE_ACCOUNT_BASE64 is not set.');
 
   return null;
 };
