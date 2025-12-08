@@ -33,7 +33,8 @@
     "appleSub": {
       "type": "string",
       "configurable": false,
-      "private": true
+      "private": true,
+      "searchable": false
     },
     "password": {
       "type": "password",
