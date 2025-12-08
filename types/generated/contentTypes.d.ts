@@ -1345,7 +1345,6 @@ export interface PluginUsersPermissionsUser
       'api::device-token.device-token'
     >;
     email: Schema.Attribute.Email &
-      Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;
