@@ -163,7 +163,8 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::device-token.device-token",
-      "mappedBy": "user"
+      "mappedBy": "user",
+      "private": true
     },
     "stripeAccountID": {
       "type": "string"
