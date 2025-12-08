@@ -33,7 +33,7 @@ export default {
           username: data.email,
           password: data.tempPassword,
           provider: 'local',
-          confirmed: true,
+          confirmed: false,
           role: authenticatedRole.id,
         });
         await strapi.documents('api::membership-request.membership-request').delete({
