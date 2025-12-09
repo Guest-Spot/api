@@ -33,17 +33,24 @@ export default {
         });
 
         if (user) {
-          throw new Error('User already exists');
+          await strapi.entityService.update('plugin::users-permissions.user', user.id, {
+            data: {
+              password: data.tempPassword,
+              provider: 'local',
+              confirmed: true,
+              role: authenticatedRole.id,
+            },
+          });
+        } else {
+          await strapi.plugin('users-permissions').service('user').add({
+            ...data,
+            username: data.email,
+            password: data.tempPassword,
+            provider: 'local',
+            confirmed: true,
+            role: authenticatedRole.id,
+          });
         }
-
-        await strapi.plugin('users-permissions').service('user').add({
-          ...data,
-          username: data.email,
-          password: data.tempPassword,
-          provider: 'local',
-          confirmed: true,
-          role: authenticatedRole.id,
-        });
         await strapi.documents('api::membership-request.membership-request').delete({
           documentId: data.documentId,
         });
