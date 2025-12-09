@@ -28,6 +28,14 @@ export default {
           throw new Error('Authenticated role not found');
         }
 
+        const user = await strapi.db.query('plugin::users-permissions.user').findOne({
+          where: { email: data.email },
+        });
+
+        if (user) {
+          throw new Error('User already exists');
+        }
+
         await strapi.plugin('users-permissions').service('user').add({
           ...data,
           username: data.email,
