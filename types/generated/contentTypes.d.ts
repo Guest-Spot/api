@@ -1343,9 +1343,9 @@ export interface PluginUsersPermissionsUser
     device_tokens: Schema.Attribute.Relation<
       'oneToMany',
       'api::device-token.device-token'
-    >;
+    > &
+      Schema.Attribute.Private;
     email: Schema.Attribute.Email &
-      Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
         minLength: 6;
       }>;

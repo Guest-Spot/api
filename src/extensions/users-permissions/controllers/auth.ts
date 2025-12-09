@@ -112,7 +112,8 @@ export const authLogic = {
       throw new Error('Invalid identifier or password');
     }
 
-    if (user.confirmed !== true) {
+    // Only check email confirmation if user has an email
+    if (user.email && user.confirmed !== true) {
       throw new Error('Your account email is not confirmed');
     }
 
@@ -373,7 +374,8 @@ export const authLogic = {
 
     const user = await getService('providers').connect(provider, oauthPayload);
 
-    if (user.confirmed !== true) {
+    // Only check email confirmation if user has an email
+    if (user.email && user.confirmed !== true) {
       throw new Error('Your account email is not confirmed');
     }
 
