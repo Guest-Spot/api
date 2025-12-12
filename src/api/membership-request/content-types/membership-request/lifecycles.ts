@@ -71,10 +71,11 @@ export default {
         });
         if (data.email) {
           await sendRequestApprovedEmail({
+            username: data.username,
             email: data.email,
             name: data.name,
             tempPassword: data.tempPassword,
-            type: data.type,
+            type: data.type || user?.type,
           });
         }
       } catch (error) {
