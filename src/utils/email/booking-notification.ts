@@ -157,6 +157,7 @@ export const sendBookingNotificationEmail = async (
 
     await strapi.plugins.email.services.email.send({
       to: payload.artistEmail,
+      from: process.env.EMAIL_FROM,
       subject,
       html,
       text,

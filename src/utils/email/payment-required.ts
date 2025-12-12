@@ -134,6 +134,7 @@ export const sendPaymentRequiredEmail = async (
 
     await strapi.plugins.email.services.email.send({
       to: payload.guestEmail,
+      from: process.env.EMAIL_FROM,
       subject,
       html,
       text,

@@ -186,6 +186,7 @@ export const sendMembershipRequestEmail = async (
 
   await strapi.plugins.email.services.email.send({
     to: process.env.EMAIL_REPLY_TO,
+    from: process.env.EMAIL_FROM,
     subject,
     html,
     text,

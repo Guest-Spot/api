@@ -55,7 +55,7 @@ const getSupportEmail = (): string =>
   process.env.SUPPORT_EMAIL ||
   process.env.EMAIL_REPLY_TO ||
   process.env.EMAIL_FROM ||
-  'support@getguestspot.com';
+  'GuestSpot Support <support@getguestspot.com>';
 
 const getTemplatePath = (): string =>
   path.join(strapi.dirs.app.root, 'src', 'utils', 'email', REQUEST_APPROVED_TEMPLATE_NAME);
@@ -144,6 +144,7 @@ export const sendRequestApprovedEmail = async (
 
   await strapi.plugins.email.services.email.send({
     to: payload.email,
+    from: process.env.EMAIL_FROM,
     subject,
     html,
     text,

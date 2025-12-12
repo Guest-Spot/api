@@ -153,6 +153,7 @@ export const sendBookingExpiredEmail = async (
 
     await strapi.plugins.email.services.email.send({
       to: payload.userEmail,
+      from: process.env.EMAIL_FROM,
       subject,
       html,
       text,
