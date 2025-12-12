@@ -47,6 +47,12 @@
         "shop",
         "artist"
       ]
+    },
+    "userId": {
+      "type": "string"
+    },
+    "username": {
+      "type": "string"
     }
   }
 }

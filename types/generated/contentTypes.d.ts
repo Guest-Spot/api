@@ -580,6 +580,8 @@ export interface ApiMembershipRequestMembershipRequest
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    userId: Schema.Attribute.String;
+    username: Schema.Attribute.String;
   };
 }
 
