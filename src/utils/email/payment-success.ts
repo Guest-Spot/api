@@ -78,7 +78,10 @@ const buildPaymentSuccessHtml = async (
 ): Promise<{ html: string; subject: string; text: string }> => {
   const template = await loadPaymentSuccessTemplate();
 
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date());
   const formattedAmount = formatAmount(payload.amount, payload.currency);
 
   const message = payload.isArtist

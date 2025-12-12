@@ -114,7 +114,10 @@ const buildBookingResponseHtml = async (
 ): Promise<{ html: string; subject: string; text: string }> => {
   const template = await loadBookingResponseTemplate();
 
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date());
   const artistName = payload.artistName || 'Artist';
   const guestName = payload.guestName || 'Guest';
   const statusInfo = getStatusInfo(payload.reaction, artistName);

@@ -97,7 +97,10 @@ const buildRequestApprovedEmail = async (
   const tempPassword = payload.tempPassword?.trim() || 'Set via support';
   const appUrl = getAppUrl();
   const supportEmail = getSupportEmail();
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date());
 
   const variables: Record<string, string> = {
     applicationTypeLabel: escapeHtml(applicationTypeLabel),
