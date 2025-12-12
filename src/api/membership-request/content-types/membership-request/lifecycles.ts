@@ -21,10 +21,17 @@ export default {
 
     const isDraft = !data.publishedAt;
 
+    const user = await strapi.db.query('plugin::users-permissions.user').findOne({
+      where: { documentId: data.userId },
+    });
+
     if (isDraft) {
       data.tempPassword = Math.random().toString(36).substring(2, 8);
       if (data.email) {
-        await sendMembershipRequestEmail(data);
+        await sendMembershipRequestEmail({
+          ...data,
+          type: data.type || user?.type,
+        });
       }
     } else {
       try {
@@ -35,10 +42,6 @@ export default {
         if (!authenticatedRole) {
           throw new Error('Authenticated role not found');
         }
-
-        const user = await strapi.db.query('plugin::users-permissions.user').findOne({
-          where: { documentId: data.userId },
-        });
 
         if (user) {
           const userData = excludeFields(data, ['documentId', 'createdBy', 'updatedBy', 'createdAt', 'updatedAt', 'publishedAt']);
