@@ -78,7 +78,10 @@ const buildPaymentRequiredHtml = async (
 ): Promise<{ html: string; subject: string; text: string }> => {
   const template = await loadPaymentRequiredTemplate();
 
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date());
   const formattedAmount = formatAmount(payload.amount, payload.currency);
 
   const variables: Record<string, string> = {
@@ -131,6 +134,7 @@ export const sendPaymentRequiredEmail = async (
 
     await strapi.plugins.email.services.email.send({
       to: payload.guestEmail,
+      from: process.env.EMAIL_FROM,
       subject,
       html,
       text,

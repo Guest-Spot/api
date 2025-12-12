@@ -88,7 +88,10 @@ const buildBookingExpiredHtml = async (
 ): Promise<{ html: string; subject: string; text: string }> => {
   const template = await loadBookingExpiredTemplate();
 
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date());
   const formattedAmount = formatAmount(payload.amount, payload.currency);
   const formattedDay = formatDateOnly(payload.day);
   const formattedStart = formatTime(payload.start);
@@ -150,6 +153,7 @@ export const sendBookingExpiredEmail = async (
 
     await strapi.plugins.email.services.email.send({
       to: payload.userEmail,
+      from: process.env.EMAIL_FROM,
       subject,
       html,
       text,

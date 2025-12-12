@@ -124,10 +124,18 @@ const buildMembershipRequestHtml = async (
   const applicationType = (payload.type ?? 'shop').toLowerCase();
   const applicationTypeLabel = getApplicationTypeLabel(applicationType);
   const submittedAt = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    timeZone: 'UTC',
+    timeZoneName: 'short',
   }).format(new Date());
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date());
 
   const variables: Record<string, string> = {
     applicationType: escapeHtml(applicationType),
@@ -178,6 +186,7 @@ export const sendMembershipRequestEmail = async (
 
   await strapi.plugins.email.services.email.send({
     to: process.env.EMAIL_REPLY_TO,
+    from: process.env.EMAIL_FROM,
     subject,
     html,
     text,

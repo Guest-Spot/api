@@ -87,10 +87,18 @@ const buildBookingNotificationHtml = async (
   const template = await loadBookingNotificationTemplate();
 
   const submittedAt = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    timeZone: 'UTC',
+    timeZoneName: 'short',
   }).format(new Date());
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date());
 
   const variables: Record<string, string> = {
     artistName: toDisplayValue(payload.artistName, 'Artist'),
@@ -149,6 +157,7 @@ export const sendBookingNotificationEmail = async (
 
     await strapi.plugins.email.services.email.send({
       to: payload.artistEmail,
+      from: process.env.EMAIL_FROM,
       subject,
       html,
       text,

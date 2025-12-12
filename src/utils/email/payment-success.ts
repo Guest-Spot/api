@@ -78,7 +78,10 @@ const buildPaymentSuccessHtml = async (
 ): Promise<{ html: string; subject: string; text: string }> => {
   const template = await loadPaymentSuccessTemplate();
 
-  const currentYear = new Date().getFullYear().toString();
+  const currentYear = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date());
   const formattedAmount = formatAmount(payload.amount, payload.currency);
 
   const message = payload.isArtist
@@ -133,6 +136,7 @@ export const sendPaymentSuccessEmail = async (
 
     await strapi.plugins.email.services.email.send({
       to: payload.userEmail,
+      from: process.env.EMAIL_FROM,
       subject,
       html,
       text,
