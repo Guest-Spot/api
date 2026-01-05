@@ -1330,6 +1330,7 @@ export interface PluginUsersPermissionsUser
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     contactName: Schema.Attribute.String;
+    country: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1353,6 +1354,7 @@ export interface PluginUsersPermissionsUser
       }>;
     experience: Schema.Attribute.Integer;
     link: Schema.Attribute.String;
+    links: Schema.Attribute.Component<'contact.social-links', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1392,6 +1394,7 @@ export interface PluginUsersPermissionsUser
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    state: Schema.Attribute.String;
     stripeAccountID: Schema.Attribute.String;
     type: Schema.Attribute.Enumeration<['shop', 'artist', 'guest']> &
       Schema.Attribute.Required &
@@ -1406,6 +1409,7 @@ export interface PluginUsersPermissionsUser
         minLength: 3;
       }>;
     verified: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    website: Schema.Attribute.String;
   };
 }
 
