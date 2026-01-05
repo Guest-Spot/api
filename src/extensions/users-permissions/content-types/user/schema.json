@@ -207,16 +207,17 @@
     "website": {
       "type": "string"
     },
-    "links": {
-      "type": "component",
-      "component": "contact.social-links",
-      "repeatable": true
-    },
     "country": {
       "type": "string"
     },
     "state": {
       "type": "string"
+    },
+    "profile": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::profile.profile",
+      "mappedBy": "user"
     }
   }
 }
