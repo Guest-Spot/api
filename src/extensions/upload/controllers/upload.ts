@@ -109,9 +109,11 @@ export default {
         if (folderEntity) {
           const fileIds = uploadedFiles.map((file: any) => file.id);
           
-          // Update each file to associate with folder and set folderPath
+          // Update each file to associate with folder and set folderPath using db.query
+          // This preserves all file data and only updates folder-related fields
           for (const fileId of fileIds) {
-            await strapi.entityService.update('plugin::upload.file', fileId, {
+            await strapi.db.query('plugin::upload.file').update({
+              where: { id: fileId },
               data: {
                 folder: folderId,
                 folderPath: folderEntity.path,
@@ -119,14 +121,16 @@ export default {
             });
           }
 
-          // Fetch updated files with folder relation
-          const updatedFiles = await Promise.all(
-            fileIds.map((fileId: number) =>
-              strapi.entityService.findOne('plugin::upload.file', fileId, {
-                populate: ['folder'],
-              })
-            )
-          );
+          // Update the folder reference in the returned files
+          const updatedFiles = uploadedFiles.map((file: any) => ({
+            ...file,
+            folder: {
+              id: folderEntity.id,
+              name: folderEntity.name,
+              path: folderEntity.path,
+            },
+            folderPath: folderEntity.path,
+          }));
 
           // Return updated files
           ctx.send({
