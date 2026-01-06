@@ -786,6 +786,7 @@ export interface ApiProfileProfile extends Struct.CollectionTypeSchema {
       'oneToOne',
       'plugin::users-permissions.user'
     >;
+    website: Schema.Attribute.String;
   };
 }
 

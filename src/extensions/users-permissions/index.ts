@@ -13,6 +13,8 @@ export const usersPermissionsExtension = () => ({
       avatar: UploadFile
       pictures: [UploadFile]
       description: String
+      country: String
+      state: String
       city: String
       address: String
       link: String
