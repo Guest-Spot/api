@@ -26,6 +26,7 @@ export const usersPermissionsExtension = () => ({
       device_tokens: [DeviceToken]
       depositAmount: Float
       chargeDeposit: Boolean
+      profile: Profile
     }
 
     type AuthPayload {
@@ -73,7 +74,14 @@ export const usersPermissionsExtension = () => ({
             'plugin::users-permissions.user',
             authUser.id,
             {
-              populate: ['avatar', 'pictures', 'openingHours', 'parent', 'childs', 'device_tokens'],
+              populate: [
+                'avatar',
+                'pictures',
+                'profile',
+                'openingHours',
+                'parent',
+                'childs',
+                'device_tokens'],
             }
           );
 
