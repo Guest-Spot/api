@@ -57,32 +57,81 @@ export default {
               const part = pathParts[i];
               const currentPath = pathParts.slice(0, i + 1).join('/');
               
+              // Check if folder exists by path before creating
               let currentFolder = await strapi.db
                 .query('plugin::upload.folder')
                 .findOne({ where: { path: currentPath } });
 
               if (!currentFolder) {
-                // Generate pathId (simplified - in production should be more robust)
-                const count = await strapi.db
+                // Folder doesn't exist, create new one
+                // Generate unique pathId by finding max value
+                // Get all folders to find max pathId (with limit for performance)
+                const allFolders = await strapi.db
                   .query('plugin::upload.folder')
-                  .count();
-                const pathId = count + 1;
+                  .findMany({ select: ['pathId'] });
+                
+                const maxPathId = allFolders.length > 0
+                  ? Math.max(...allFolders.map((f: any) => f.pathId || 0))
+                  : 0;
+                
+                let pathId = maxPathId + 1;
+                
+                // Retry logic to handle race conditions and ensure uniqueness
+                let attempts = 0;
+                const maxAttempts = 50;
+                
+                while (attempts < maxAttempts) {
+                  try {
+                    // Check if pathId already exists
+                    const existingFolderWithPathId = await strapi.db
+                      .query('plugin::upload.folder')
+                      .findOne({ where: { pathId } });
+                    
+                    if (existingFolderWithPathId) {
+                      pathId++;
+                      attempts++;
+                      continue;
+                    }
 
-                currentFolder = await strapi.db
-                  .query('plugin::upload.folder')
-                  .create({
-                    data: {
-                      name: part,
-                      path: currentPath,
-                      pathId,
-                      parent: parentId,
-                    },
-                  });
+                    currentFolder = await strapi.db
+                      .query('plugin::upload.folder')
+                      .create({
+                        data: {
+                          name: part,
+                          path: currentPath,
+                          pathId,
+                          parent: parentId,
+                        },
+                      });
+
+                    // Verify folder was created successfully
+                    if (!currentFolder) {
+                      throw new Error(`Failed to create folder: ${currentPath}`);
+                    }
+                    
+                    break; // Success, exit retry loop
+                  } catch (error: any) {
+                    // If UNIQUE constraint error, try with next pathId
+                    if (error?.message?.includes('UNIQUE constraint') || 
+                        error?.message?.includes('path_id') ||
+                        error?.message?.includes('unique constraint')) {
+                      pathId++;
+                      attempts++;
+                      if (attempts >= maxAttempts) {
+                        throw new Error(`Failed to generate unique pathId after ${maxAttempts} attempts`);
+                      }
+                    } else {
+                      throw error;
+                    }
+                  }
+                }
               }
 
+              // Use existing or newly created folder
               parentId = currentFolder.id;
             }
 
+            // Final check to ensure folder entity exists after creation
             folderEntity = await strapi.db
               .query('plugin::upload.folder')
               .findOne({ where: { path: normalizedPath } });
