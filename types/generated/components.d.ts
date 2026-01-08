@@ -13,7 +13,8 @@ export interface ContactSocialLinks extends Struct.ComponentSchema {
         'whatsapp',
         'facebook',
         'tiktok',
-        'site',
+        'youtube',
+        'vk',
         'other',
       ]
     >;

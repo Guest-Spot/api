@@ -164,8 +164,8 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::device-token.device-token",
-      "mappedBy": "user",
-      "private": true
+      "private": true,
+      "mappedBy": "user"
     },
     "stripeAccountID": {
       "type": "string"
@@ -203,6 +203,21 @@
     "chargeDeposit": {
       "type": "boolean",
       "default": false
+    },
+    "website": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "profile": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::profile.profile",
+      "mappedBy": "user"
     }
   }
 }
