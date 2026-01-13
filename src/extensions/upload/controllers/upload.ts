@@ -209,5 +209,141 @@ export default {
       return ctx.badRequest(errorMessage);
     }
   },
+
+  /**
+   * Create folder and return its ID
+   * Supports nested folder creation
+   */
+  async createFolder(ctx: any) {
+    const { path: folderPath, name } = ctx.request.body || {};
+
+    if (!folderPath && !name) {
+      return ctx.badRequest('Folder path or name is required');
+    }
+
+    try {
+      const pathToUse = folderPath || name;
+      
+      // Normalize path
+      const normalizedPath = pathToUse.startsWith('/')
+        ? pathToUse.slice(1)
+        : pathToUse;
+
+      // Check if folder already exists
+      let folderEntity = await strapi.db
+        .query('plugin::upload.folder')
+        .findOne({ where: { path: normalizedPath } });
+
+      if (folderEntity) {
+        // Folder already exists, return its ID
+        return ctx.send({
+          data: {
+            id: folderEntity.id,
+            name: folderEntity.name,
+            path: folderEntity.path,
+            pathId: folderEntity.pathId,
+          },
+        });
+      }
+
+      // Create nested folders if needed
+      const pathParts = normalizedPath.split('/').filter(Boolean);
+      let parentId: number | null = null;
+      let lastCreatedFolder: any = null;
+
+      for (let i = 0; i < pathParts.length; i++) {
+        const part = pathParts[i];
+        const currentPath = pathParts.slice(0, i + 1).join('/');
+        
+        // Check if folder exists by path before creating
+        let currentFolder = await strapi.db
+          .query('plugin::upload.folder')
+          .findOne({ where: { path: currentPath } });
+
+        if (!currentFolder) {
+          // Generate unique pathId
+          const allFolders = await strapi.db
+            .query('plugin::upload.folder')
+            .findMany({ select: ['pathId'] });
+          
+          const maxPathId = allFolders.length > 0
+            ? Math.max(...allFolders.map((f: any) => f.pathId || 0))
+            : 0;
+          
+          let pathId = maxPathId + 1;
+          
+          // Retry logic to handle race conditions
+          let attempts = 0;
+          const maxAttempts = 50;
+          
+          while (attempts < maxAttempts) {
+            try {
+              // Check if pathId already exists
+              const existingFolderWithPathId = await strapi.db
+                .query('plugin::upload.folder')
+                .findOne({ where: { pathId } });
+              
+              if (existingFolderWithPathId) {
+                pathId++;
+                attempts++;
+                continue;
+              }
+
+              currentFolder = await strapi.db
+                .query('plugin::upload.folder')
+                .create({
+                  data: {
+                    name: part,
+                    path: currentPath,
+                    pathId,
+                    parent: parentId,
+                  },
+                });
+
+              if (!currentFolder) {
+                throw new Error(`Failed to create folder: ${currentPath}`);
+              }
+              
+              break;
+            } catch (error: any) {
+              if (error?.message?.includes('UNIQUE constraint') || 
+                  error?.message?.includes('path_id') ||
+                  error?.message?.includes('unique constraint')) {
+                pathId++;
+                attempts++;
+                if (attempts >= maxAttempts) {
+                  throw new Error(`Failed to generate unique pathId after ${maxAttempts} attempts`);
+                }
+              } else {
+                throw error;
+              }
+            }
+          }
+        }
+
+        parentId = currentFolder.id;
+        lastCreatedFolder = currentFolder;
+      }
+
+      // Return the final folder
+      if (lastCreatedFolder) {
+        return ctx.send({
+          data: {
+            id: lastCreatedFolder.id,
+            name: lastCreatedFolder.name,
+            path: lastCreatedFolder.path,
+            pathId: lastCreatedFolder.pathId,
+          },
+        });
+      }
+
+      return ctx.badRequest('Failed to create folder');
+    } catch (error: any) {
+      strapi.log.error('Error creating folder:', error);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create folder';
+      return ctx.badRequest(errorMessage);
+    }
+  },
 };
 
