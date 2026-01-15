@@ -10,6 +10,7 @@ import { usersPermissionsExtension } from './extensions/users-permissions';
 
 import portfolioLifecycles from './api/portfolio/content-types/portfolio/lifecycles';
 import tripLifecycles from './api/trip/content-types/trip/lifecycles';
+import userLifecycles from './extensions/users-permissions/content-types/user/lifecycles';
 import { cancelExpiredAuthorizations } from './utils/payment-cron';
 
 export default {
@@ -39,6 +40,12 @@ export default {
     strapi.db.lifecycles.subscribe({
       models: ['api::trip.trip'],
       ...tripLifecycles,
+    });
+
+    // Register lifecycle hooks for user model
+    strapi.db.lifecycles.subscribe({
+      models: ['plugin::users-permissions.user'],
+      ...userLifecycles,
     });
 
     // Start payment authorization expiration cron job

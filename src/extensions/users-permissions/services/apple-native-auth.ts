@@ -331,6 +331,27 @@ export const ensureAppleUser = async (
     user = await strapi.entityService.create('plugin::users-permissions.user', {
       data: newUserData as any,
     });
+
+    // Ensure profile exists for the new user
+    try {
+      const existingProfile = await strapi.db.query('api::profile.profile').findOne({
+        where: { user: { id: user.id } },
+      });
+
+      if (!existingProfile) {
+        await strapi.entityService.create('api::profile.profile', {
+          data: {
+            user: user.id,
+          },
+        });
+      }
+    } catch (error) {
+      strapi.log?.error?.(
+        `Failed to create profile for Apple user ${user.id}:`,
+        error
+      );
+      // Don't throw - profile creation failure shouldn't break user creation
+    }
   }
 
   return {
