@@ -1,4 +1,5 @@
 import authController from './controllers/auth';
+import userController from './controllers/user';
 import authRoutes from './routes/content-api/auth';
 
 type ContentApiRoute = {
@@ -10,6 +11,7 @@ type ContentApiRoute = {
 
 export default (plugin: any) => {
   const originalAuthController = plugin.controllers.auth;
+  const originalUserController = plugin.controllers.user;
 
   plugin.controllers.auth = (...args: any[]) => {
     const resolvedOriginal =
@@ -19,6 +21,21 @@ export default (plugin: any) => {
 
     const resolvedCustom =
       typeof authController === 'function' ? authController(...args) : authController;
+
+    return {
+      ...resolvedOriginal,
+      ...resolvedCustom,
+    };
+  };
+
+  plugin.controllers.user = (...args: any[]) => {
+    const resolvedOriginal =
+      typeof originalUserController === 'function'
+        ? originalUserController(...args)
+        : originalUserController;
+
+    const resolvedCustom =
+      typeof userController === 'function' ? userController(resolvedOriginal) : userController;
 
     return {
       ...resolvedOriginal,
