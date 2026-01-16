@@ -26,10 +26,10 @@
       "type": "string"
     },
     "lat": {
-      "type": "decimal"
+      "type": "float"
     },
     "lng": {
-      "type": "decimal"
+      "type": "float"
     }
   }
 }
