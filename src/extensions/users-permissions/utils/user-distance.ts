@@ -52,7 +52,8 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
 
   // Strapi 5 uses a separate join table for oneToOne relations
   // profiles_user_lnk: { id, profile_id, user_id }
-  // Use DISTINCT to prevent duplicates when join table has multiple entries
+  // Note: LEFT JOIN may return duplicates if link table has multiple entries,
+  // but reorderUsers handles deduplication in JavaScript
   const rows = await strapi.db
     .connection('up_users as users')
     .leftJoin('profiles_user_lnk as lnk', 'lnk.user_id', 'users.id')
@@ -72,7 +73,6 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
       `,
       [lat, lng, lat]
     )
-    .distinct('users.id')
     .select('users.id');
 
   return rows.map((row: { id: number }) => row.id);
