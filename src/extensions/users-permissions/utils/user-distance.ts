@@ -52,12 +52,18 @@ export const getCurrentUserCoordinates = async (ctx: any): Promise<Coordinates |
   return { lat, lng };
 };
 
-export const orderUserIdsByDistance = async (userIds: number[], coords: Coordinates) => {
+export const orderUserIdsByDistance = async (
+  userIds: number[],
+  coords: Coordinates,
+  direction: 'asc' | 'desc' = 'asc'
+) => {
   if (!userIds.length) {
     return [];
   }
 
   const { lat, lng } = coords;
+  const orderDirection = direction === 'desc' ? 'DESC' : 'ASC';
+  const nullsPlacement = direction === 'desc' ? 'NULLS FIRST' : 'NULLS LAST';
 
   // Strapi 5 uses a separate join table for oneToOne relations
   // profiles_user_lnk: { id, profile_id, user_id }
@@ -83,7 +89,7 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
               )
             )
           )
-        END ASC NULLS LAST
+        END ${orderDirection} ${nullsPlacement}
       `,
       [lat, lng, lat]
     )

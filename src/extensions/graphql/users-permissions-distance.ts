@@ -12,6 +12,8 @@ type PaginationArgs = {
   limit?: number;
 };
 
+type DistanceSortDirection = 'asc' | 'desc';
+
 const resolvePagination = (pagination?: PaginationArgs) => {
   if (!pagination) {
     return { page: 1, pageSize: 10, start: 0, limit: 10 };
@@ -59,16 +61,23 @@ const buildPaginationMeta = (page: number, pageSize: number, total: number) => {
   };
 };
 
-const fetchUsers = async (args: any) => {
+const normalizeDistanceDirection = (value: unknown): DistanceSortDirection | null => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  return normalized === 'asc' || normalized === 'desc' ? normalized : null;
+};
+
+const fetchUsers = async (args: any, distanceSort?: DistanceSortDirection | null) => {
   const pagination = resolvePagination(args?.pagination);
   const rawFilters = args?.filters ?? {};
   const filters = transformFilters(rawFilters);
-  const sort = args?.sort ?? undefined;
 
   const [users, total] = await Promise.all([
     strapi.entityService.findMany('plugin::users-permissions.user', {
       filters,
-      sort,
+      sort: args?.sort,
       start: pagination.start,
       limit: pagination.limit,
     }),
@@ -78,11 +87,20 @@ const fetchUsers = async (args: any) => {
   return {
     users: Array.isArray(users) ? users : [],
     pagination: buildPaginationMeta(pagination.page, pagination.pageSize, total),
+    distanceSortDirection: distanceSort ?? null,
   };
 };
 
-const applyDistanceSort = async (ctx: any, users: any[]) => {
+const applyDistanceSort = async (
+  ctx: any,
+  users: any[],
+  direction: DistanceSortDirection | null
+) => {
   if (!users.length) {
+    return users;
+  }
+
+  if (!direction) {
     return users;
   }
 
@@ -94,7 +112,7 @@ const applyDistanceSort = async (ctx: any, users: any[]) => {
 
   try {
     const userIds = users.map((user: { id: number }) => user.id);
-    const orderedIds = await orderUserIdsByDistance(userIds, coords);
+    const orderedIds = await orderUserIdsByDistance(userIds, coords, direction);
     const orderedUsers = reorderUsers(users, orderedIds);
     
     strapi.log?.debug?.(
@@ -109,13 +127,30 @@ const applyDistanceSort = async (ctx: any, users: any[]) => {
 };
 
 export const usersPermissionsDistanceExtension = () => ({
-  typeDefs: /* GraphQL */ ``,
+  typeDefs: /* GraphQL */ `
+    extend type Query {
+      usersPermissionsUsers(
+        filters: UsersPermissionsUserFiltersInput
+        pagination: PaginationArg
+        sort: [String]
+        distanceSort: String
+      ): [UsersPermissionsUser]
+      
+      usersPermissionsUsers_connection(
+        filters: UsersPermissionsUserFiltersInput
+        pagination: PaginationArg
+        sort: [String]
+        distanceSort: String
+      ): UsersPermissionsUserEntityResponseCollection
+    }
+  `,
   resolvers: {
     Query: {
       usersPermissionsUsers: {
         resolve: async (parent: unknown, args: any, context: any) => {
-          const { users } = await fetchUsers(args);
-          const orderedUsers = await applyDistanceSort(context, users);
+          const distanceSort = normalizeDistanceDirection(args?.distanceSort);
+          const { users, distanceSortDirection } = await fetchUsers(args, distanceSort);
+          const orderedUsers = await applyDistanceSort(context, users, distanceSortDirection);
 
           // Strapi 5 GraphQL expects an array directly for this query
           return Array.isArray(orderedUsers) ? orderedUsers : [];
@@ -123,8 +158,9 @@ export const usersPermissionsDistanceExtension = () => ({
       },
       usersPermissionsUsers_connection: {
         resolve: async (parent: unknown, args: any, context: any) => {
-          const { users } = await fetchUsers(args);
-          const orderedUsers = await applyDistanceSort(context, users);
+          const distanceSort = normalizeDistanceDirection(args?.distanceSort);
+          const { users, distanceSortDirection } = await fetchUsers(args, distanceSort);
+          const orderedUsers = await applyDistanceSort(context, users, distanceSortDirection);
 
           // Strapi 5 GraphQL pagination resolver expects this format
           // The `info` object is used by resolvePagination to calculate pagination metadata
