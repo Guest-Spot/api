@@ -50,9 +50,12 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
 
   const { lat, lng } = coords;
 
+  // Strapi 5 uses a separate join table for oneToOne relations
+  // profiles_user_lnk: { id, profile_id, user_id }
   const rows = await strapi.db
     .connection('up_users as users')
-    .leftJoin('profiles as profiles', 'profiles.user_id', 'users.id')
+    .leftJoin('profiles_user_lnk as lnk', 'lnk.user_id', 'users.id')
+    .leftJoin('profiles as profiles', 'profiles.id', 'lnk.profile_id')
     .whereIn('users.id', userIds)
     .orderByRaw(
       `

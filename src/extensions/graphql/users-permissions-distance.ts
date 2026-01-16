@@ -105,25 +105,30 @@ export const usersPermissionsDistanceExtension = () => ({
   typeDefs: /* GraphQL */ ``,
   resolvers: {
     Query: {
-      async usersPermissionsUsers(parent: unknown, args: any, context: any) {
-        const { users, pagination } = await fetchUsers(args);
-        const orderedUsers = await applyDistanceSort(context, users);
+      usersPermissionsUsers: {
+        resolve: async (parent: unknown, args: any, context: any) => {
+          const { users } = await fetchUsers(args);
+          const orderedUsers = await applyDistanceSort(context, users);
 
-        return {
-          data: orderedUsers,
-          meta: {
-            pagination,
-          },
-        };
+          // Strapi 5 GraphQL expects an array directly for this query
+          return Array.isArray(orderedUsers) ? orderedUsers : [];
+        },
       },
-      async usersPermissionsUsers_connection(parent: unknown, args: any, context: any) {
-        const { users, pagination } = await fetchUsers(args);
-        const orderedUsers = await applyDistanceSort(context, users);
+      usersPermissionsUsers_connection: {
+        resolve: async (parent: unknown, args: any, context: any) => {
+          const { users } = await fetchUsers(args);
+          const orderedUsers = await applyDistanceSort(context, users);
 
-        return {
-          nodes: orderedUsers,
-          pageInfo: pagination,
-        };
+          // Strapi 5 GraphQL pagination resolver expects this format
+          // The `info` object is used by resolvePagination to calculate pagination metadata
+          return {
+            nodes: Array.isArray(orderedUsers) ? orderedUsers : [],
+            info: {
+              args: args ?? {},
+              resourceUID: 'plugin::users-permissions.user',
+            },
+          };
+        },
       },
     },
   },
