@@ -52,6 +52,7 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
 
   // Strapi 5 uses a separate join table for oneToOne relations
   // profiles_user_lnk: { id, profile_id, user_id }
+  // Use DISTINCT to prevent duplicates when join table has multiple entries
   const rows = await strapi.db
     .connection('up_users as users')
     .leftJoin('profiles_user_lnk as lnk', 'lnk.user_id', 'users.id')
@@ -71,6 +72,7 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
       `,
       [lat, lng, lat]
     )
+    .distinct('users.id')
     .select('users.id');
 
   return rows.map((row: { id: number }) => row.id);
@@ -78,16 +80,26 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
 
 export const reorderUsers = <T extends { id: number }>(users: T[], orderedIds: number[]) => {
   const usersById = new Map(users.map((user) => [user.id, user]));
-  const ordered = orderedIds
-    .map((id) => usersById.get(id))
-    .filter((user): user is T => Boolean(user));
+  const seen = new Set<number>();
+  const ordered: T[] = [];
 
-  if (ordered.length !== users.length) {
-    const orderedSet = new Set(orderedIds);
-    for (const user of users) {
-      if (!orderedSet.has(user.id)) {
-        ordered.push(user);
-      }
+  // Add users in order, skipping duplicates
+  for (const id of orderedIds) {
+    if (seen.has(id)) {
+      continue;
+    }
+    const user = usersById.get(id);
+    if (user) {
+      ordered.push(user);
+      seen.add(id);
+    }
+  }
+
+  // Add any users that weren't in orderedIds
+  for (const user of users) {
+    if (!seen.has(user.id)) {
+      ordered.push(user);
+      seen.add(user.id);
     }
   }
 
