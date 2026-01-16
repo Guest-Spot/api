@@ -54,6 +54,8 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
   // profiles_user_lnk: { id, profile_id, user_id }
   // Note: LEFT JOIN may return duplicates if link table has multiple entries,
   // but reorderUsers handles deduplication in JavaScript
+  // Use CASE WHEN to handle NULL coordinates - users without coordinates get NULL distance
+  // Cannot use DISTINCT with ORDER BY expression in PostgreSQL, so deduplication is done in JS
   const rows = await strapi.db
     .connection('up_users as users')
     .leftJoin('profiles_user_lnk as lnk', 'lnk.user_id', 'users.id')
@@ -61,21 +63,42 @@ export const orderUserIdsByDistance = async (userIds: number[], coords: Coordina
     .whereIn('users.id', userIds)
     .orderByRaw(
       `
-        (
-          6371000 * acos(
-            LEAST(1.0,
-              cos(radians(?)) * cos(radians(profiles.lat)) *
-              cos(radians(profiles.lng) - radians(?)) +
-              sin(radians(?)) * sin(radians(profiles.lat))
+        CASE 
+          WHEN profiles.lat IS NULL OR profiles.lng IS NULL THEN NULL
+          ELSE (
+            6371000 * acos(
+              LEAST(1.0,
+                cos(radians(?)) * cos(radians(profiles.lat)) *
+                cos(radians(profiles.lng) - radians(?)) +
+                sin(radians(?)) * sin(radians(profiles.lat))
+              )
             )
           )
-        ) ASC NULLS LAST
+        END ASC NULLS LAST
       `,
       [lat, lng, lat]
     )
     .select('users.id');
 
-  return rows.map((row: { id: number }) => row.id);
+  // Deduplicate IDs while preserving order (first occurrence wins)
+  const seenIds = new Set<number>();
+  const orderedIds: number[] = [];
+  for (const row of rows) {
+    const id = row.id;
+    if (!seenIds.has(id)) {
+      orderedIds.push(id);
+      seenIds.add(id);
+    }
+  }
+  
+  // Log for debugging - check if all users are included
+  if (orderedIds.length !== userIds.length) {
+    strapi.log?.warn?.(
+      `[Distance Sort] Expected ${userIds.length} users, got ${orderedIds.length} from SQL query`
+    );
+  }
+
+  return orderedIds;
 };
 
 export const reorderUsers = <T extends { id: number }>(users: T[], orderedIds: number[]) => {

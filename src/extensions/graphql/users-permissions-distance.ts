@@ -88,15 +88,20 @@ const applyDistanceSort = async (ctx: any, users: any[]) => {
 
   const coords = await getCurrentUserCoordinates(ctx);
   if (!coords) {
+    strapi.log?.debug?.('[GraphQL Distance Sort] No coordinates for current user, skipping sort');
     return users;
   }
 
   try {
-    const orderedIds = await orderUserIdsByDistance(
-      users.map((user: { id: number }) => user.id),
-      coords
+    const userIds = users.map((user: { id: number }) => user.id);
+    const orderedIds = await orderUserIdsByDistance(userIds, coords);
+    const orderedUsers = reorderUsers(users, orderedIds);
+    
+    strapi.log?.debug?.(
+      `[GraphQL Distance Sort] Sorted ${users.length} users from coordinates (${coords.lat}, ${coords.lng})`
     );
-    return reorderUsers(users, orderedIds);
+    
+    return orderedUsers;
   } catch (error) {
     strapi.log?.error?.('[GraphQL] Failed to order users by distance:', error);
     return users;
@@ -135,7 +140,8 @@ export const usersPermissionsDistanceExtension = () => ({
     },
   },
   resolversConfig: {
-    'Query.usersPermissionsUsers': { auth: true },
-    'Query.usersPermissionsUsers_connection': { auth: true },
+    // Allow public access - distance sorting will only apply if user is authenticated with coordinates
+    'Query.usersPermissionsUsers': { auth: false },
+    'Query.usersPermissionsUsers_connection': { auth: false },
   },
 });
