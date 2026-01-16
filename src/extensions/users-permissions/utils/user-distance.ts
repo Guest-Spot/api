@@ -25,18 +25,27 @@ export const getCurrentUserCoordinates = async (ctx: any): Promise<Coordinates |
   const userId = authUser?.id;
 
   if (!userId) {
+    strapi.log?.debug?.('[Distance Sort] No user ID in context');
     return null;
   }
 
   const profile = await strapi.db.query('api::profile.profile').findOne({
-    where: { user: userId },
+    where: { user: { id: userId } },
     select: ['lat', 'lng'],
   });
+
+  if (!profile) {
+    strapi.log?.debug?.(`[Distance Sort] No profile found for user ${userId}`);
+    return null;
+  }
 
   const lat = parseCoordinate(profile?.lat);
   const lng = parseCoordinate(profile?.lng);
 
   if (lat === null || lng === null) {
+    strapi.log?.debug?.(
+      `[Distance Sort] Profile found for user ${userId}, but coordinates are missing (lat: ${profile?.lat}, lng: ${profile?.lng})`
+    );
     return null;
   }
 
