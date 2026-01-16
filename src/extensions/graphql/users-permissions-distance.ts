@@ -3,6 +3,7 @@ import {
   orderUserIdsByDistance,
   reorderUsers,
 } from '../users-permissions/utils/user-distance';
+import { transformFilters } from './utils/transform-filters';
 
 type PaginationArgs = {
   page?: number;
@@ -60,7 +61,8 @@ const buildPaginationMeta = (page: number, pageSize: number, total: number) => {
 
 const fetchUsers = async (args: any) => {
   const pagination = resolvePagination(args?.pagination);
-  const filters = args?.filters ?? {};
+  const rawFilters = args?.filters ?? {};
+  const filters = transformFilters(rawFilters);
   const sort = args?.sort ?? undefined;
 
   const [users, total] = await Promise.all([
