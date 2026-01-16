@@ -76,12 +76,12 @@ const fetchUsers = async (args: any, distanceSort?: DistanceSortDirection | null
 
   const [users, total] = await Promise.all([
     strapi.entityService.findMany('plugin::users-permissions.user', {
-      filters,
+      filters: filters,
       sort: args?.sort,
       start: pagination.start,
       limit: pagination.limit,
     }),
-    strapi.entityService.count('plugin::users-permissions.user', { filters }),
+    strapi.entityService.count('plugin::users-permissions.user', { filters: filters as any }),
   ]);
 
   return {
@@ -148,7 +148,10 @@ export const usersPermissionsDistanceExtension = () => ({
     Query: {
       usersPermissionsUsers: {
         resolve: async (parent: unknown, args: any, context: any) => {
-          const distanceSort = normalizeDistanceDirection(args?.distanceSort);
+          const hasOtherSort = !!(args?.sort && (Array.isArray(args.sort) ? args.sort.length > 0 : true));
+          // Disable distanceSort if sort is present - sort takes priority
+          const distanceSort = hasOtherSort ? null : normalizeDistanceDirection(args?.distanceSort);
+          
           const { users, distanceSortDirection } = await fetchUsers(args, distanceSort);
           const orderedUsers = await applyDistanceSort(context, users, distanceSortDirection);
 
@@ -158,7 +161,10 @@ export const usersPermissionsDistanceExtension = () => ({
       },
       usersPermissionsUsers_connection: {
         resolve: async (parent: unknown, args: any, context: any) => {
-          const distanceSort = normalizeDistanceDirection(args?.distanceSort);
+          const hasOtherSort = !!(args?.sort && (Array.isArray(args.sort) ? args.sort.length > 0 : true));
+          // Disable distanceSort if sort is present - sort takes priority
+          const distanceSort = hasOtherSort ? null : normalizeDistanceDirection(args?.distanceSort);
+          
           const { users, distanceSortDirection } = await fetchUsers(args, distanceSort);
           const orderedUsers = await applyDistanceSort(context, users, distanceSortDirection);
 
