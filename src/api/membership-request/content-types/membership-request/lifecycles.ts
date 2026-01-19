@@ -54,8 +54,29 @@ export default {
               role: authenticatedRole.id,
             }),
           });
+
+          // Ensure profile exists for the updated user
+          try {
+            const existingProfile = await strapi.db.query('api::profile.profile').findOne({
+              where: { user: { id: user.id } },
+            });
+
+            if (!existingProfile) {
+              await strapi.entityService.create('api::profile.profile', {
+                data: {
+                  user: user.id,
+                },
+              });
+            }
+          } catch (error) {
+            strapi.log?.error?.(
+              `Failed to create profile for membership request user ${user.id}:`,
+              error
+            );
+            // Don't throw - profile creation failure shouldn't break user update
+          }
         } else {
-          await strapi.plugin('users-permissions').service('user').add({
+          const newUser = await strapi.plugin('users-permissions').service('user').add({
             ...removeNullValues({
               ...data,
               username: data.username || data.email,
@@ -65,6 +86,29 @@ export default {
               role: authenticatedRole.id,
             }),
           });
+
+          // Ensure profile exists for the new user
+          if (newUser && newUser.id) {
+            try {
+              const existingProfile = await strapi.db.query('api::profile.profile').findOne({
+                where: { user: { id: newUser.id } },
+              });
+
+              if (!existingProfile) {
+                await strapi.entityService.create('api::profile.profile', {
+                  data: {
+                    user: newUser.id,
+                  },
+                });
+              }
+            } catch (error) {
+              strapi.log?.error?.(
+                `Failed to create profile for membership request user ${newUser.id}:`,
+                error
+              );
+              // Don't throw - profile creation failure shouldn't break user creation
+            }
+          }
         }
         await strapi.documents('api::membership-request.membership-request').delete({
           documentId: data.documentId,

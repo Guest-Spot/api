@@ -24,6 +24,12 @@
     },
     "website": {
       "type": "string"
+    },
+    "lat": {
+      "type": "float"
+    },
+    "lng": {
+      "type": "float"
     }
   }
 }
