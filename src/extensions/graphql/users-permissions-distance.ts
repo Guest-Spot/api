@@ -3,7 +3,6 @@ import {
   orderUserIdsByDistance,
   reorderUsers,
 } from '../users-permissions/utils/user-distance';
-import { transformFilters } from './utils/transform-filters';
 
 type PaginationArgs = {
   page?: number;
@@ -13,6 +12,13 @@ type PaginationArgs = {
 };
 
 type DistanceSortDirection = 'asc' | 'desc';
+
+type UsersQueryArgs = {
+  filters?: unknown;
+  sort?: unknown;
+  start: number;
+  limit: number;
+};
 
 const resolvePagination = (pagination?: PaginationArgs) => {
   if (!pagination) {
@@ -69,25 +75,45 @@ const normalizeDistanceDirection = (value: unknown): DistanceSortDirection | nul
   return normalized === 'asc' || normalized === 'desc' ? normalized : null;
 };
 
-const fetchUsers = async (args: any, distanceSort?: DistanceSortDirection | null) => {
+const mapGraphQLFiltersToStrapi = (filters: unknown) => {
+  const contentType = strapi.getModel('plugin::users-permissions.user');
+  const graphqlUtils = strapi.plugin('graphql').service('utils');
+  return graphqlUtils.mappers.graphQLFiltersToStrapiQuery(filters, contentType);
+};
+
+const buildQueryArgs = (args: any) => {
   const pagination = resolvePagination(args?.pagination);
-  const rawFilters = args?.filters ?? {};
-  const filters = transformFilters(rawFilters);
+  const filters = mapGraphQLFiltersToStrapi(args?.filters ?? {});
+  const queryArgs: UsersQueryArgs = {
+    filters,
+    sort: args?.sort,
+    start: pagination.start,
+    limit: pagination.limit,
+  };
+
+  return { pagination, queryArgs };
+};
+
+const fetchUsers = async (args: any, distanceSort?: DistanceSortDirection | null) => {
+  const { pagination, queryArgs } = buildQueryArgs(args);
 
   const [users, total] = await Promise.all([
     strapi.entityService.findMany('plugin::users-permissions.user', {
-      filters: filters,
-      sort: args?.sort,
-      start: pagination.start,
-      limit: pagination.limit,
+      filters: queryArgs.filters,
+      sort: queryArgs.sort,
+      start: queryArgs.start,
+      limit: queryArgs.limit,
     }),
-    strapi.entityService.count('plugin::users-permissions.user', { filters: filters as any }),
+    strapi.entityService.count('plugin::users-permissions.user', {
+      filters: queryArgs.filters as any,
+    }),
   ]);
 
   return {
     users: Array.isArray(users) ? users : [],
     pagination: buildPaginationMeta(pagination.page, pagination.pageSize, total),
     distanceSortDirection: distanceSort ?? null,
+    queryArgs,
   };
 };
 
@@ -143,6 +169,10 @@ export const usersPermissionsDistanceExtension = () => ({
         distanceSort: String
       ): UsersPermissionsUserEntityResponseCollection
     }
+    
+    extend type UsersPermissionsUserEntityResponseCollection {
+      pagination: Pagination
+    }
   `,
   resolvers: {
     Query: {
@@ -165,18 +195,36 @@ export const usersPermissionsDistanceExtension = () => ({
           // Disable distanceSort if sort is present - sort takes priority
           const distanceSort = hasOtherSort ? null : normalizeDistanceDirection(args?.distanceSort);
           
-          const { users, distanceSortDirection } = await fetchUsers(args, distanceSort);
+          const { users, pagination, distanceSortDirection, queryArgs } = await fetchUsers(args, distanceSort);
           const orderedUsers = await applyDistanceSort(context, users, distanceSortDirection);
 
-          // Strapi 5 GraphQL pagination resolver expects this format
-          // The `info` object is used by resolvePagination to calculate pagination metadata
+          // Return nodes and info with original args (GraphQL format)
+          // Keep info args in Strapi query format so pagination resolver can validate them
           return {
             nodes: Array.isArray(orderedUsers) ? orderedUsers : [],
             info: {
-              args: args ?? {},
+              args: queryArgs,
               resourceUID: 'plugin::users-permissions.user',
             },
+            // Store pre-computed pagination - we'll try to use it via a custom approach
+            _customPagination: pagination,
           };
+        },
+      },
+    },
+    UsersPermissionsUserEntityResponseCollection: {
+      pagination: {
+        resolve: (parent: any) => {
+          // Use pre-computed pagination with filtered total if available
+          if (parent._customPagination) {
+            strapi.log?.debug?.(
+              `[GraphQL Pagination] Using pre-computed pagination with total: ${parent._customPagination.total}`
+            );
+            return parent._customPagination;
+          }
+          // Fallback: return undefined to let Strapi use default behavior
+          strapi.log?.debug?.('[GraphQL Pagination] No pre-computed pagination found, using default');
+          return undefined;
         },
       },
     },
