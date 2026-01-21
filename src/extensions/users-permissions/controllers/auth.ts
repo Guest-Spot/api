@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import { errors } from '@strapi/utils';
 import grantFactory from 'grant';
-import { checkUserEmailExists } from '../../../utils/checkUserEmailExists';
+import { checkUserEmailExists, checkUserUsernameExists } from '../../../utils/checkUserEmailExists';
 import { ensureAppleUser, type AppleNativeAuthInput } from '../services/apple-native-auth';
 
 // Helper function to get users-permissions services
@@ -537,6 +537,23 @@ const customAuthController = (..._args: any[]) => ({
       ctx.send({ exists });
     } catch (error) {
       strapi.log?.error?.('Failed to check email existence via REST', error);
+      ctx.send({ exists: false });
+    }
+  },
+
+  async usernameExists(ctx) {
+    if (!ctx.query.username) {
+      return ctx.badRequest(
+        null,
+        new errors.ValidationError('Missing username')
+      );
+    }
+
+    try {
+      const exists = await checkUserUsernameExists(strapi, ctx.query.username);
+      ctx.send({ exists });
+    } catch (error) {
+      strapi.log?.error?.('Failed to check username existence via REST', error);
       ctx.send({ exists: false });
     }
   },

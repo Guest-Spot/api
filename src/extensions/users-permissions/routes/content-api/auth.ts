@@ -79,5 +79,15 @@ export default {
         policies: [],
       },
     },
+    {
+      method: 'GET',
+      path: '/auth/username-exists',
+      handler: 'auth.usernameExists',
+      config: {
+        auth: false,
+        prefix: '',
+        policies: [],
+      },
+    },
   ],
 };

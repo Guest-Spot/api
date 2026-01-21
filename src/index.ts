@@ -1,5 +1,6 @@
 import { citiesExtension } from './extensions/graphql/cities';
 import { userEmailExistsExtension } from './extensions/graphql/user-email-exists';
+import { userUsernameExistsExtension } from './extensions/graphql/user-username-exists';
 import { grapqlGuards } from './extensions/graphql/guards';
 import { paymentExtension } from './extensions/graphql/payment';
 import { stripeConnectExtension } from './extensions/graphql/stripe-connect';
@@ -20,6 +21,7 @@ export default {
     strapi.plugin('graphql').service('extension').use(grapqlGuards);
     strapi.plugin('graphql').service('extension').use(citiesExtension);
     strapi.plugin('graphql').service('extension').use(userEmailExistsExtension);
+    strapi.plugin('graphql').service('extension').use(userUsernameExistsExtension);
     strapi.plugin('graphql').service('extension').use(paymentExtension);
     strapi.plugin('graphql').service('extension').use(stripeConnectExtension);
     strapi.plugin('graphql').service('extension').use(bookingExtension);
