@@ -29,6 +29,16 @@ const myExtraRoutes = [
       middlewares: [],
     },
   },
+  {
+    method: 'GET',
+    path: '/bookings/statistics',
+    handler: 'booking.statistics',
+    config: {
+      auth: false,
+      policies: ['global::admin-auth'],
+      middlewares: [],
+    },
+  },
 ];
 
 export default customRouter(defaultRouter, myExtraRoutes);

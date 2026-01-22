@@ -6,6 +6,7 @@ import { factories } from '@strapi/strapi';
 import { BookingWithRelations } from '../types/booking-populated';
 import { canArtistReceivePayments } from '../../../utils/payments';
 import { isStripeEnabled } from '../../../utils/stripe';
+import isAdmin from '../../../utils/isAdmin';
 
 export default factories.createCoreController('api::booking.booking', ({ strapi }) => ({
   /**
@@ -64,6 +65,26 @@ export default factories.createCoreController('api::booking.booking', ({ strapi 
       }
       
       return ctx.badRequest(errorMessage);
+    }
+  },
+
+  /**
+   * Get booking statistics
+   * Accessible from admin panel or with admin permissions
+   */
+  async statistics(ctx) {
+    try {
+      // Check if request is from admin panel using isAdmin utility
+      // This works even when auth: false is set in route config
+      if (!isAdmin()) {
+        return ctx.forbidden('Admin access required');
+      }
+
+      const stats = await strapi.service('api::booking.booking').getStatistics();
+      ctx.body = { data: stats };
+    } catch (error) {
+      strapi.log.error('Error getting booking statistics:', error);
+      ctx.throw(500, error);
     }
   },
 

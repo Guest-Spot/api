@@ -264,6 +264,25 @@ export default factories.createCoreService('api::booking.booking', ({ strapi }) 
   },
 
   /**
+   * Get booking statistics by reaction status
+   */
+  async getStatistics(): Promise<{
+    total: number;
+    pending: number;
+    accepted: number;
+    rejected: number;
+  }> {
+    const [total, pending, accepted, rejected] = await Promise.all([
+      strapi.documents('api::booking.booking').count({}),
+      strapi.documents('api::booking.booking').count({ filters: { reaction: 'pending' } }),
+      strapi.documents('api::booking.booking').count({ filters: { reaction: 'accepted' } }),
+      strapi.documents('api::booking.booking').count({ filters: { reaction: 'rejected' } }),
+    ]);
+
+    return { total, pending, accepted, rejected };
+  },
+
+  /**
    * Notify artist on booking creation (when published and meaningful)
    */
   async notifyBookingCreated(booking: any): Promise<void> {
