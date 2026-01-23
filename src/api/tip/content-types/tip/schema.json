@@ -1,0 +1,59 @@
+{
+  "kind": "collectionType",
+  "collectionName": "tips",
+  "info": {
+    "singularName": "tip",
+    "pluralName": "tips",
+    "displayName": "Tip"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "artist": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "artistDocumentId": {
+      "type": "string"
+    },
+    "sessionId": {
+      "type": "string",
+      "unique": true
+    },
+    "amount": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "string",
+      "default": "usd"
+    },
+    "customerEmail": {
+      "type": "string"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "canceled"
+      ],
+      "default": "pending"
+    },
+    "paymentIntentId": {
+      "type": "string"
+    },
+    "customerId": {
+      "type": "string"
+    },
+    "completedAt": {
+      "type": "datetime"
+    },
+    "metadata": {
+      "type": "json"
+    }
+  }
+}

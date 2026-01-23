@@ -883,6 +883,47 @@ export interface ApiTattooTattoo extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiTipTip extends Struct.CollectionTypeSchema {
+  collectionName: 'tips';
+  info: {
+    displayName: 'Tip';
+    pluralName: 'tips';
+    singularName: 'tip';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    amount: Schema.Attribute.Integer;
+    artist: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    artistDocumentId: Schema.Attribute.String;
+    completedAt: Schema.Attribute.DateTime;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    currency: Schema.Attribute.String & Schema.Attribute.DefaultTo<'usd'>;
+    customerEmail: Schema.Attribute.String;
+    customerId: Schema.Attribute.String;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::tip.tip'> &
+      Schema.Attribute.Private;
+    metadata: Schema.Attribute.JSON;
+    paymentIntentId: Schema.Attribute.String;
+    publishedAt: Schema.Attribute.DateTime;
+    sessionId: Schema.Attribute.String & Schema.Attribute.Unique;
+    status: Schema.Attribute.Enumeration<
+      ['pending', 'completed', 'failed', 'canceled']
+    > &
+      Schema.Attribute.DefaultTo<'pending'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiTripTrip extends Struct.CollectionTypeSchema {
   collectionName: 'trips';
   info: {
@@ -1409,6 +1450,7 @@ export interface PluginUsersPermissionsUser
     draftAndPublish: false;
   };
   attributes: {
+    acceptTips: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     address: Schema.Attribute.String;
     appleSub: Schema.Attribute.String & Schema.Attribute.Private;
     avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
@@ -1528,6 +1570,7 @@ declare module '@strapi/strapi' {
       'api::setting.setting': ApiSettingSetting;
       'api::style.style': ApiStyleStyle;
       'api::tattoo.tattoo': ApiTattooTattoo;
+      'api::tip.tip': ApiTipTip;
       'api::trip.trip': ApiTripTrip;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
