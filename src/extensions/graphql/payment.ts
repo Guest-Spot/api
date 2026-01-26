@@ -12,8 +12,18 @@ export const paymentExtension = ({ strapi }) => ({
       booking: Booking
     }
 
+    type TipPaymentSession {
+      sessionId: String!
+      sessionUrl: String!
+    }
+
     extend type Mutation {
       createBookingPayment(documentId: ID!, customerEmail: String): PaymentSession!
+      createTipPayment(
+        artistDocumentId: ID!
+        amount: Int!
+        customerEmail: String
+      ): TipPaymentSession!
     }
   `,
   resolvers: {
@@ -54,11 +64,34 @@ export const paymentExtension = ({ strapi }) => ({
           throw new Error(errorMessage);
         }
       },
+      /**
+       * Create Stripe Checkout Session for a tip
+       */
+      async createTipPayment(parent, args) {
+        const { artistDocumentId, amount, customerEmail } = args;
+
+        try {
+          const result = await strapi.service('api::tip.tip').createTipPaymentSession({
+            artistDocumentId,
+            amount,
+            customerEmail,
+          });
+
+          return result;
+        } catch (error) {
+          strapi.log.error('Error creating tip payment session:', error);
+          const errorMessage = error instanceof Error ? error.message : 'Failed to create tip payment';
+          throw new Error(errorMessage);
+        }
+      },
     },
   },
   resolversConfig: {
     'Mutation.createBookingPayment': {
       auth: true, // Require authentication
+    },
+    'Mutation.createTipPayment': {
+      auth: false,
     },
   },
 });

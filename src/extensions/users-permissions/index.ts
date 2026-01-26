@@ -27,6 +27,7 @@ export const usersPermissionsExtension = () => ({
       depositAmount: Float
       chargeDeposit: Boolean
       profile: Profile
+      acceptTips: Boolean
     }
 
     type AuthPayload {

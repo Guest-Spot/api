@@ -26,6 +26,7 @@ export enum NotifyType {
   PAYMENT_SUCCEEDED = 'payment_succeeded',
   PAYMENT_FAILED = 'payment_failed',
   PAYMENT_CANCELLED = 'payment_cancelled',
+  TIP_RECEIVED = 'tip_received',
   STRIPE_ACCOUNT_ACTIVATED = 'stripe_account_activated',
 }
 
