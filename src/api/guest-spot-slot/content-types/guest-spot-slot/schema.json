@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "guest_spot_slots",
+  "info": {
+    "singularName": "guest-spot-slot",
+    "pluralName": "guest-spot-slots",
+    "displayName": "GuestSpotSlot",
+    "description": "Booking slot for guest artists at a tattoo shop"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "shop": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "description": "Shop (user with type=shop) that owns this slot"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "pricingOptions": {
+      "type": "component",
+      "repeatable": true,
+      "component": "guest-spot.guest-spot-pricing",
+      "required": true
+    },
+    "depositAmount": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "description": "Deposit amount in cents"
+    },
+    "spaces": {
+      "type": "integer",
+      "required": true,
+      "min": 1,
+      "default": 1
+    },
+    "openingHours": {
+      "type": "component",
+      "repeatable": true,
+      "component": "time.opening-hour",
+      "required": true
+    }
+  }
+}

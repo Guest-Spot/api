@@ -23,6 +23,11 @@ import {
   handleTipPaymentIntentFailed,
   handleTipPaymentIntentCanceled,
 } from '../../tip/services/webhook';
+import {
+  handleGuestSpotCheckoutSessionCompleted,
+  handleGuestSpotPaymentIntentSucceeded,
+  handleGuestSpotPaymentIntentCanceled,
+} from '../../guest-spot-booking/services/guest-spot-webhook';
 
 export default {
   /**
@@ -129,16 +134,17 @@ export default {
 
 /**
  * Handle checkout.session.completed event
- * Routes to booking or tip handler based on metadata
+ * Routes to booking, tip, or guest spot handler based on metadata
  */
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-  // Route tip events to tip handler
+  if (session.metadata?.type === 'guest_spot_deposit') {
+    await handleGuestSpotCheckoutSessionCompleted(session);
+    return;
+  }
   if (session.metadata?.type === 'tip' || session.metadata?.tipDocumentId) {
     await handleTipCheckoutSessionCompleted(session);
     return;
   }
-
-  // Handle booking events
   await handleBookingCheckoutSessionCompleted(session);
 }
 
@@ -147,27 +153,30 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
  * Payment is authorized (funds on hold) - only for bookings
  */
 async function handlePaymentIntentAuthorized(paymentIntent: Stripe.PaymentIntent) {
-  // Tips don't use authorization flow
   if (paymentIntent.metadata?.tipDocumentId) {
     strapi.log.debug('Ignoring payment intent authorization for tips');
     return;
   }
-
+  if (paymentIntent.metadata?.type === 'guest_spot_deposit') {
+    strapi.log.debug('Guest spot uses checkout.session.completed for authorize');
+    return;
+  }
   await handleBookingPaymentIntentAuthorized(paymentIntent);
 }
 
 /**
  * Handle payment_intent.succeeded event
- * Payment captured successfully - routes to booking or tip handler
+ * Payment captured successfully - routes to booking, tip, or guest spot handler
  */
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-  // Route tip events to tip handler
   if (paymentIntent.metadata?.tipDocumentId) {
     await handleTipPaymentIntentSucceeded(paymentIntent);
     return;
   }
-
-  // Handle booking events
+  if (paymentIntent.metadata?.type === 'guest_spot_deposit') {
+    await handleGuestSpotPaymentIntentSucceeded(paymentIntent);
+    return;
+  }
   await handleBookingPaymentIntentSucceeded(paymentIntent);
 }
 
@@ -188,16 +197,17 @@ async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
 
 /**
  * Handle payment_intent.canceled event
- * Payment cancelled - routes to booking or tip handler
+ * Payment cancelled - routes to booking, tip, or guest spot handler
  */
 async function handlePaymentIntentCanceled(paymentIntent: Stripe.PaymentIntent) {
-  // Route tip events to tip handler
   if (paymentIntent.metadata?.tipDocumentId) {
     await handleTipPaymentIntentCanceled(paymentIntent);
     return;
   }
-
-  // Handle booking events
+  if (paymentIntent.metadata?.type === 'guest_spot_deposit') {
+    await handleGuestSpotPaymentIntentCanceled(paymentIntent);
+    return;
+  }
   await handleBookingPaymentIntentCanceled(paymentIntent);
 }
 

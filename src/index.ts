@@ -9,6 +9,7 @@ import { settingExtension } from './extensions/graphql/setting';
 import { deleteUserExtension } from './extensions/graphql/delete-user';
 import { usersPermissionsDistanceExtension } from './extensions/graphql/users-permissions-distance';
 import { usersPermissionsExtension } from './extensions/users-permissions';
+import { guestSpotExtension } from './extensions/graphql/guest-spot';
 
 import portfolioLifecycles from './api/portfolio/content-types/portfolio/lifecycles';
 import tripLifecycles from './api/trip/content-types/trip/lifecycles';
@@ -28,6 +29,7 @@ export default {
     strapi.plugin('graphql').service('extension').use(settingExtension);
     strapi.plugin('graphql').service('extension').use(deleteUserExtension);
     strapi.plugin('graphql').service('extension').use(usersPermissionsDistanceExtension);
+    strapi.plugin('graphql').service('extension').use(guestSpotExtension);
     strapi.plugin('graphql').service('extension').use(usersPermissionsExtension);
   },
 

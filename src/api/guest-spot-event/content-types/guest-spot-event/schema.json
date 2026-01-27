@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "guest_spot_events",
+  "info": {
+    "singularName": "guest-spot-event",
+    "pluralName": "guest-spot-events",
+    "displayName": "GuestSpotEvent",
+    "description": "Public feed event for guest spot actions"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": ["slot_opened", "slot_updated", "booking_created", "booking_accepted", "booking_rejected"],
+      "required": true
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true
+    },
+    "shop": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "required": true
+    },
+    "artist": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "slot": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::guest-spot-slot.guest-spot-slot"
+    },
+    "booking": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::guest-spot-booking.guest-spot-booking"
+    }
+  }
+}

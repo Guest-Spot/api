@@ -556,6 +556,203 @@ export interface ApiFeedbackFeedback extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiGuestSpotBookingGuestSpotBooking
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'guest_spot_bookings';
+  info: {
+    description: 'Artist booking of a guest spot slot';
+    displayName: 'GuestSpotBooking';
+    pluralName: 'guest-spot-bookings';
+    singularName: 'guest-spot-booking';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    artist: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    comment: Schema.Attribute.Text;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    depositAmount: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    depositAuthorized: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    depositAuthorizedAt: Schema.Attribute.DateTime;
+    depositCaptured: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::guest-spot-booking.guest-spot-booking'
+    > &
+      Schema.Attribute.Private;
+    paymentIntentId: Schema.Attribute.String;
+    platformCommissionAmount: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
+    platformCommissionPaid: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<false>;
+    publishedAt: Schema.Attribute.DateTime;
+    rejectNote: Schema.Attribute.Text;
+    selectedDate: Schema.Attribute.Date & Schema.Attribute.Required;
+    selectedTime: Schema.Attribute.String;
+    shop: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    slot: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::guest-spot-slot.guest-spot-slot'
+    >;
+    status: Schema.Attribute.Enumeration<
+      ['pending', 'accepted', 'rejected', 'completed', 'cancelled']
+    > &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'pending'>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiGuestSpotEventGuestSpotEvent
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'guest_spot_events';
+  info: {
+    description: 'Public feed event for guest spot actions';
+    displayName: 'GuestSpotEvent';
+    pluralName: 'guest-spot-events';
+    singularName: 'guest-spot-event';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    artist: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    booking: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::guest-spot-booking.guest-spot-booking'
+    >;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    description: Schema.Attribute.Text & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::guest-spot-event.guest-spot-event'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    shop: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    > &
+      Schema.Attribute.Required;
+    slot: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::guest-spot-slot.guest-spot-slot'
+    >;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    type: Schema.Attribute.Enumeration<
+      [
+        'slot_opened',
+        'slot_updated',
+        'booking_created',
+        'booking_accepted',
+        'booking_rejected',
+      ]
+    > &
+      Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
+export interface ApiGuestSpotSlotGuestSpotSlot
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'guest_spot_slots';
+  info: {
+    description: 'Booking slot for guest artists at a tattoo shop';
+    displayName: 'GuestSpotSlot';
+    pluralName: 'guest-spot-slots';
+    singularName: 'guest-spot-slot';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    depositAmount: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    description: Schema.Attribute.Text & Schema.Attribute.Required;
+    enabled: Schema.Attribute.Boolean &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<true>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::guest-spot-slot.guest-spot-slot'
+    > &
+      Schema.Attribute.Private;
+    openingHours: Schema.Attribute.Component<'time.opening-hour', true> &
+      Schema.Attribute.Required;
+    pricingOptions: Schema.Attribute.Component<
+      'guest-spot.guest-spot-pricing',
+      true
+    > &
+      Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    shop: Schema.Attribute.Relation<
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    spaces: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 1;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<1>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiInviteInvite extends Struct.CollectionTypeSchema {
   collectionName: 'invites';
   info: {
@@ -1487,6 +1684,8 @@ export interface PluginUsersPermissionsUser
         minLength: 6;
       }>;
     experience: Schema.Attribute.Integer;
+    guestSpotEnabled: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
     link: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -1561,6 +1760,9 @@ declare module '@strapi/strapi' {
       'api::booking.booking': ApiBookingBooking;
       'api::device-token.device-token': ApiDeviceTokenDeviceToken;
       'api::feedback.feedback': ApiFeedbackFeedback;
+      'api::guest-spot-booking.guest-spot-booking': ApiGuestSpotBookingGuestSpotBooking;
+      'api::guest-spot-event.guest-spot-event': ApiGuestSpotEventGuestSpotEvent;
+      'api::guest-spot-slot.guest-spot-slot': ApiGuestSpotSlotGuestSpotSlot;
       'api::invite.invite': ApiInviteInvite;
       'api::membership-request.membership-request': ApiMembershipRequestMembershipRequest;
       'api::notify.notify': ApiNotifyNotify;

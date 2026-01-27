@@ -222,6 +222,10 @@
       "relation": "oneToOne",
       "target": "api::profile.profile",
       "mappedBy": "user"
+    },
+    "guestSpotEnabled": {
+      "type": "boolean",
+      "default": false
     }
   }
 }

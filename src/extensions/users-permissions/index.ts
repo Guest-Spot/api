@@ -28,6 +28,7 @@ export const usersPermissionsExtension = () => ({
       chargeDeposit: Boolean
       profile: Profile
       acceptTips: Boolean
+      guestSpotEnabled: Boolean
     }
 
     type AuthPayload {

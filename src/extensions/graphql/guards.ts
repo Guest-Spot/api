@@ -114,6 +114,17 @@ export const grapqlGuards = () => ({
     'Mutation.createStripeOnboardingUrl': {
       policies: []
     },
+    // GUEST SPOT Policies
+    'Query.guestSpotSlots': { auth: false },
+    'Query.guestSpotSlot': { auth: false },
+    'Query.guestSpotBookings': {
+      policies: [{ name: 'global::filter-guest-spot-booking-data' }]
+    },
+    'Query.guestSpotBooking': {
+      policies: [{ name: 'global::is-guest-spot-booking-participant' }]
+    },
+    'Query.guestSpotEvents': { auth: false },
+    'Query.guestSpotEvent': { auth: false },
     'Mutation.refreshStripeOnboardingUrl': {
       policies: []
     },

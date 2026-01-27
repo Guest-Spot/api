@@ -1,0 +1,82 @@
+{
+  "kind": "collectionType",
+  "collectionName": "guest_spot_bookings",
+  "info": {
+    "singularName": "guest-spot-booking",
+    "pluralName": "guest-spot-bookings",
+    "displayName": "GuestSpotBooking",
+    "description": "Artist booking of a guest spot slot"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "slot": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::guest-spot-slot.guest-spot-slot"
+    },
+    "artist": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "shop": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "accepted", "rejected", "completed", "cancelled"],
+      "default": "pending",
+      "required": true
+    },
+    "selectedDate": {
+      "type": "date",
+      "required": true
+    },
+    "selectedTime": {
+      "type": "string"
+    },
+    "comment": {
+      "type": "text"
+    },
+    "rejectNote": {
+      "type": "text"
+    },
+    "depositAmount": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "depositAuthorized": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "depositAuthorizedAt": {
+      "type": "datetime"
+    },
+    "depositCaptured": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "platformCommissionAmount": {
+      "type": "integer",
+      "required": true,
+      "min": 0,
+      "default": 0
+    },
+    "platformCommissionPaid": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "paymentIntentId": {
+      "type": "string"
+    }
+  }
+}
