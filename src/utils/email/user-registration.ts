@@ -15,6 +15,7 @@ export type UserRegistrationEmailPayload = {
   type?: string | null;
   name?: string | null;
   phone?: string | null;
+  documentId?: number | string | null;
   createdAt?: string | Date | null;
 };
 
@@ -150,7 +151,7 @@ const buildUserRegistrationEmail = async (
     name: toDisplayValue(payload.name),
     phone: toDisplayValue(payload.phone),
     createdAt: escapeHtml(createdAt),
-    reviewUrl: escapeHtml(buildReviewUrl(payload.id)),
+    reviewUrl: escapeHtml(buildReviewUrl(payload.documentId ?? payload.id)),
     currentYear: escapeHtml(currentYear),
   };
 
@@ -163,7 +164,7 @@ const buildUserRegistrationEmail = async (
     `Name: ${payload.name ?? 'Not provided'}`,
     `Phone: ${payload.phone ?? 'Not provided'}`,
     `Registered: ${createdAt}`,
-    `Review: ${buildReviewUrl(payload.id)}`,
+    `Review: ${buildReviewUrl(payload.documentId ?? payload.id)}`,
   ];
 
   return {

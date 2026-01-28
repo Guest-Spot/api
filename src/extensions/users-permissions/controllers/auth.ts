@@ -457,11 +457,18 @@ const customAuthController = (originalController: any) => ({
     const user = body?.user;
 
     // Only send email for local self-registrations (not OAuth or admin-created users)
-    if (user && user.provider === 'local') {
+    if (user && user.provider === 'local' && user.id) {
       try {
+        // Fetch user with documentId from database to ensure we have the full entity
+        const userWithDocumentId = await strapi.entityService.findOne(
+          'plugin::users-permissions.user',
+          user.id
+        ) as any;
+
         // Build payload with only required fields
         const emailPayload = {
           id: user.id,
+          documentId: userWithDocumentId?.documentId,
           email: user.email,
           type: user.type,
           name: user.name,
