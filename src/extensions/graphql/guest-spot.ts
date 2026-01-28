@@ -28,7 +28,6 @@ export const guestSpotExtension = ({ strapi }) => ({
 
     extend type Mutation {
       toggleGuestSpotEnabled(shopDocumentId: ID!, enabled: Boolean!): ToggleGuestSpotEnabledResult!
-      createGuestSpotBooking(data: GuestSpotBookingInput!): GuestSpotBookingEntityResponse!
       approveGuestSpotBooking(documentId: ID!): GuestSpotBookingEntityResponse!
       rejectGuestSpotBooking(documentId: ID!, rejectNote: String): GuestSpotBookingEntityResponse!
       createGuestSpotDeposit(bookingId: ID!, customerEmail: String): GuestSpotDepositSession!
