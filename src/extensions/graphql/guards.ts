@@ -73,6 +73,24 @@ export const grapqlGuards = () => ({
       }]
     },
     // PORTFOLIO Policies
+    'Query.portfolios': {
+      policies: [{
+        name: 'global::filter-portfolio-approved-owner',
+        config: {}
+      }]
+    },
+    'Query.portfolio': {
+      policies: [{
+        name: 'global::filter-portfolio-approved-owner',
+        config: {}
+      }]
+    },
+    'Query.portfolios_connection': {
+      policies: [{
+        name: 'global::filter-portfolio-approved-owner',
+        config: {}
+      }]
+    },
     'Mutation.createPortfolio': { 
       policies: []
     },
