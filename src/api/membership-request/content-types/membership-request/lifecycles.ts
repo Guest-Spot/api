@@ -51,6 +51,7 @@ export default {
               password: userData.tempPassword,
               provider: 'local',
               confirmed: true,
+              approved: true,
               role: authenticatedRole.id,
             }),
           });
@@ -83,6 +84,7 @@ export default {
               password: data.tempPassword,
               provider: 'local',
               confirmed: true,
+              approved: true,
               role: authenticatedRole.id,
             }),
           });

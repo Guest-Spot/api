@@ -222,6 +222,10 @@
       "relation": "oneToOne",
       "target": "api::profile.profile",
       "mappedBy": "user"
+    },
+    "approved": {
+      "type": "boolean",
+      "default": false
     }
   }
 }
