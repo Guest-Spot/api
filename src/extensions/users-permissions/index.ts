@@ -27,6 +27,7 @@ export const usersPermissionsExtension = () => ({
       depositAmount: Float
       chargeDeposit: Boolean
       profile: Profile
+      approved: Boolean
       acceptTips: Boolean
       guestSpotEnabled: Boolean
     }

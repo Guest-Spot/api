@@ -73,6 +73,24 @@ export const grapqlGuards = () => ({
       }]
     },
     // PORTFOLIO Policies
+    'Query.portfolios': {
+      policies: [{
+        name: 'global::filter-portfolio-approved-owner',
+        config: {}
+      }]
+    },
+    'Query.portfolio': {
+      policies: [{
+        name: 'global::filter-portfolio-approved-owner',
+        config: {}
+      }]
+    },
+    'Query.portfolios_connection': {
+      policies: [{
+        name: 'global::filter-portfolio-approved-owner',
+        config: {}
+      }]
+    },
     'Mutation.createPortfolio': { 
       policies: []
     },
@@ -130,6 +148,17 @@ export const grapqlGuards = () => ({
     },
     'Mutation.checkStripeAccountStatus': {
       policies: []
+    },
+    // USERS-PERMISSIONS Policies
+    'Query.usersPermissionsUsers': {
+      policies: [{
+        name: 'global::filter-approved'
+      }]
+    },
+    'Query.usersPermissionsUsers_connection': {
+      policies: [{
+        name: 'global::filter-approved'
+      }]
     },
   },
 });

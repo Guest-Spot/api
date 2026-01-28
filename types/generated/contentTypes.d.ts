@@ -836,7 +836,9 @@ export interface ApiMembershipRequestMembershipRequest
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     userId: Schema.Attribute.String;
-    username: Schema.Attribute.String;
+    username: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
   };
 }
 
@@ -1651,6 +1653,7 @@ export interface PluginUsersPermissionsUser
     acceptTips: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     address: Schema.Attribute.String;
     appleSub: Schema.Attribute.String & Schema.Attribute.Private;
+    approved: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     avatar: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     chargeDeposit: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;

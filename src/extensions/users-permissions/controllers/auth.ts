@@ -4,6 +4,7 @@ import { errors } from '@strapi/utils';
 import grantFactory from 'grant';
 import { checkUserEmailExists, checkUserUsernameExists } from '../../../utils/checkUserEmailExists';
 import { ensureAppleUser, type AppleNativeAuthInput } from '../services/apple-native-auth';
+import { sendUserRegistrationEmail } from '../../../utils/email/user-registration';
 
 // Helper function to get users-permissions services
 const getService = (name: string) => {
@@ -442,7 +443,50 @@ export const authLogic = {
   },
 };
 
-const customAuthController = (..._args: any[]) => ({
+const customAuthController = (originalController: any) => ({
+  async register(ctx) {
+    if (!originalController?.register) {
+      throw new errors.ApplicationError('Base register controller is unavailable');
+    }
+
+    // Call the original register method to handle validation and user creation
+    await originalController.register(ctx);
+
+    // Extract user from response
+    const body = ctx.body;
+    const user = body?.user;
+
+    // Only send email for local self-registrations (not OAuth or admin-created users)
+    if (user && user.provider === 'local' && user.id) {
+      try {
+        // Fetch user with documentId from database to ensure we have the full entity
+        const userWithDocumentId = await strapi.entityService.findOne(
+          'plugin::users-permissions.user',
+          user.id
+        ) as any;
+
+        // Build payload with only required fields
+        const emailPayload = {
+          id: user.id,
+          documentId: userWithDocumentId?.documentId,
+          email: user.email,
+          type: user.type,
+          name: user.name,
+          phone: user.phone,
+          createdAt: user.createdAt,
+        };
+
+        await sendUserRegistrationEmail(emailPayload);
+      } catch (error) {
+        // Log error but don't fail registration if email sending fails
+        strapi.log?.error?.(
+          '[Auth] Failed to send user registration email:',
+          error
+        );
+      }
+    }
+  },
+
   async callback(ctx) {
     const providerFromParams = ctx.params?.provider;
     const providerFromQuery = ctx.query?.provider as string | undefined;

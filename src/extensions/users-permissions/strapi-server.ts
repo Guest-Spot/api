@@ -20,7 +20,7 @@ export default (plugin: any) => {
         : originalAuthController;
 
     const resolvedCustom =
-      typeof authController === 'function' ? authController(...args) : authController;
+      typeof authController === 'function' ? authController(resolvedOriginal) : authController;
 
     return {
       ...resolvedOriginal,
