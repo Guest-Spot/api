@@ -28,6 +28,7 @@ export const guestSpotExtension = ({ strapi }) => ({
 
     extend type Mutation {
       toggleGuestSpotEnabled(shopDocumentId: ID!, enabled: Boolean!): ToggleGuestSpotEnabledResult!
+      createGuestSpotBooking(data: GuestSpotBookingInput!): GuestSpotBookingEntityResponse!
       approveGuestSpotBooking(documentId: ID!): GuestSpotBookingEntityResponse!
       rejectGuestSpotBooking(documentId: ID!, rejectNote: String): GuestSpotBookingEntityResponse!
       createGuestSpotDeposit(bookingId: ID!, customerEmail: String): GuestSpotDepositSession!
@@ -112,9 +113,48 @@ export const guestSpotExtension = ({ strapi }) => ({
         if (!user) throw new Error('UNAUTHORIZED');
         if ((user as { type?: string }).type !== 'artist') throw new Error('FORBIDDEN: Only artists can create bookings');
         try {
+          // Extract slot documentId from args.data.slot
+          // It can be either a string (documentId) or an object with connect: [{documentId: "..."}]
+          let slotDocumentId: string | undefined;
+          if (typeof args.data.slot === 'string') {
+            slotDocumentId = args.data.slot;
+          } else if (args.data.slot?.connect?.[0]?.documentId) {
+            slotDocumentId = args.data.slot.connect[0].documentId;
+          } else if (args.data.slot?.connect?.[0]?.id) {
+            slotDocumentId = args.data.slot.connect[0].id;
+          } else {
+            throw new Error('NOT_FOUND: Slot documentId is required');
+          }
+
+          // Extract artist documentId from args.data.artist (if provided)
+          // Otherwise use the authenticated user's documentId
+          let artistDocumentId: string = userDocId;
+          if (args.data.artist) {
+            if (typeof args.data.artist === 'string') {
+              artistDocumentId = args.data.artist;
+            } else if (args.data.artist?.connect?.[0]?.documentId) {
+              artistDocumentId = args.data.artist.connect[0].documentId;
+            } else if (args.data.artist?.connect?.[0]?.id) {
+              artistDocumentId = args.data.artist.connect[0].id;
+            }
+          }
+
+          // Prepare data for service
+          const serviceData = {
+            guestSpotSlotDocumentId: slotDocumentId,
+            selectedDate: args.data.selectedDate,
+            selectedTime: args.data.selectedTime,
+            comment: args.data.comment,
+            platformCommissionAmount: args.data.platformCommissionAmount,
+          };
+
           const booking = await strapi
             .service('api::guest-spot-booking.guest-spot-booking')
-            .createBookingWithEvent(args.data, userDocId);
+            .createBookingWithEvent(serviceData, artistDocumentId);
+          if (!booking || !booking.documentId) {
+            throw new Error('Failed to create booking');
+          }
+          // Return in EntityResponse format: { data: entity }
           return { data: booking };
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Unknown error';
