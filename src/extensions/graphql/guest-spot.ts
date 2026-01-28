@@ -33,7 +33,7 @@ export const guestSpotExtension = ({ strapi }) => ({
       createGuestSpotDeposit(bookingId: ID!, customerEmail: String): GuestSpotDepositSession!
       captureGuestSpotDeposit(bookingId: ID!): GuestSpotBookingEntityResponse!
       releaseGuestSpotDeposit(bookingId: ID!): GuestSpotBookingEntityResponse!
-      publishGuestSpotEvent(data: GuestSpotEventCreateInput!): GuestSpotEventEntityResponse!
+      publishGuestSpotEvent(data: GuestSpotEventCreateInput!): GuestSpotEvent!
     }
   `,
   resolvers: {
@@ -54,7 +54,7 @@ export const guestSpotExtension = ({ strapi }) => ({
           userDocId,
           args.data
         );
-        return { data: slot };
+        return slot;
       },
       async updateGuestSpotSlot(parent, args, context) {
         const userDocId = context.state?.user?.documentId;
@@ -225,7 +225,7 @@ export const guestSpotExtension = ({ strapi }) => ({
             slot: d.guestSpotSlotDocumentId,
             booking: d.guestSpotBookingDocumentId,
           });
-        return { data: created };
+        return created;
       },
     },
   },
@@ -243,4 +243,3 @@ export const guestSpotExtension = ({ strapi }) => ({
     'Mutation.publishGuestSpotEvent': { auth: true },
   },
 });
-
