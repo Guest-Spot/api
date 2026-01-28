@@ -120,5 +120,16 @@ export const grapqlGuards = () => ({
     'Mutation.checkStripeAccountStatus': {
       policies: []
     },
+    // USERS-PERMISSIONS Policies
+    'Query.usersPermissionsUsers': {
+      policies: [{
+        name: 'global::filter-approved'
+      }]
+    },
+    'Query.usersPermissionsUsers_connection': {
+      policies: [{
+        name: 'global::filter-approved'
+      }]
+    },
   },
 });
