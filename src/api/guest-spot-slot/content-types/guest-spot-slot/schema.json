@@ -23,6 +23,9 @@
       "default": true,
       "required": true
     },
+    "title": {
+      "type": "string"
+    },
     "description": {
       "type": "text",
       "required": true

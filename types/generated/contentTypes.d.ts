@@ -747,6 +747,7 @@ export interface ApiGuestSpotSlotGuestSpotSlot
         number
       > &
       Schema.Attribute.DefaultTo<1>;
+    title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

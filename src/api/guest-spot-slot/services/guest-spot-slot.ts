@@ -9,6 +9,7 @@ export default factories.createCoreService('api::guest-spot-slot.guest-spot-slot
     shopDocumentId: string,
     data: {
       enabled?: boolean;
+      title?: string;
       description: string;
       pricingOptions: unknown;
       depositAmount: number;
@@ -18,6 +19,7 @@ export default factories.createCoreService('api::guest-spot-slot.guest-spot-slot
   ) {
     const payload = {
       enabled: data.enabled ?? true,
+      title: data.title,
       description: data.description,
       pricingOptions: data.pricingOptions,
       depositAmount: data.depositAmount,
@@ -43,6 +45,7 @@ export default factories.createCoreService('api::guest-spot-slot.guest-spot-slot
     documentId: string,
     data: Partial<{
       enabled: boolean;
+      title: string;
       description: string;
       pricingOptions: unknown;
       depositAmount: number;
@@ -59,6 +62,7 @@ export default factories.createCoreService('api::guest-spot-slot.guest-spot-slot
     if (slot.shop?.documentId !== userDocumentId) throw new Error('FORBIDDEN');
     const payload: Record<string, unknown> = {};
     if (data.enabled !== undefined) payload.enabled = data.enabled;
+    if (data.title !== undefined) payload.title = data.title;
     if (data.description !== undefined) payload.description = data.description;
     if (data.pricingOptions !== undefined) payload.pricingOptions = data.pricingOptions;
     if (data.depositAmount !== undefined) payload.depositAmount = data.depositAmount;
