@@ -8,10 +8,7 @@ export default factories.createCoreRouter('api::portfolio.portfolio', {
   config: {
     find: {
       middlewares: [],
-      policies: [{
-        name: 'global::filter-portfolio-approved-owner',
-        config: {}
-      }]
+      policies: []
     },
     findOne: {
       middlewares: [],
