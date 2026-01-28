@@ -68,11 +68,18 @@ export default factories.createCoreService('api::guest-spot-slot.guest-spot-slot
     if (data.depositAmount !== undefined) payload.depositAmount = data.depositAmount;
     if (data.spaces !== undefined) payload.spaces = data.spaces;
     if (data.openingHours !== undefined) payload.openingHours = data.openingHours;
-    const updated = await strapi.documents('api::guest-spot-slot.guest-spot-slot').update({
+    if (Object.keys(payload).length > 0) {
+      await strapi.documents('api::guest-spot-slot.guest-spot-slot').update({
+        documentId,
+        data: payload,
+        populate: ['shop'],
+      });
+    }
+    const updated = await strapi.documents('api::guest-spot-slot.guest-spot-slot').findOne({
       documentId,
-      data: payload,
       populate: ['shop'],
     });
+    if (!updated) throw new Error('NOT_FOUND');
     await strapi.service('api::guest-spot-event.guest-spot-event').createAndPublish({
       type: 'slot_updated',
       title: 'Guest spot slot updated',
