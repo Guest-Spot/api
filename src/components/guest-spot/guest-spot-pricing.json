@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_guest_spot_guest_spot_pricings",
+  "info": {
+    "displayName": "GuestSpotPricing",
+    "description": "Pricing option for a guest spot slot (hourly, daily, flat)"
+  },
+  "options": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": ["hourly", "daily", "flat"],
+      "required": true
+    },
+    "amount": {
+      "type": "integer",
+      "required": true,
+      "min": 0
+    },
+    "description": {
+      "type": "string"
+    }
+  }
+}

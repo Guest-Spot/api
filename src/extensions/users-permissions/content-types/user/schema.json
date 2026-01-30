@@ -223,6 +223,10 @@
       "target": "api::profile.profile",
       "mappedBy": "user"
     },
+    "guestSpotEnabled": {
+      "type": "boolean",
+      "default": false
+    },
     "approved": {
       "type": "boolean",
       "default": false

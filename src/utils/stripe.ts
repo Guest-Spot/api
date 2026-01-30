@@ -139,6 +139,76 @@ export const createCheckoutSession = async (params: {
 };
 
 /**
+ * Create a Checkout Session for Guest Spot deposit (platform payment, no Connect).
+ * Uses manual capture; capture/release handled via separate mutations.
+ */
+export const createGuestSpotDepositCheckoutSession = async (params: {
+  guestSpotBookingDocumentId: string;
+  amount: number;
+  currency?: string;
+  customerEmail?: string;
+  successUrl?: string;
+  cancelUrl?: string;
+}): Promise<{ sessionId: string; sessionUrl: string | null; paymentIntentId: string }> => {
+  const {
+    guestSpotBookingDocumentId,
+    amount,
+    currency: paramCurrency,
+    customerEmail,
+    successUrl: paramSuccessUrl,
+    cancelUrl: paramCancelUrl,
+  } = params;
+
+  const stripe = await getStripeClient();
+  const settings = await strapi.query('api::setting.setting').findOne({});
+  const currency = paramCurrency || getDefaultCurrency();
+  const successUrl = paramSuccessUrl || settings?.stripeSuccessUrl || process.env.STRIPE_SUCCESS_URL;
+  const cancelUrl = paramCancelUrl || settings?.stripeCancelUrl || process.env.STRIPE_CANCEL_URL;
+
+  const metadata = {
+    type: 'guest_spot_deposit',
+    guestSpotBookingDocumentId,
+  };
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    ...(customerEmail && { customer_email: customerEmail }),
+    payment_intent_data: {
+      capture_method: 'manual',
+      metadata,
+    },
+    line_items: [
+      {
+        price_data: {
+          currency,
+          product_data: {
+            name: 'Guest Spot Deposit',
+            description: `Deposit for booking ${guestSpotBookingDocumentId}`,
+          },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      },
+    ],
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    metadata,
+  });
+
+  const expanded = await stripe.checkout.sessions.retrieve(session.id, {
+    expand: ['payment_intent'],
+  });
+  const pi = expanded.payment_intent as Stripe.PaymentIntent | null;
+  const paymentIntentId = pi?.id ?? '';
+
+  return {
+    sessionId: session.id,
+    sessionUrl: session.url,
+    paymentIntentId,
+  };
+};
+
+/**
  * Capture a pre-authorized payment (when artist accepts booking)
  */
 export const capturePaymentIntent = async (paymentIntentId: string): Promise<Stripe.PaymentIntent> => {

@@ -35,6 +35,27 @@ export interface GeoLocation extends Struct.ComponentSchema {
   };
 }
 
+export interface GuestSpotGuestSpotPricing extends Struct.ComponentSchema {
+  collectionName: 'components_guest_spot_guest_spot_pricings';
+  info: {
+    description: 'Pricing option for a guest spot slot (hourly, daily, flat)';
+    displayName: 'GuestSpotPricing';
+  };
+  attributes: {
+    amount: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    description: Schema.Attribute.String;
+    type: Schema.Attribute.Enumeration<['hourly', 'daily', 'flat']> &
+      Schema.Attribute.Required;
+  };
+}
+
 export interface TimeOpeningHour extends Struct.ComponentSchema {
   collectionName: 'components_time_opening_hours';
   info: {
@@ -55,6 +76,7 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'contact.social-links': ContactSocialLinks;
       'geo.location': GeoLocation;
+      'guest-spot.guest-spot-pricing': GuestSpotGuestSpotPricing;
       'time.opening-hour': TimeOpeningHour;
     }
   }

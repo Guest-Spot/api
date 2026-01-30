@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Guest Spot Request - GuestSpot</title>
+  </head>
+  <body style="margin:0;padding:0;color:#ffffff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+    <!--
+      Expected template variables:
+        {{ shopName }}        -> Shop name
+        {{ artistName }}      -> Artist who requested the slot
+        {{ artistEmail }}     -> Artist email (may be empty)
+        {{ artistDescription }} -> Artist description (may be empty)
+        {{ artistCity }}      -> Artist city (may be empty)
+        {{ artistLink }}      -> Artist link (may be empty)
+        {{ selectedDate }}    -> Requested date
+        {{ selectedTime }}    -> Requested time or "Not specified"
+        {{ slotTitle }}       -> Slot title or "Guest spot slot"
+        {{ comment }}         -> Comment from artist or "No comment provided"
+        {{ submittedAt }}     -> Human readable submission date/time
+        {{ currentYear }}     -> Current year for footer
+        {{ viewBookingUrl }}  -> Optional link to view booking in app
+        {{ hasViewLink }}     -> "true" when viewBookingUrl is set
+    -->
+
+    <div style="display:none;font-size:1px;color:#050505;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+      New guest spot request from {{ artistName }}. Review inside.
+    </div>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td align="center" style="padding:24px 16px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:640px;border-radius:18px;overflow:hidden;background-color:#111111;">
+            <tr>
+              <td style="padding:32px 28px 24px;background:linear-gradient(135deg,#ff3d00,#ff6b35);color:#ffffff;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="font-size:24px;font-weight:700;letter-spacing:0.5px;">GuestSpot</td>
+                    <td align="right" style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1.6px;">Guest Spot Request</td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="padding-top:18px;font-size:20px;font-weight:600;">
+                      New guest spot booking request
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" style="padding-top:8px;font-size:14px;color:rgba(255,255,255,0.85);line-height:1.5;">
+                      Hi <strong>{{ shopName }}</strong>, <strong>{{ artistName }}</strong> has requested a guest spot slot. Please review the details below and respond in the app.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:28px 24px 32px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0;background-color:#171717;border-radius:16px;border:1px solid rgba(255,255,255,0.08);">
+                  <tr>
+                    <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                      <span style="display:block;font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#b3b3b3;">Requested Date</span>
+                      <span style="display:block;font-size:18px;font-weight:600;color:#ffffff;padding-top:6px;">{{ selectedDate }}</span>
+                    </td>
+                    <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);border-left:1px solid rgba(255,255,255,0.06);">
+                      <span style="display:block;font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#b3b3b3;">Requested Time</span>
+                      <span style="display:block;font-size:18px;font-weight:600;color:#ffffff;padding-top:6px;">{{ selectedTime }}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                      <span style="display:block;font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#b3b3b3;">Slot</span>
+                      <span style="display:block;font-size:16px;color:#ffffff;padding-top:6px;">{{ slotTitle }}</span>
+                    </td>
+                    <td style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);border-left:1px solid rgba(255,255,255,0.06);">
+                      <span style="display:block;font-size:12px;text-transform:uppercase;letter-spacing:1.2px;color:#b3b3b3;">Submitted</span>
+                      <span style="display:block;font-size:16px;color:#ffffff;padding-top:6px;">{{ submittedAt }}</span>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;border-collapse:collapse;">
+                  <tr>
+                    <td style="font-size:16px;font-weight:600;color:#ffffff;padding-bottom:12px;">Artist</td>
+                  </tr>
+                  <tr>
+                    <td style="background-color:#151515;border:1px solid rgba(255,255,255,0.08);border-radius:12px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                        <tr>
+                          <td style="width:36%;padding:16px 20px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#b3b3b3;border-bottom:1px solid rgba(255,255,255,0.06);">Name</td>
+                          <td style="padding:16px 20px;font-size:15px;color:#ffffff;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);">{{ artistName }}</td>
+                        </tr>
+                        <tr>
+                          <td style="width:36%;padding:16px 20px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#b3b3b3;border-bottom:1px solid rgba(255,255,255,0.06);">Email</td>
+                          <td style="padding:16px 20px;font-size:15px;color:#ffffff;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);">{{ artistEmail }}</td>
+                        </tr>
+                        <tr>
+                          <td style="width:36%;padding:16px 20px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#b3b3b3;border-bottom:1px solid rgba(255,255,255,0.06);">City</td>
+                          <td style="padding:16px 20px;font-size:15px;color:#ffffff;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);">{{ artistCity }}</td>
+                        </tr>
+                        <tr>
+                          <td style="width:36%;padding:16px 20px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#b3b3b3;border-bottom:1px solid rgba(255,255,255,0.06);">Link</td>
+                          <td style="padding:16px 20px;font-size:15px;color:#ffffff;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.06);">{{ artistLink }}</td>
+                        </tr>
+                        <tr>
+                          <td style="width:36%;padding:16px 20px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#b3b3b3;">Description</td>
+                          <td style="padding:16px 20px;font-size:15px;color:#ffffff;font-weight:500;">{{ artistDescription }}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;border-collapse:collapse;">
+                  <tr>
+                    <td style="font-size:16px;font-weight:600;color:#ffffff;padding-bottom:12px;">Comment from artist</td>
+                  </tr>
+                  <tr>
+                    <td style="background-color:#151515;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 20px;font-size:15px;color:#ffffff;line-height:1.5;">{{ comment }}</td>
+                  </tr>
+                </table>
+
+                <!-- View in app CTA: only when hasViewLink is "true" (template has no conditionals, so we use a placeholder that gets replaced; if viewBookingUrl is empty we replace the block with empty) -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;">
+                  <tr>
+                    <td style="padding:16px 0;text-align:center;">
+                      <a href="{{ viewBookingUrl }}" style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#ff3d00,#ff6b35);color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:12px;">View request in app</a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr>
+              <td style="padding:20px 24px;background-color:#0b0b0b;text-align:center;font-size:12px;line-height:1.6;color:#666666;">
+                &copy; {{ currentYear }} GuestSpot. All rights reserved.<br />
+                This notification was sent because you received a new guest spot booking request on GuestSpot.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
