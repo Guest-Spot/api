@@ -875,6 +875,8 @@ export interface ApiNotifyNotify extends Struct.CollectionTypeSchema {
         'invite_accepted',
         'invite_rejected',
         'guest_spot_booking_created',
+        'guest_spot_booking_accepted',
+        'guest_spot_booking_rejected',
       ]
     > &
       Schema.Attribute.Required;

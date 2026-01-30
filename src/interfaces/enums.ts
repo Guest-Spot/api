@@ -29,6 +29,8 @@ export enum NotifyType {
   TIP_RECEIVED = 'tip_received',
   STRIPE_ACCOUNT_ACTIVATED = 'stripe_account_activated',
   GUEST_SPOT_BOOKING_CREATED = 'guest_spot_booking_created',
+  GUEST_SPOT_BOOKING_ACCEPTED = 'guest_spot_booking_accepted',
+  GUEST_SPOT_BOOKING_REJECTED = 'guest_spot_booking_rejected',
 }
 
 export enum UserType {

@@ -13,6 +13,7 @@ import {
 import { calculatePlatformFee, getPlatformFeePercent } from '../../../utils/stripe';
 import { createNotification } from '../../../utils/notification';
 import { sendGuestSpotBookingRequestEmail } from '../../../utils/email/guest-spot-booking-request';
+import { sendGuestSpotBookingResponseEmail } from '../../../utils/email/guest-spot-booking-response';
 import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
 import { NotifyType } from '../../../interfaces/enums';
 
@@ -178,6 +179,114 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
     return booking;
   },
 
+  /**
+   * Notify artist (in-app, push, email) when shop accepts or rejects a guest spot booking.
+   */
+  async notifyArtistOfGuestSpotResponse(
+    updated: { documentId?: string; artist?: unknown; shop?: unknown; slot?: unknown; selectedDate?: string; selectedTime?: string | null; rejectNote?: string | null },
+    reaction: 'accepted' | 'rejected',
+  ): Promise<void> {
+    const artist = updated.artist as { documentId?: string } | null;
+    const shop = updated.shop as { documentId?: string } | null;
+    const slot = updated.slot as { title?: string } | null;
+    const artistDocId = artist?.documentId;
+    const shopDocId = shop?.documentId;
+    if (!artistDocId || !shopDocId) return;
+
+    let artistUserId: number | null = null;
+    let artistEmail: string | null = null;
+    try {
+      const artistRow = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { documentId: artistDocId },
+        select: ['id', 'email', 'name', 'username'],
+      });
+      if (artistRow) {
+        artistUserId = typeof artistRow.id === 'number' ? artistRow.id : null;
+        artistEmail = typeof artistRow.email === 'string' ? artistRow.email : null;
+      }
+    } catch {
+      // skip notifications if we cannot load artist
+    }
+
+    let shopName: string | null = null;
+    try {
+      const shopUser = await strapi.documents('plugin::users-permissions.user').findOne({
+        documentId: shopDocId,
+      });
+      if (shopUser && typeof shopUser === 'object') {
+        const s = shopUser as { name?: string; username?: string };
+        shopName = s.name?.trim() || s.username?.trim() || 'Shop';
+      }
+    } catch {
+      shopName = 'Shop';
+    }
+
+    const notifyType = reaction === 'accepted' ? NotifyType.GUEST_SPOT_BOOKING_ACCEPTED : NotifyType.GUEST_SPOT_BOOKING_REJECTED;
+
+    try {
+      await createNotification({
+        ownerDocumentId: shopDocId,
+        recipientDocumentId: artistDocId,
+        type: notifyType,
+        body: updated,
+      });
+    } catch (err) {
+      strapi.log.error('Error creating in-app notification for guest spot response to artist:', err);
+    }
+
+    const dateParts: string[] = [];
+    if (updated.selectedDate) {
+      try {
+        const d = new Date(`${String(updated.selectedDate).trim()}T00:00:00Z`);
+        if (!Number.isNaN(d.getTime())) {
+          dateParts.push(new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(d));
+        }
+        if (updated.selectedTime) dateParts.push(`at ${updated.selectedTime}`);
+      } catch {
+        dateParts.push(updated.selectedDate);
+        if (updated.selectedTime) dateParts.push(updated.selectedTime);
+      }
+    }
+    let bodyText = dateParts.length
+      ? `${shopName} ${reaction === 'accepted' ? 'accepted' : 'rejected'} your guest spot request for ${dateParts.join(' ')}.`
+      : `${shopName} ${reaction === 'accepted' ? 'accepted' : 'rejected'} your guest spot request.`;
+    if (reaction === 'rejected' && updated.rejectNote?.trim()) {
+      bodyText += ` Reason: ${updated.rejectNote.trim()}`;
+    }
+
+    if (artistUserId !== null) {
+      try {
+        await sendFirebaseNotificationToUser(artistUserId, {
+          title: reaction === 'accepted' ? 'Guest spot request accepted' : 'Guest spot request rejected',
+          body: bodyText,
+          data: {
+            notifyType,
+            bookingDocumentId: updated.documentId ?? undefined,
+          },
+        });
+      } catch (err) {
+        strapi.log.error('Error sending push notification for guest spot response to artist:', err);
+      }
+    }
+
+    if (artistEmail?.trim()) {
+      try {
+        await sendGuestSpotBookingResponseEmail({
+          artistEmail: artistEmail.trim(),
+          shopName: shopName ?? undefined,
+          reaction,
+          selectedDate: updated.selectedDate ?? undefined,
+          selectedTime: updated.selectedTime ?? undefined,
+          slotTitle: slot?.title ?? undefined,
+          rejectNote: reaction === 'rejected' ? (updated.rejectNote ?? undefined) : undefined,
+          bookingDocumentId: updated.documentId ?? undefined,
+        });
+      } catch (err) {
+        strapi.log.error('Error sending guest spot response email to artist:', err);
+      }
+    }
+  },
+
   async approveBooking(documentId: string, userDocumentId: string) {
     const b = await strapi.documents('api::guest-spot-booking.guest-spot-booking').findOne({
       documentId,
@@ -203,6 +312,12 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
       slot: slot?.documentId,
       booking: documentId,
     });
+    try {
+      const svc = strapi.service('api::guest-spot-booking.guest-spot-booking') as { notifyArtistOfGuestSpotResponse: (u: unknown, r: 'accepted' | 'rejected') => Promise<void> };
+      await svc.notifyArtistOfGuestSpotResponse(updated, 'accepted');
+    } catch (err) {
+      strapi.log.error('Error notifying artist of guest spot approval:', err);
+    }
     return updated;
   },
 
@@ -231,6 +346,12 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
       slot: slot?.documentId,
       booking: documentId,
     });
+    try {
+      const svc = strapi.service('api::guest-spot-booking.guest-spot-booking') as { notifyArtistOfGuestSpotResponse: (u: unknown, r: 'accepted' | 'rejected') => Promise<void> };
+      await svc.notifyArtistOfGuestSpotResponse(updated, 'rejected');
+    } catch (err) {
+      strapi.log.error('Error notifying artist of guest spot rejection:', err);
+    }
     return updated;
   },
 
