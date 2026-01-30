@@ -18,6 +18,9 @@ import { cancelExpiredAuthorizations } from './utils/payment-cron';
 
 export default {
   register({ strapi }) {
+    // Disable auto-generated create mutation for guest-spot-booking so we can use custom nullable return
+    strapi.plugin('graphql').service('extension').shadowCRUD('api::guest-spot-booking.guest-spot-booking').disableAction('create');
+
     // Register GraphQL extensions
     strapi.plugin('graphql').service('extension').use(grapqlGuards);
     strapi.plugin('graphql').service('extension').use(citiesExtension);

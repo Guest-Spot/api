@@ -11,6 +11,10 @@ import {
   isStripeEnabled,
 } from '../../../utils/stripe';
 import { calculatePlatformFee, getPlatformFeePercent } from '../../../utils/stripe';
+import { createNotification } from '../../../utils/notification';
+import { sendGuestSpotBookingRequestEmail } from '../../../utils/email/guest-spot-booking-request';
+import { sendFirebaseNotificationToUser } from '../../../utils/push-notification';
+import { NotifyType } from '../../../interfaces/enums';
 
 export default factories.createCoreService('api::guest-spot-booking.guest-spot-booking', ({ strapi }) => ({
   async createBookingWithEvent(
@@ -80,6 +84,97 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
       slot: data.guestSpotSlotDocumentId,
       booking: booking.documentId,
     });
+
+    // Notify shop: in-app, email (if email set), push (if user id and device tokens)
+    const shopUserWithId = shopUser as { id?: number; email?: string; name?: string; username?: string };
+    let shopUserId: number | null =
+      typeof shopUserWithId.id === 'number' ? shopUserWithId.id : null;
+    if (shopUserId === null) {
+      const row = await strapi.db.query('plugin::users-permissions.user').findOne({
+        where: { documentId: shop.documentId },
+        select: ['id'],
+      });
+      shopUserId = typeof row?.id === 'number' ? row.id : null;
+    }
+
+    let artistName = 'Artist';
+    let artistUserForEmail: { email?: string; description?: string; city?: string; link?: string } | null = null;
+    try {
+      const artistUser = await strapi.documents('plugin::users-permissions.user').findOne({
+        documentId: artistDocumentId,
+      });
+      if (artistUser && typeof artistUser === 'object') {
+        const a = artistUser as { name?: string; contactName?: string; username?: string; email?: string; description?: string; city?: string; link?: string };
+        artistName = a.name?.trim() || a.contactName?.trim() || a.username?.trim() || a.email?.trim() || artistName;
+        artistUserForEmail = { email: a.email, description: a.description, city: a.city, link: a.link };
+      }
+    } catch {
+      // keep default artistName
+    }
+
+    try {
+      await createNotification({
+        ownerDocumentId: artistDocumentId,
+        recipientDocumentId: shop.documentId,
+        type: NotifyType.GUEST_SPOT_BOOKING_CREATED,
+        body: booking,
+      });
+    } catch (err) {
+      strapi.log.error('Error creating in-app notification for guest spot booking:', err);
+    }
+
+    if (shopUserWithId.email?.trim()) {
+      try {
+        await sendGuestSpotBookingRequestEmail({
+          shopEmail: shopUserWithId.email.trim(),
+          shopName: shopUserWithId.name ?? shopUserWithId.username ?? null,
+          artistName,
+          artistEmail: artistUserForEmail?.email ?? null,
+          artistDescription: artistUserForEmail?.description ?? null,
+          artistCity: artistUserForEmail?.city ?? null,
+          artistLink: artistUserForEmail?.link ?? null,
+          selectedDate: data.selectedDate,
+          selectedTime: data.selectedTime ?? null,
+          slotTitle: (slot as { title?: string })?.title ?? null,
+          comment: data.comment ?? null,
+          bookingDocumentId: booking.documentId,
+        });
+      } catch (err) {
+        strapi.log.error('Error sending guest spot booking request email to shop:', err);
+      }
+    }
+
+    if (shopUserId !== null) {
+      try {
+        const dateParts: string[] = [];
+        if (data.selectedDate) {
+          try {
+            const d = new Date(`${data.selectedDate.trim()}T00:00:00Z`);
+            if (!Number.isNaN(d.getTime())) {
+              dateParts.push(new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(d));
+            }
+            if (data.selectedTime) dateParts.push(`at ${data.selectedTime}`);
+          } catch {
+            dateParts.push(data.selectedDate);
+            if (data.selectedTime) dateParts.push(data.selectedTime);
+          }
+        }
+        const bodyText = dateParts.length
+          ? `${artistName} requested a guest spot slot on ${dateParts.join(' ')}.`
+          : `${artistName} requested a guest spot slot.`;
+        await sendFirebaseNotificationToUser(shopUserId, {
+          title: 'New guest spot request',
+          body: bodyText,
+          data: {
+            notifyType: NotifyType.GUEST_SPOT_BOOKING_CREATED,
+            bookingDocumentId: booking.documentId ?? undefined,
+          },
+        });
+      } catch (err) {
+        strapi.log.error('Error sending push notification for guest spot booking to shop:', err);
+      }
+    }
+
     return booking;
   },
 

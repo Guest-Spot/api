@@ -24,7 +24,8 @@
         "booking_rejected",
         "invite_created",
         "invite_accepted",
-        "invite_rejected"
+        "invite_rejected",
+        "guest_spot_booking_created"
       ]
     },
     "recipientDocumentId": {

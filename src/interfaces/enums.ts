@@ -28,6 +28,7 @@ export enum NotifyType {
   PAYMENT_CANCELLED = 'payment_cancelled',
   TIP_RECEIVED = 'tip_received',
   STRIPE_ACCOUNT_ACTIVATED = 'stripe_account_activated',
+  GUEST_SPOT_BOOKING_CREATED = 'guest_spot_booking_created',
 }
 
 export enum UserType {

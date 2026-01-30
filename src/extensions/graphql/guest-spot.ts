@@ -26,7 +26,17 @@ export const guestSpotExtension = ({ strapi }) => ({
       guestSpotBookingDocumentId: ID
     }
 
+    input CreateGuestSpotBookingInput {
+      slot: ID!
+      selectedDate: Date!
+      selectedTime: String
+      comment: String
+      platformCommissionAmount: Int
+      artist: ID
+    }
+
     extend type Mutation {
+      createGuestSpotBooking(data: CreateGuestSpotBookingInput!): GuestSpotBookingEntityResponse
       toggleGuestSpotEnabled(shopDocumentId: ID!, enabled: Boolean!): ToggleGuestSpotEnabledResult!
       approveGuestSpotBooking(documentId: ID!): GuestSpotBookingEntityResponse!
       rejectGuestSpotBooking(documentId: ID!, rejectNote: String): GuestSpotBookingEntityResponse!
@@ -65,7 +75,7 @@ export const guestSpotExtension = ({ strapi }) => ({
             args.data,
             userDocId
           );
-          return { data: slot };
+          return slot;
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Unknown error';
           if (msg === 'NOT_FOUND') throw new Error('NOT_FOUND');
@@ -153,8 +163,8 @@ export const guestSpotExtension = ({ strapi }) => ({
           if (!booking || !booking.documentId) {
             throw new Error('Failed to create booking');
           }
-          // Return in EntityResponse format: { data: entity }
-          return { data: booking };
+          // Strapi GraphQL EntityResponse resolves "data" from parent.value (see plugin-graphql response.js)
+          return { value: booking };
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Unknown error';
           if (msg === 'NOT_FOUND') throw new Error('NOT_FOUND');
@@ -168,7 +178,7 @@ export const guestSpotExtension = ({ strapi }) => ({
           const booking = await strapi
             .service('api::guest-spot-booking.guest-spot-booking')
             .approveBooking(args.documentId, userDocId);
-          return { data: booking };
+          return { value: booking };
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Unknown error';
           if (msg === 'NOT_FOUND') throw new Error('NOT_FOUND');
@@ -183,7 +193,7 @@ export const guestSpotExtension = ({ strapi }) => ({
           const booking = await strapi
             .service('api::guest-spot-booking.guest-spot-booking')
             .rejectBooking(args.documentId, args.rejectNote ?? undefined, userDocId);
-          return { data: booking };
+          return { value: booking };
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Unknown error';
           if (msg === 'NOT_FOUND') throw new Error('NOT_FOUND');
@@ -199,7 +209,7 @@ export const guestSpotExtension = ({ strapi }) => ({
             .service('api::guest-spot-booking.guest-spot-booking')
             .createDepositSession(args.bookingId, args.customerEmail ?? undefined, userDocId);
           return {
-            booking: result.booking ? { data: result.booking } : null,
+            booking: result.booking ? { value: result.booking } : null,
             sessionId: result.sessionId,
             sessionUrl: result.sessionUrl,
             paymentIntentId: result.paymentIntentId,
@@ -218,7 +228,7 @@ export const guestSpotExtension = ({ strapi }) => ({
           const booking = await strapi
             .service('api::guest-spot-booking.guest-spot-booking')
             .captureDeposit(args.bookingId, userDocId);
-          return { data: booking };
+          return { value: booking };
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Unknown error';
           if (msg === 'NOT_FOUND') throw new Error('NOT_FOUND');
@@ -233,7 +243,7 @@ export const guestSpotExtension = ({ strapi }) => ({
           const booking = await strapi
             .service('api::guest-spot-booking.guest-spot-booking')
             .releaseDeposit(args.bookingId, userDocId);
-          return { data: booking };
+          return { value: booking };
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Unknown error';
           if (msg === 'NOT_FOUND') throw new Error('NOT_FOUND');
