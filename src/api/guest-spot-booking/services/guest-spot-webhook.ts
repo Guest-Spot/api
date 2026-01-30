@@ -37,6 +37,33 @@ export async function handleGuestSpotCheckoutSessionCompleted(session: Stripe.Ch
       ...(paymentIntentId && { paymentIntentId }),
     },
   });
+
+  const updated = await strapi.documents('api::guest-spot-booking.guest-spot-booking').findOne({
+    documentId: bookingDocumentId,
+    populate: ['slot', 'artist', 'shop'],
+  });
+  const shopDocId = (updated?.shop as { documentId?: string })?.documentId;
+  if (updated && shopDocId) {
+    const shopUser = await strapi.documents('plugin::users-permissions.user').findOne({
+      documentId: shopDocId,
+    });
+    if (shopUser) {
+      try {
+        await strapi.service('api::guest-spot-booking.guest-spot-booking').notifyShopOfNewBooking(
+          updated,
+          (updated.slot as { title?: string }) ?? {},
+          shopUser as { id?: number; email?: string; name?: string; username?: string },
+          {
+            selectedDate: updated.selectedDate ?? '',
+            selectedTime: updated.selectedTime ?? undefined,
+            comment: updated.comment ?? undefined,
+          }
+        );
+      } catch (err) {
+        strapi.log.error('Error notifying shop of guest spot deposit:', err);
+      }
+    }
+  }
 }
 
 export async function handleGuestSpotPaymentIntentSucceeded(_paymentIntent: Stripe.PaymentIntent) {

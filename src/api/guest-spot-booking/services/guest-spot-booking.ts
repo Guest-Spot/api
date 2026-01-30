@@ -76,23 +76,49 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
       data: payload as any,
       populate: ['slot', 'artist', 'shop'],
     });
+
+    if (depositAmount === 0) {
+      await strapi.service('api::guest-spot-booking.guest-spot-booking').notifyShopOfNewBooking(
+        booking as { documentId?: string; slot?: unknown; artist?: unknown; shop?: unknown; selectedDate?: string; selectedTime?: string | null; comment?: string | null },
+        slot as { title?: string },
+        shopUser as { id?: number; email?: string; name?: string; username?: string },
+        data
+      );
+    }
+
+    return booking;
+  },
+
+  /**
+   * Notify shop of new booking (event, in-app, email, push).
+   * Called when depositAmount === 0 on create, or when deposit is authorized (webhook).
+   */
+  async notifyShopOfNewBooking(
+    booking: { documentId?: string; slot?: unknown; artist?: unknown; shop?: unknown; selectedDate?: string; selectedTime?: string | null; comment?: string | null },
+    slot: { title?: string },
+    shopUser: { id?: number; email?: string; name?: string; username?: string },
+    data: { selectedDate: string; selectedTime?: string; comment?: string }
+  ): Promise<void> {
+    const shop = booking.shop as { documentId?: string } | null;
+    const artist = booking.artist as { documentId?: string } | null;
+    const shopDocId = shop?.documentId;
+    const artistDocId = artist?.documentId;
+    if (!shopDocId || !artistDocId) return;
+
     await strapi.service('api::guest-spot-event.guest-spot-event').createAndPublish({
       type: 'booking_created',
       title: 'Guest spot booking created',
       description: `New booking for ${data.selectedDate}${data.selectedTime ? ` at ${data.selectedTime}` : ''}`,
-      shop: shop.documentId,
-      artist: artistDocumentId,
-      slot: data.guestSpotSlotDocumentId,
+      shop: shopDocId,
+      artist: artistDocId,
+      slot: (booking.slot as { documentId?: string })?.documentId,
       booking: booking.documentId,
     });
 
-    // Notify shop: in-app, email (if email set), push (if user id and device tokens)
-    const shopUserWithId = shopUser as { id?: number; email?: string; name?: string; username?: string };
-    let shopUserId: number | null =
-      typeof shopUserWithId.id === 'number' ? shopUserWithId.id : null;
+    let shopUserId: number | null = typeof shopUser.id === 'number' ? shopUser.id : null;
     if (shopUserId === null) {
       const row = await strapi.db.query('plugin::users-permissions.user').findOne({
-        where: { documentId: shop.documentId },
+        where: { documentId: shopDocId },
         select: ['id'],
       });
       shopUserId = typeof row?.id === 'number' ? row.id : null;
@@ -102,7 +128,7 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
     let artistUserForEmail: { email?: string; description?: string; city?: string; link?: string } | null = null;
     try {
       const artistUser = await strapi.documents('plugin::users-permissions.user').findOne({
-        documentId: artistDocumentId,
+        documentId: artistDocId,
       });
       if (artistUser && typeof artistUser === 'object') {
         const a = artistUser as { name?: string; contactName?: string; username?: string; email?: string; description?: string; city?: string; link?: string };
@@ -115,8 +141,8 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
 
     try {
       await createNotification({
-        ownerDocumentId: artistDocumentId,
-        recipientDocumentId: shop.documentId,
+        ownerDocumentId: artistDocId,
+        recipientDocumentId: shopDocId,
         type: NotifyType.GUEST_SPOT_BOOKING_CREATED,
         body: booking,
       });
@@ -124,11 +150,11 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
       strapi.log.error('Error creating in-app notification for guest spot booking:', err);
     }
 
-    if (shopUserWithId.email?.trim()) {
+    if (shopUser.email?.trim()) {
       try {
         await sendGuestSpotBookingRequestEmail({
-          shopEmail: shopUserWithId.email.trim(),
-          shopName: shopUserWithId.name ?? shopUserWithId.username ?? null,
+          shopEmail: shopUser.email.trim(),
+          shopName: shopUser.name ?? shopUser.username ?? null,
           artistName,
           artistEmail: artistUserForEmail?.email ?? null,
           artistDescription: artistUserForEmail?.description ?? null,
@@ -136,9 +162,9 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
           artistLink: artistUserForEmail?.link ?? null,
           selectedDate: data.selectedDate,
           selectedTime: data.selectedTime ?? null,
-          slotTitle: (slot as { title?: string })?.title ?? null,
+          slotTitle: slot?.title ?? null,
           comment: data.comment ?? null,
-          bookingDocumentId: booking.documentId,
+          bookingDocumentId: booking.documentId ?? undefined,
         });
       } catch (err) {
         strapi.log.error('Error sending guest spot booking request email to shop:', err);
@@ -175,8 +201,6 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
         strapi.log.error('Error sending push notification for guest spot booking to shop:', err);
       }
     }
-
-    return booking;
   },
 
   /**
@@ -367,14 +391,17 @@ export default factories.createCoreService('api::guest-spot-booking.guest-spot-b
       populate: ['artist', 'shop'],
     });
     if (!b) throw new Error('NOT_FOUND');
-    if (b.status !== 'accepted') throw new Error('BUSINESS_LOGIC_ERROR: Booking must be accepted');
+    if (b.status !== 'accepted' && b.status !== 'pending') {
+      throw new Error('BUSINESS_LOGIC_ERROR: Booking must be accepted or pending');
+    }
     if (b.depositAuthorized) throw new Error('BUSINESS_LOGIC_ERROR: Deposit already authorized');
     const artistDocId = (b.artist as { documentId?: string })?.documentId;
     if (artistDocId !== userDocumentId) throw new Error('FORBIDDEN');
     const email = customerEmail || (b.artist as { email?: string })?.email;
+    const totalAmount = b.depositAmount + (b.platformCommissionAmount ?? 0);
     const { sessionId, sessionUrl, paymentIntentId } = await createGuestSpotDepositCheckoutSession({
       guestSpotBookingDocumentId: bookingDocumentId,
-      amount: b.depositAmount,
+      amount: totalAmount,
       currency: getDefaultCurrency(),
       customerEmail: email,
     });
