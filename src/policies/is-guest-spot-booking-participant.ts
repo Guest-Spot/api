@@ -1,5 +1,6 @@
 /**
- * Check if user is artist or shop of the guest spot booking
+ * Check if user is artist or shop of the guest spot booking.
+ * Shop may access only no-deposit (depositAmount === 0) or paid-deposit (depositAuthorized === true) bookings.
  */
 
 export default (policyContext, config, { strapi }) => {
@@ -29,7 +30,17 @@ export default (policyContext, config, { strapi }) => {
       const isArtist = (booking.artist as { documentId?: string })?.documentId === state?.user?.documentId;
       const isShop = (booking.shop as { documentId?: string })?.documentId === state?.user?.documentId;
 
-      resolve(isArtist || isShop);
+      if (isArtist) {
+        resolve(true);
+        return;
+      }
+      if (isShop) {
+        const depositAmount = (booking as { depositAmount?: number }).depositAmount ?? 0;
+        const depositAuthorized = (booking as { depositAuthorized?: boolean }).depositAuthorized ?? false;
+        resolve(depositAmount === 0 || depositAuthorized === true);
+        return;
+      }
+      resolve(false);
     } catch (error) {
       strapi.log.error('Guest spot booking participant policy error:', error);
       resolve(false);
